@@ -1,0 +1,2 @@
+*.jar filter=lfs diff=lfs merge=lfs -text
+sparksql-plus-web-jar-with-dependencies.jar filter=lfs diff=lfs merge=lfs -text

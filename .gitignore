@@ -1,0 +1,31 @@
+*.txt
+!query/*/*/jointree*.txt
+*.pyc
+__pycache__/*.pyc
+# *.csv
+.vscode/*
+.DS_Store
+rewrite_and_run.result
+
+querySum.sql
+# query/*/*/rewrite*.sql
+# query/job*/[1-9]*/rewrite*.sql
+query/extra*/*
+query/*/*/log_*
+
+query/extra*
+!query/extract_runtime.py
+graph_db*
+tpch_db*
+lsqb_db*
+
+# Project exclude paths
+/out/
+/target/
+/.idea/
+*/target/
+config.properties
+/Data*/*
+/log*/*
+temp*
+/venv/

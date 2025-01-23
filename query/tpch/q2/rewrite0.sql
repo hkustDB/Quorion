@@ -1,0 +1,13 @@
+create or replace view partAux76 as select p_partkey as v1, p_mfgr as v3 from part where p_size= 15 and p_type LIKE '%BRASS';
+create or replace view semiJoinView1441352121154821227 as select n_nationkey as v13, n_name as v23, n_regionkey as v24 from nation AS nation where (n_regionkey) in (select r_regionkey from region AS region where r_name= 'EUROPE');
+create or replace view partsuppAux87 as select ps_partkey as v1, ps_suppkey as v10, ps_supplycost as v20 from partsupp;
+create or replace view nationAux75 as select v13, v23 from semiJoinView1441352121154821227;
+create or replace view semiJoinView6219072806072610551 as select s_suppkey as v10, s_name as v11, s_address as v12, s_nationkey as v13, s_phone as v14, s_acctbal as v15, s_comment as v16 from supplier AS supplier where (s_nationkey) in (select v13 from nationAux75);
+create or replace view semiJoinView5977119480588115786 as select v1, v10, v20 from partsuppAux87 where (v1) in (select v1 from partAux76);
+create or replace view semiJoinView3598015410308257665 as select v1, v10, v20 from semiJoinView5977119480588115786 where (v20, v1) in (select v1_supplycost_min, v1_partkey from q2_inner AS q2_inner);
+create or replace view semiJoinView3158269774215377441 as select distinct v10, v11, v12, v13, v14, v15, v16 from semiJoinView6219072806072610551 where (v10) in (select v10 from semiJoinView3598015410308257665);
+create or replace view semiEnum2509224423085043049 as select distinct v15, v1, v10, v13, v14, v12, v20, v16, v11 from semiJoinView3158269774215377441 join semiJoinView3598015410308257665 using(v10);
+create or replace view semiEnum2430000792869782949 as select distinct v15, v1, v10, v13, v14, v12, v20, v16, v11 from semiEnum2509224423085043049, q2_inner as q2_inner where q2_inner.v1_supplycost_min=semiEnum2509224423085043049.v20 and q2_inner.v1_partkey=semiEnum2509224423085043049.v1;
+create or replace view semiEnum3230012782391383319 as select distinct v3, v15, v1, v10, v13, v14, v12, v20, v16, v11 from semiEnum2430000792869782949 join partAux76 using(v1);
+create or replace view semiEnum4791752614329361266 as select v3, v15, v1, v14, v12, v23, v16, v11 from semiEnum3230012782391383319 join nationAux75 using(v13);
+select distinct v15, v11, v23, v1, v3, v12, v14, v16 from semiEnum4791752614329361266;

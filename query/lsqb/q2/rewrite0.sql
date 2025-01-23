@@ -1,0 +1,2 @@
+create or replace view bag334 as select Comment.hasCreator_PersonId as v1, Post.Forum_containerOfId as v10, Post.isLocatedIn_CountryId as v11, Post.hasCreator_PersonId as v2, Comment.CommentId as v3, Comment.isLocatedIn_CountryId as v5, Post.PostId as v6, Comment.replyOf_CommentId as v7 from Post as Post, Comment as Comment, Person_knows_Person as Person_knows_Person where Post.PostId=Comment.replyOf_PostId and Comment.hasCreator_PersonId=Person_knows_Person.Person1Id and Person_knows_Person.Person2Id=Post.hasCreator_PersonId;
+select COUNT(*) from bag334;
