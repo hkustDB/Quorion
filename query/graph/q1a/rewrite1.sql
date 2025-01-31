@@ -1,7 +1,7 @@
-create or replace TEMP view aggView2576394691380028439 as select src as v6, COUNT(*) as annot from Graph as g4 group by src;
-create or replace TEMP view aggJoin129063209372186716 as select src as v4, annot from Graph as g3, aggView2576394691380028439 where g3.dst=aggView2576394691380028439.v6;
-create or replace TEMP view aggView8852481172596273284 as select v4, SUM(annot) as annot from aggJoin129063209372186716 group by v4;
-create or replace TEMP view aggJoin3659664683207232821 as select src as v2, annot from Graph as g2, aggView8852481172596273284 where g2.dst=aggView8852481172596273284.v4;
-create or replace TEMP view aggView7483306253374091945 as select v2, SUM(annot) as annot from aggJoin3659664683207232821 group by v2;
-create or replace TEMP view aggJoin4212872721825612773 as select annot from Graph as g1, aggView7483306253374091945 where g1.dst=aggView7483306253374091945.v2;
-select SUM(annot) as v9 from aggJoin4212872721825612773;
+create or replace TEMP view aggView9024957768226840889 as select src as v6, COUNT(*) as annot from Graph as g4 group by src;
+create or replace TEMP view aggJoin5945530511992686148 as select src as v4, annot from Graph as g3, aggView9024957768226840889 where g3.dst=aggView9024957768226840889.v6;
+create or replace TEMP view aggView1879936600432465345 as select v4, SUM(annot) as annot from aggJoin5945530511992686148 group by v4;
+create or replace TEMP view aggJoin6768858176087856783 as select src as v2, annot from Graph as g2, aggView1879936600432465345 where g2.dst=aggView1879936600432465345.v4;
+create or replace TEMP view aggView465775793804848112 as select v2, SUM(annot) as annot from aggJoin6768858176087856783 group by v2;
+create or replace TEMP view aggJoin4661900044035720336 as select annot from Graph as g1, aggView465775793804848112 where g1.dst=aggView465775793804848112.v2;
+select SUM(annot) as v9 from aggJoin4661900044035720336;

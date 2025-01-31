@@ -458,7 +458,7 @@ def pass2Java():
         
         node_stat = []
         for id, node in jt.node.items():
-            node_stat.append([node.id, node.alias, node.trueSize, node.estimateSize])
+            node_stat.append([node.id, node.alias, node.trueSize, round(node.estimateSize, 2)])
         temp_res = {"index": index, "queries": queries, "cost": cost_estimate, "node_stat": node_stat}
         response_data["data"].append(temp_res)
     

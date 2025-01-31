@@ -2,7 +2,7 @@
 
 
 ### Requirements
-- Java JDK or JRE(Java Runtime Environment). This program use one `jar` file to parse the query and generate the related information.
+- Java JDK or JRE(Java Runtime Environment). 
 - Python version >= 3.9
 - Python package requirements: docopt, requests, flask, openpyxl
 
@@ -11,12 +11,9 @@
 ```
 $ python main.py
 ```
-2. Execute the pre-packaged JAR file for the Java backend parser component.
-```
-java -jar sparksql-plus-web-jar-with-dependencies.jar
-```
-3. Open the webpage at `http://localhost:8848`.
-4. Begin submitting queries for execution on the webpage.
+1. Execute the Java backend parser component, following repo `https://github.com/ChampionNan/SparkSQLPlus/tree/demo`
+2. Open the webpage at `http://localhost:8848`.
+3. Begin submitting queries for execution on the webpage.
 
 ### Structure
 - Web-based Interface
