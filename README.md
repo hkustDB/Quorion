@@ -11,9 +11,9 @@
 ```
 $ python main.py
 ```
-1. Execute the Java backend parser component, following repo `https://github.com/ChampionNan/SparkSQLPlus/tree/demo`
-2. Open the webpage at `http://localhost:8848`.
-3. Begin submitting queries for execution on the webpage.
+2. Execute the Java backend parser component, following repo `https://github.com/ChampionNan/SparkSQLPlus/tree/demo`
+3. Open the webpage at `http://localhost:8848`.
+4. Begin submitting queries for execution on the webpage.
 
 ### Structure
 - Web-based Interface
