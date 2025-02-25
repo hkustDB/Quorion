@@ -544,8 +544,7 @@ def pass2Java():
 
 
 # Method1: Web-UI
-if __name__ == '__main__':
-    
+def web_ui():
     base, mode, type = 2, 0, GenType.PG
     ddl_contend, query_contend = "CREATE table T(a integer, b integer);", "SELECT * FROM T"
     globalVar._init()
@@ -564,7 +563,7 @@ if __name__ == '__main__':
     globalVar.set_value('DDL_NAME', "graph.ddl")
     globalVar.set_value('REWRITE_TIME', 'rewrite_time.txt')
     # auto-rewrite keep here
-    '''
+    
     arguments = docopt(__doc__)
     globalVar.set_value('BASE_PATH', arguments['<query>'] + '/')
     globalVar.set_value('DDL_NAME', arguments['<ddl>'] + '.ddl')
@@ -589,7 +588,7 @@ if __name__ == '__main__':
         globalVar.set_value('GEN_TYPE', 'PG')
     else:
         globalVar.set_value('GEN_TYPE', 'DuckDB')
-    '''
+    
     BASE_PATH = globalVar.get_value('BASE_PATH')
     OUT_NAME = globalVar.get_value('OUT_NAME')
     OUT_YA_NAME = globalVar.get_value('OUT_YA_NAME')
@@ -599,9 +598,9 @@ if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000)
 
 
-"""
+
 # Method2: Command Line
-if __name__ == '__main__':
+def command_line():
     base, mode, type = 2, 0, GenType.PG
     globalVar._init()
     globalVar.set_value('QUERY_NAME', 'query.sql')
@@ -773,4 +772,10 @@ if __name__ == '__main__':
         print("Total time(s): " + str(end2-start) + "\n")
         print("Total plans: " + str(len(allRes)))
         f.write("Rewrite time(s): " + str(end2-end) + '\n')
-"""
+
+if __name__ == '__main__':
+    EXEC_MODE = 0
+    if EXEC_MODE == 0:
+        web_ui()
+    else:
+        command_line()

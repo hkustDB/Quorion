@@ -8,7 +8,7 @@
 
 ### Steps
 0. Preprocessing[option]. For generating new statistics (`cost.csv`), we offer the DuckDB version scripts `preprocess.sh` and `gen_cost.sh`. Modify the configurations in them, and execute the following command. For web-ui, please move the generated statistics files to folder `graph/q1a/`, `tpch/q2/`, `lsqb/q1/`, and `job/1a/` respectively; for command-line operations, please move them to the specific corresponding query folders.
-1. We provide two execution modes. The default mode is web-ui execution. If you need to switch, please modify the corresponding parts in `main.py` labeled `# Method1: Web-UI` and `# Method2: Command Line`.
+1. We provide two execution modes. The default mode is web-ui execution. If you need to switch, please modify the corresponding value `EXEC_MODE` at Line 777 in `main.py`.
 
 #### Web-UI
 2. Execute main.py to launch the Python backend rewriter component.
@@ -38,7 +38,7 @@ e.g ./auto_rewrite.sh lsqb lsqb M N
 ```
 $ ./auto_run_XXX.sh [OPTIONS]
 ```
-1. If you want to run a single query, please select the code block labeled `# NOTE: code debug keep here` (Line 618 - Line 620 in `main.py`), and comment the code block labeled `# NOTE: auto-rewrite keep here` (the code between the two blank lines, Line 622 - Line 642 in `main.py`).
+7. If you want to run a single query, please select the code block labeled `# NOTE: code debug keep here` (Line 618 - Line 620 in `main.py`), and comment the code block labeled `# NOTE: auto-rewrite keep here` (the code between the two blank lines, Line 622 - Line 642 in `main.py`).
 
 ### Structure
 #### Overview
