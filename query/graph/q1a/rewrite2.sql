@@ -1,7 +1,7 @@
-create or replace TEMP view aggView9082596949540442482 as select dst as v2, COUNT(*) as annot from Graph as g1 group by dst;
-create or replace TEMP view aggJoin6931003692779752994 as select dst as v4, annot from Graph as g2, aggView9082596949540442482 where g2.src=aggView9082596949540442482.v2;
-create or replace TEMP view aggView6504696165820117860 as select v4, SUM(annot) as annot from aggJoin6931003692779752994 group by v4;
-create or replace TEMP view aggJoin1513566499196528627 as select dst as v6, annot from Graph as g3, aggView6504696165820117860 where g3.src=aggView6504696165820117860.v4;
-create or replace TEMP view aggView6926783756589803232 as select src as v6, COUNT(*) as annot from Graph as g4 group by src;
-create or replace TEMP view aggJoin6143230716167542356 as select aggJoin1513566499196528627.annot * aggView6926783756589803232.annot as annot from aggJoin1513566499196528627 join aggView6926783756589803232 using(v6);
-select SUM(annot) as v9 from aggJoin6143230716167542356;
+create or replace TEMP view g1 as select Graph.src as v7, Graph.dst as v2, v8 from Graph, (SELECT src, COUNT(*) AS v8 FROM Graph GROUP BY src) AS c1 where Graph.src = c1.src and v8<2;
+create or replace TEMP view semiJoinView2416939999236253711 as select src as v2, dst as v4 from Graph AS g2 where (src) in (select (v2) from g1);
+create or replace TEMP view g3 as select Graph.src as v4, Graph.dst as v6, v10 from Graph, (SELECT src, COUNT(*) AS v10 FROM Graph GROUP BY src) AS c2 where Graph.dst = c2.src;
+create or replace TEMP view semiJoinView8566711930946408482 as select v2, v4 from semiJoinView2416939999236253711 where (v4) in (select (v4) from g3);
+create or replace TEMP view semiEnum8450268277554207602 as select v6, v10, v2, v4 from semiJoinView8566711930946408482 join g3 using(v4);
+create or replace TEMP view semiEnum109167625753376187 as select v6, v10, v7, v2, v8, v4 from semiEnum8450268277554207602 join g1 using(v2);
+select v7, v2, v4, v6, v8, v10 from semiEnum109167625753376187;
