@@ -9,7 +9,7 @@
 - Python package requirements: docopt, requests, flask, openpyxl
 
 ### Steps
-0. Preprocessing[option]. For generating new statistics (`cost.csv`), we offer the DuckDB version scripts `preprocess.sh` and `gen_cost.sh`. Modify the configurations in them, and execute the following command. For web-ui, please move the generated statistics files to folder `graph/q1a/`, `tpch/q2/`, `lsqb/q1/`, `job/1a/`, and `custom/q1/` respectively; for command-line operations, please move them to the specific corresponding query folders.
+0. Preprocessing[option]. For generating new statistics (`cost.csv`), we offer the DuckDB version scripts `query/preprocess.sh` and `query/gen_cost.sh`. Modify the configurations in them, and execute the following command. For web-ui, please move the generated statistics files to folder `graph/q1a/`, `tpch/q2/`, `lsqb/q1/`, `job/1a/`, and `custom/q1/` respectively; for command-line operations, please move them to the specific corresponding query folders.
 1. We provide two execution modes. The default mode is web-ui execution. If you need to switch, please modify the corresponding value `EXEC_MODE` at Line `755` in `main.py`.
 
 #### Web-UI
@@ -25,7 +25,7 @@ $ git submodule update [--remote]
 $ git submodule update --init --recursive
 ```
 4. Open the webpage at `http://localhost:8848`.
-5. . Begin submitting queries for execution on the webpage.
+5. Begin submitting queries for execution on the webpage.
 
 #### Command Line
 2. Modify python path (`PYTHON_ENV`) in `auto_rewrite.sh`.
@@ -41,7 +41,7 @@ $ Parser started.
 $ ./auto_rewrite.sh ${DDL_NAME} ${QUERY_DIR} [OPTIONS]
 e.g ./auto_rewrite.sh lsqb lsqb M N
 ```
-5. Modify configurations in `load_XXX.sql` (load table schemas) and `auto_run_XXX.sh` (auto-run script for different DBMSs). 
+5. Modify configurations in `query/load_XXX.sql` (load table schemas) and `query/auto_run_XXX.sh` (auto-run script for different DBMSs). 
 6. Execute the following command to execute the queries in different DBMSs.
 ```
 $ ./auto_run_XXX.sh [OPTIONS]
