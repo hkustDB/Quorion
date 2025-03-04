@@ -1,0 +1,3 @@
+[submodule "SparkSQLPlus"]
+	path = SparkSQLPlus
+	url = git@github.com:ChampionNan/SparkSQLPlus.git

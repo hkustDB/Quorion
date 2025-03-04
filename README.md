@@ -2,7 +2,9 @@
 
 
 ### Requirements
-- Java JDK or JRE(Java Runtime Environment). 
+- Java JDK 1.8
+- Scala 2.12.10
+- Maven 3.8.6
 - Python version >= 3.9
 - Python package requirements: docopt, requests, flask, openpyxl
 
@@ -15,9 +17,12 @@
 ```
 $ python main.py
 ```
-3. Execute the Java backend parser component, following repo `https://github.com/ChampionNan/SparkSQLPlus/tree/demo`
+3. Execute the Java backend parser component, which is included as a submodule at `SparkSQLPlus/*`. Please use the following command to update it. 
+```
+git submodule update --remote
+```
 4. Open the webpage at `http://localhost:8848`.
-5. Begin submitting queries for execution on the webpage.
+5. . Begin submitting queries for execution on the webpage.
 
 #### Command Line
 2. Modify path for `python` in `auto_rewrite.sh`.
