@@ -17,9 +17,12 @@
 ```
 $ python main.py
 ```
-3. Execute the Java backend parser component, which is included as a submodule at `SparkSQLPlus/*`. Please use the following command to update it. 
+3. Execute the Java backend parser component, which is included as a submodule at `SparkSQLPlus/*`. Please use the following command to init and update it. 
 ```
-git submodule update --remote
+git submodule init
+git submodule update [--remote]
+    or
+git submodule update --init --recursive
 ```
 4. Open the webpage at `http://localhost:8848`.
 5. . Begin submitting queries for execution on the webpage.
