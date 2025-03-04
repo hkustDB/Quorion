@@ -279,6 +279,17 @@ def connect(base: int, mode: int, type: GenType, response, responseType: int = 1
         response = connectJava()
     # 1. 
     table2vars = dict([(t['name'], t['columns']) for t in response['tables']])
+    ddl = response['ddl']
+    query = response['query']
+    if globalVar.get_value('DDL_NAME') == "custom.ddl":
+        BASE_PATH = globalVar.get_value('BASE_PATH')
+        query_file_path = os.path.join(BASE_PATH, 'query.sql')
+        with open(query_file_path, 'w') as query_file:
+            query_file.write(query)
+        ddl_file_path = os.path.join(BASE_PATH, 'custom.ddl')
+        with open(ddl_file_path, 'w') as ddl_file:
+            ddl_file.write(ddl)
+
     # 3. parse outputVariables
     outputVariables = response['outputVariables']
     groupBy = response['groupByVariables']
@@ -464,12 +475,13 @@ def pass2Java():
         elif ddl_name == 'job':
             globalVar.set_value('BASE_PATH', 'query/job/1a/')
             globalVar.set_value('DDL_NAME', "job.ddl")
+        elif ddl_name == 'custom':
+            globalVar.set_value('BASE_PATH', 'query/custom/q1/')
+            globalVar.set_value('DDL_NAME', "custom.ddl")
 
     BASE_PATH = globalVar.get_value('BASE_PATH')
     OUT_NAME = globalVar.get_value('OUT_NAME')
     OUT_YA_NAME = globalVar.get_value('OUT_YA_NAME')
-    COST_NAME = globalVar.get_value('COST_NAME')
-    REWRITE_TIME = globalVar.get_value('REWRITE_TIME')
         
     optJT, optCOMP, allRes, outputVariables, Agg, topK, computationList, table2vars = connect(base=2, mode=0, type=GenType.PG, response=response, responseType=responseType)
 

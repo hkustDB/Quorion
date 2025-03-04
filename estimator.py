@@ -96,11 +96,28 @@ def input_car_ndv(DDL_NAME: str):
                         col_sta.append([cardinality, ndv])
                 sta_se[name] = col_sta
             return sta_se
+        
+        elif DDL_NAME == 'custom':
+            data_custom = pd.read_excel(BASE_PATH + 'custom.xlsx', header=None, keep_default_na=False)
+            custom = data_custom.values.tolist()
+            sta_custom = dict()
+            for table in custom:
+                name = table[0]
+                col_sta = []
+                for col in table[1:]:
+                    if col != '':
+                        if col.split(';')[1] == '':
+                            cardinality, ndv = int(col.split(';')[0]), int(col.split(';')[0])
+                        else:
+                            cardinality, ndv = int(col.split(';')[0]), int(col.split(';')[1])
+                        col_sta.append([cardinality, ndv])
+                sta_custom[name] = col_sta
+            return sta_custom
 
 
     except:
         traceback.print_exc()
-        return None, None, None
+        return None
 
 def cal_cost(statistics: dict[str, list[list[int, int]]], jt: JoinTree):
     cost_height = jt.root.depth
@@ -277,7 +294,7 @@ def cal_cost(statistics: dict[str, list[list[int, int]]], jt: JoinTree):
 
 def getEstimation(DDL_NAME: str, jt: JoinTree):
     sta = input_car_ndv(DDL_NAME)
-    if DDL_NAME == 'tpch' or DDL_NAME == 'lsqb' or DDL_NAME == 'job' or DDL_NAME == 'graph' or DDL_NAME == 'se':
+    if DDL_NAME == 'tpch' or DDL_NAME == 'lsqb' or DDL_NAME == 'job' or DDL_NAME == 'graph' or DDL_NAME == 'se' or DDL_NAME == 'custom':
         return cal_cost(sta, jt)
     else:
         return cal_cost(None, jt)
