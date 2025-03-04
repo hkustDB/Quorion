@@ -5,6 +5,8 @@ python="/usr/bin/python3"
 SCRIPT=$(readlink -f $0)
 SCRIPT_PATH=$(dirname "${SCRIPT}")
 
+PYTHON_ENV="venv/bin/python"
+
 INPUT_DIR="query/$2"
 INPUT_DIR_PATH="${SCRIPT_PATH}/${INPUT_DIR}"
 DDL_NAME=$1
@@ -45,7 +47,7 @@ do
             ret=$?
             if [ $ret -eq 0 ] && [ ${filename} = "query" ]
             then
-                $python main.py "${CUR_PATH}" "${DDL_NAME}" -b "$b" -m "$m" -g "$g" -y "$y" | grep "Rewrite time(s)" >> ${LOG_FILE}
+                $PYTHON_ENV main.py "${CUR_PATH}" "${DDL_NAME}" -b "$b" -m "$m" -g "$g" -y "$y" | grep "Rewrite time(s)" >> ${LOG_FILE}
             fi
         done
     fi

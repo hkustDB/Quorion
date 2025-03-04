@@ -9,8 +9,8 @@
 - Python package requirements: docopt, requests, flask, openpyxl
 
 ### Steps
-0. Preprocessing[option]. For generating new statistics (`cost.csv`), we offer the DuckDB version scripts `preprocess.sh` and `gen_cost.sh`. Modify the configurations in them, and execute the following command. For web-ui, please move the generated statistics files to folder `graph/q1a/`, `tpch/q2/`, `lsqb/q1/`, and `job/1a/` respectively; for command-line operations, please move them to the specific corresponding query folders.
-1. We provide two execution modes. The default mode is web-ui execution. If you need to switch, please modify the corresponding value `EXEC_MODE` at Line 777 in `main.py`.
+1. Preprocessing[option]. For generating new statistics (`cost.csv`), we offer the DuckDB version scripts `preprocess.sh` and `gen_cost.sh`. Modify the configurations in them, and execute the following command. For web-ui, please move the generated statistics files to folder `graph/q1a/`, `tpch/q2/`, `lsqb/q1/`, `job/1a/`, and `custom/q1/` respectively; for command-line operations, please move them to the specific corresponding query folders.
+2. We provide two execution modes. The default mode is web-ui execution. If you need to switch, please modify the corresponding value `EXEC_MODE` at Line `755` in `main.py`.
 
 #### Web-UI
 2. Execute main.py to launch the Python backend rewriter component.
@@ -28,7 +28,7 @@ $ git submodule update --init --recursive
 5. . Begin submitting queries for execution on the webpage.
 
 #### Command Line
-2. Modify path for `python` in `auto_rewrite.sh`.
+2. Modify python path (`PYTHON_ENV`) in `auto_rewrite.sh`.
 3. Execute the following command to get the rewrite querys. The rewrite time is shown in `rewrite_time.txt`
 4. OPTIONS
 - Mode: Set generate code mode D(DuckDB)/M(MySql) [default: D]
@@ -46,7 +46,7 @@ e.g ./auto_rewrite.sh lsqb lsqb M N
 ```
 $ ./auto_run_XXX.sh [OPTIONS]
 ```
-7. If you want to run a single query, please select the code block labeled `# NOTE: code debug keep here` (Line 618 - Line 620 in `main.py`), and comment the code block labeled `# NOTE: auto-rewrite keep here` (the code between the two blank lines, Line 622 - Line 642 in `main.py`).
+7. If you want to run a single query, please change the code commented `# NOTE: single query keeps here` in function `init_global_vars` (Line `575` - Line `577` in `main.py`), and comment the code block labeled `# NOTE: auto-rewrite keeps here` (the code between the two blank lines, Line `598` - Line `617` in `main.py`).
 
 ### Structure
 #### Overview

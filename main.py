@@ -1,4 +1,16 @@
-from docopt import docopt
+"""
+Usage:
+  main.py <query> <ddl> [options]
+  
+Options:
+  -h --help     Show help.
+  <query>       Set execute query path, like topk1/
+  <ddl>         Set ddl filename
+  -b, --base base   Set level-k log base [default: 32]
+  -m, --mode mode   Set topK algorithm mode. 0: level-k, 1: product-k [default: 0]
+  -g, --genType type    Set generate code mode D(DuckDB)/M(MySql) [default: D]
+  -y, --yanna yanna     Set Y for yannakakis generation; N for our rewrite [default: N]
+"""
 from treenode import *
 from comparison import Comparison
 from jointree import Edge, JoinTree
@@ -452,6 +464,12 @@ def pass2Java():
         elif ddl_name == 'job':
             globalVar.set_value('BASE_PATH', 'query/job/1a/')
             globalVar.set_value('DDL_NAME', "job.ddl")
+
+    BASE_PATH = globalVar.get_value('BASE_PATH')
+    OUT_NAME = globalVar.get_value('OUT_NAME')
+    OUT_YA_NAME = globalVar.get_value('OUT_YA_NAME')
+    COST_NAME = globalVar.get_value('COST_NAME')
+    REWRITE_TIME = globalVar.get_value('REWRITE_TIME')
         
     optJT, optCOMP, allRes, outputVariables, Agg, topK, computationList, table2vars = connect(base=2, mode=0, type=GenType.PG, response=response, responseType=responseType)
 
@@ -543,82 +561,41 @@ def pass2Java():
     return jsonify(response_data)
 
 
-# Method1: Web-UI
-def web_ui():
-    base, mode, type = 2, 0, GenType.PG
-    ddl_contend, query_contend = "CREATE table T(a integer, b integer);", "SELECT * FROM T"
+def init_global_vars(base=2, mode=0, gen_type="DuckDB", yanna=False):
     globalVar._init()
     globalVar.set_value('QUERY_NAME', 'query.sql')
     globalVar.set_value('OUT_NAME', 'rewrite.sql')
     globalVar.set_value('OUT_YA_NAME', 'rewriteYa.sql')
     globalVar.set_value('COST_NAME', 'cost.csv')
-    globalVar.set_value('GEN_TYPE', 'DuckDB')
-    globalVar.set_value('YANNA', False)
-    if globalVar.get_value("GEN_TYPE") != 'PG':
+    globalVar.set_value('GEN_TYPE', gen_type)
+    globalVar.set_value('YANNA', yanna)
+    globalVar.set_value('BASE', base)
+    globalVar.set_value('MODE', mode)
+
+    # NOTE: single query keeps here
+    globalVar.set_value('BASE_PATH', 'query/graph/q1a/')
+    globalVar.set_value('DDL_NAME', "graph.ddl")
+
+    if gen_type != 'PG':
         globalVar.set_value('PLAN_NAME', 'plan.json')
     else:
         globalVar.set_value('PLAN_NAME', 'plan_pg.json')
-    # code debug keep here
-    globalVar.set_value('BASE_PATH', 'query/graph/q1a/')
-    globalVar.set_value('DDL_NAME', "graph.ddl")
+    # 固定路径
     globalVar.set_value('REWRITE_TIME', 'rewrite_time.txt')
-    # auto-rewrite keep here
-    
-    arguments = docopt(__doc__)
-    globalVar.set_value('BASE_PATH', arguments['<query>'] + '/')
-    globalVar.set_value('DDL_NAME', arguments['<ddl>'] + '.ddl')
-    base = int(arguments['--base'])
-    mode=int(arguments['--mode'])
-    yanna=True if arguments['--yanna'] == 'Y' else False
-    globalVar.set_value('YANNA', yanna)
-    ddl_contend = arguments['--ddl_contend']
-    query_contend = arguments['--query_contend']
-    globalVar.set_value('DDL_CONTEND', ddl_contend)
-    globalVar.set_value('QUERY_CONTEND', query_contend)
-    
-    if arguments['--genType'] == 'M':
-        type=GenType.Mysql
-    elif arguments['--genType'] == 'D':
-        type=GenType.DuckDB
-    else:
-        type=GenType.PG
-    if type == GenType.Mysql:
-        globalVar.set_value('GEN_TYPE', 'Mysql')
-    elif type == GenType.PG:
-        globalVar.set_value('GEN_TYPE', 'PG')
-    else:
-        globalVar.set_value('GEN_TYPE', 'DuckDB')
-    
-    BASE_PATH = globalVar.get_value('BASE_PATH')
-    OUT_NAME = globalVar.get_value('OUT_NAME')
-    OUT_YA_NAME = globalVar.get_value('OUT_YA_NAME')
-    COST_NAME = globalVar.get_value('COST_NAME')
-    REWRITE_TIME = globalVar.get_value('REWRITE_TIME')
-    
+
+# Method1: Web-UI 
+def web_ui():
+    print("Running in Web-UI mode...")
+    init_global_vars(base=2, mode=0, gen_type="DuckDB", yanna=False)
+    # 启动 Web-UI
     app.run(host='0.0.0.0', port=8000)
 
-
-
-# Method2: Command Line
+# Method2: command-line
 def command_line():
-    base, mode, type = 2, 0, GenType.PG
-    globalVar._init()
-    globalVar.set_value('QUERY_NAME', 'query.sql')
-    globalVar.set_value('OUT_NAME', 'rewrite.sql')
-    globalVar.set_value('OUT_YA_NAME', 'rewriteYa.sql')
-    globalVar.set_value('COST_NAME', 'cost.csv')
-    globalVar.set_value('GEN_TYPE', 'DuckDB')
-    globalVar.set_value('YANNA', False)
-    if globalVar.get_value("GEN_TYPE") != 'PG':
-        globalVar.set_value('PLAN_NAME', 'plan.json')
-    else:
-        globalVar.set_value('PLAN_NAME', 'plan_pg.json')
-    # NOTE: code debug keep here
-    globalVar.set_value('BASE_PATH', 'query/graph/q1a/')
-    globalVar.set_value('DDL_NAME', "graph.ddl")
-    globalVar.set_value('REWRITE_TIME', 'rewrite_time.txt')
-    # NOTE: auto-rewrite keep here
+    from docopt import docopt  
+    init_global_vars(base=2, mode=0, gen_type="DuckDB", yanna=False)
     
+    # NOTE: auto-rewrite keeps here
     arguments = docopt(__doc__)
     globalVar.set_value('BASE_PATH', arguments['<query>'] + '/')
     globalVar.set_value('DDL_NAME', arguments['<ddl>'] + '.ddl')
@@ -644,6 +621,7 @@ def command_line():
     OUT_YA_NAME = globalVar.get_value('OUT_YA_NAME')
     COST_NAME = globalVar.get_value('COST_NAME')
     REWRITE_TIME = globalVar.get_value('REWRITE_TIME')
+
     response = None
     start = time.time()
     optJT, optCOMP, allRes, outputVariables, Agg, topK, computationList, table2vars = connect(base=base, mode=mode, type=type, response=response, responseType=0)
