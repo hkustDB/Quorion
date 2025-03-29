@@ -1,4 +1,4 @@
-# Quorion: Robust Query Optimizer with Theoretical Guarantees
+# Query running too slow? Rewrite it with Quorion!
 
 
 ### Requirements
