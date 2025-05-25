@@ -17,15 +17,15 @@
 ```
 $ python main.py
 ```
-3. Execute the Java backend parser component, which is included as a submodule at `SparkSQLPlus/*`. Please use the following command to init and update it. 
+1. Execute the Java backend parser component through command `java -jar sparksql-plus-web-jar-with-dependencies.jar` build from `SparkSQLPlus`, which is included as a submodule at `SparkSQLPlus/*`. Please use the following command to init and update it. 
 ```
 $ git submodule init
 $ git submodule update [--remote]
     or
 $ git submodule update --init --recursive
 ```
-4. Open the webpage at `http://localhost:8848`.
-5. Begin submitting queries for execution on the webpage.
+1. Open the webpage at `http://localhost:8848`.
+2. Begin submitting queries for execution on the webpage.
 
 #### Command Line
 2. Modify python path (`PYTHON_ENV`) in `auto_rewrite.sh`.
