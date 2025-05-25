@@ -11,6 +11,7 @@ Options:
   -g, --genType type    Set generate code mode D(DuckDB)/M(MySql) [default: D]
   -y, --yanna yanna     Set Y for yannakakis generation; N for our rewrite [default: N]
 """
+from email.mime import base
 from treenode import *
 from comparison import Comparison
 from jointree import Edge, JoinTree
@@ -317,7 +318,7 @@ def connect(base: int, mode: int, type: GenType, response, responseType: int = 1
             if responseType == 1:
                 parseRel1(node, allNodes, supId)
             else:
-                parseRel(node, allNodes, supId)
+                parseRel1(node, allNodes, supId)
         # b. parse edge
         allNodes = parse_col2var(allNodes, table2vars)
         extraConds = ExtraCondList(extraConditions)
@@ -585,7 +586,7 @@ def init_global_vars(base=2, mode=0, gen_type="DuckDB", yanna=False):
     globalVar.set_value('MODE', mode)
 
     # NOTE: single query keeps here
-    globalVar.set_value('BASE_PATH', 'query/graph/q1/')
+    globalVar.set_value('BASE_PATH', 'query/graph/q0/')
     globalVar.set_value('DDL_NAME', "graph.ddl")
 
     if gen_type != 'PG':
@@ -606,6 +607,8 @@ def web_ui():
 def command_line():
     from docopt import docopt  
     init_global_vars(base=2, mode=0, gen_type="DuckDB", yanna=False)
+    base = globalVar.get_value('BASE')
+    mode = globalVar.get_value('MODE')
     
     # NOTE: auto-rewrite keeps here
     arguments = docopt(__doc__)
@@ -633,7 +636,6 @@ def command_line():
     OUT_YA_NAME = globalVar.get_value('OUT_YA_NAME')
     COST_NAME = globalVar.get_value('COST_NAME')
     REWRITE_TIME = globalVar.get_value('REWRITE_TIME')
-
     response = None
     start = time.time()
     optJT, optCOMP, allRes, outputVariables, Agg, topK, computationList, table2vars = connect(base=base, mode=mode, type=type, response=response, responseType=0)

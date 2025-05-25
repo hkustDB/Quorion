@@ -506,7 +506,7 @@ def buildAggReducePhase(reduceRel: Edge, JT: JoinTree, Agg: Aggregation, outputV
     
     ## d. append annot
     # NOTE: Extra optimization for job benchmark
-    if globalVar.get_value('DDL_NAME') != 'job.ddl':
+    if globalVar.get_value('DDL_NAME') != 'job.ddl' and globalVar.get_value('JOB_MINMAX_OPT') == False:
         if childFlag and not pkFlag:
             if not len(selectAttr):
                 selectAttr = [''] * len(selectAttrAlias)
@@ -568,7 +568,7 @@ def buildAggReducePhase(reduceRel: Edge, JT: JoinTree, Agg: Aggregation, outputV
     if 'caseRes' in selectAttrAlias and 'caseRes' not in groupBy:
         groupBy.append('caseRes')
 
-    if pkFlag or (parentNode.relationType == RelationType.AuxiliaryRelation and parentNode.supRelationId == childNode.id and globalVar.get_value('DDL_NAME') == 'job.ddl'):
+    if pkFlag or (parentNode.relationType == RelationType.AuxiliaryRelation and parentNode.supRelationId == childNode.id and globalVar.get_value('DDL_NAME') == 'job.ddl' and globalVar.get_value('JOB_MINMAX_OPT') == True):
         groupBy = []
 
     
@@ -642,7 +642,7 @@ def buildAggReducePhase(reduceRel: Edge, JT: JoinTree, Agg: Aggregation, outputV
                     if agg not in selectAttrAlias: 
                         selectAttr.append('')
                         selectAttrAlias.append(agg)
-                if globalVar.get_value('DDL_NAME') != 'job.ddl':
+                if globalVar.get_value('DDL_NAME') != 'job.ddl' and globalVar.get_value('JOB_MINMAX_OPT') == False:
                     selectAttr.append('')
                     selectAttrAlias.append('annot')
         elif 'annot' in selectAttrAlias and pkFlag:
@@ -671,7 +671,7 @@ def buildAggReducePhase(reduceRel: Edge, JT: JoinTree, Agg: Aggregation, outputV
         for agg in aggPass2Join:
             if agg not in selectAttrAlias: selectAttrAlias.append(agg)
         if not pkFlag: 
-            if globalVar.get_value('DDL_NAME') != 'job.ddl':
+            if globalVar.get_value('DDL_NAME') != 'job.ddl' and globalVar.get_value('JOB_MINMAX_OPT') == False:
                 selectAttrAlias.append('annot')
     else:
         selectAttr = parentNode.col2vars[1].copy()
@@ -681,7 +681,7 @@ def buildAggReducePhase(reduceRel: Edge, JT: JoinTree, Agg: Aggregation, outputV
                 selectAttr.append('')
                 selectAttrAlias.append(agg)
         if not pkFlag:
-            if globalVar.get_value('DDL_NAME') != 'job.ddl':
+            if globalVar.get_value('DDL_NAME') != 'job.ddl' and globalVar.get_value('JOB_MINMAX_OPT') == False:
                 selectAttr.append('')
                 selectAttrAlias.append('annot')
         for comp in parentExtract:

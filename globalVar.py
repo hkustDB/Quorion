@@ -9,4 +9,5 @@ def get_value(key):
     try:
         return _global_dict[key]
     except:
-        print('Error')
+        pass
+        # print('Error')
