@@ -9,23 +9,24 @@
 - Python package requirements: docopt, requests, flask, openpyxl
 
 ### Steps
-0. Preprocessing[option]. For generating new statistics (`cost.csv`), we offer the DuckDB version scripts `query/preprocess.sh` and `query/gen_cost.sh`. Modify the configurations in them, and execute the following command. For web-ui, please move the generated statistics files to folder `graph/q1a/`, `tpch/q2/`, `lsqb/q1/`, `job/1a/`, and `custom/q1/` respectively; for command-line operations, please move them to the specific corresponding query folders.
-1. We provide two execution modes. The default mode is web-ui execution. If you need to switch, please modify the corresponding value `EXEC_MODE` at Line `755` in `main.py`.
+0. Preprocessing[option]. For generating new statistics (`cost.csv`), we offer the DuckDB version scripts `query/preprocess.sh` and `query/gen_cost.sh`. Modify the configurations in them, and execute the following command. For web-ui, please move the generated statistics files to folder `graph/q1/`, `tpch/q2/`, `lsqb/q1/`, `job/1a/`, and `custom/q1/` respectively; for command-line operations, please move them to the specific corresponding query folders.
+1. We provide two execution modes. The default mode is web-ui execution. If you need to switch, please modify the corresponding value `EXEC_MODE` at Line `767` in `main.py`.
 
 #### Web-UI
 2. Execute main.py to launch the Python backend rewriter component.
 ```
 $ python main.py
 ```
-1. Execute the Java backend parser component through command `java -jar sparksql-plus-web-jar-with-dependencies.jar` build from `SparkSQLPlus`, which is included as a submodule at `SparkSQLPlus/*`. Please use the following command to init and update it. 
+3. Execute the Java backend parser component through command `java -jar sparksql-plus-web-jar-with-dependencies.jar` build from `SparkSQLPlus`, which is included as a submodule. [Option] You can also build `jar` file by yourself. 
+4. Please use the following command to init and update it. 
 ```
 $ git submodule init
 $ git submodule update [--remote]
     or
 $ git submodule update --init --recursive
 ```
-1. Open the webpage at `http://localhost:8848`.
-2. Begin submitting queries for execution on the webpage.
+5. Open the webpage at `http://localhost:8848`.
+6. Begin submitting queries for execution on the webpage.
 
 #### Command Line
 2. Modify python path (`PYTHON_ENV`) in `auto_rewrite.sh`.
@@ -46,7 +47,7 @@ e.g ./auto_rewrite.sh lsqb lsqb M N
 ```
 $ ./auto_run_XXX.sh [OPTIONS]
 ```
-7. If you want to run a single query, please change the code commented `# NOTE: single query keeps here` in function `init_global_vars` (Line `575` - Line `577` in `main.py`), and comment the code block labeled `# NOTE: auto-rewrite keeps here` (the code between the two blank lines, Line `598` - Line `617` in `main.py`).
+7. If you want to run a single query, please change the code commented `# NOTE: single query keeps here` in function `init_global_vars` (Line `587` - Line `589` in `main.py`), and comment the code block labeled `# NOTE: auto-rewrite keeps here` (the code between the two blank lines, Line `610` - Line `629` in `main.py`).
 
 ### Structure
 #### Overview
