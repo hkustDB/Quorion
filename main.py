@@ -464,7 +464,7 @@ def pass2Java():
             
     if ddl_name is not None:
         if ddl_name == 'graph':
-            globalVar.set_value('BASE_PATH', 'query/graph/q1a/')
+            globalVar.set_value('BASE_PATH', 'query/graph/q1/')
             globalVar.set_value('DDL_NAME', "graph.ddl")
         elif ddl_name == 'tpch':
             globalVar.set_value('BASE_PATH', 'query/tpch/q2/')
@@ -585,7 +585,7 @@ def init_global_vars(base=2, mode=0, gen_type="DuckDB", yanna=False):
     globalVar.set_value('MODE', mode)
 
     # NOTE: single query keeps here
-    globalVar.set_value('BASE_PATH', 'query/graph/q1a/')
+    globalVar.set_value('BASE_PATH', 'query/graph/q1/')
     globalVar.set_value('DDL_NAME', "graph.ddl")
 
     if gen_type != 'PG':
