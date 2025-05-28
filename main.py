@@ -119,57 +119,6 @@ def parseRelRecur(node: str, allNodes: dict[int, TreeNode], supId: set[int]):
     else:
         raise NotImplementedError("Not implemented relation type! ")
 
-#NOTE: No recur case in given plan case, so no need tosupport reserve in this function
-def parseRelRecur1(node: str, allNodes: dict[int, TreeNode], supId: set[int]):
-    name, id, line = node.split(';', 2)
-    id = int(id.split('=')[1])
-    pattern = re.compile('v[0-9]+')
-    if id in allNodes:
-        return
-    if name == 'AggregatedRelation':
-        source, cols, alias, group, func = removeEqual(line)
-        cols = pattern.findall(cols)
-        group = int(group[1:-1])
-        aNode = AggTreeNode(id, source, cols, [], alias, None, [], group, func)
-        allNodes[id] = aNode
-    elif name == 'AuxiliaryRelation':
-        source, cols, alias, supportId = removeEqual(line, 3)
-        cols = pattern.findall(cols)
-        if '\n' in supportId:
-            supportId, supportRel = int(supportId.split('\n')[0]), supportId.split('\n')[1]
-            if supportId not in allNodes and supportRel != '':
-                parseRelRecur1(supportRel, allNodes, supId)
-        else:
-            supportId = int(supportId.split('=')[1])
-        auxNode = AuxTreeNode(id, source, cols, [], alias, None, [], supportId)
-        supId.add(supportId)
-        allNodes[id] = auxNode
-    elif name == 'TableScanRelation':
-        source, cols, alias = removeEqual(line)
-        cols = pattern.findall(cols)
-        tsNode = TableTreeNode(id, source, cols, [], alias, None, [])
-        allNodes[id] = tsNode
-    elif name == 'TableAggRelation':
-        source, cols, alias, aggList = removeEqual(line, 3)
-        cols = pattern.findall(cols)
-        aggList = node['aggList']
-        taNode = TableAggTreeNode(id, source, cols, [], alias, None, [], aggList)
-        allNodes[id] = taNode
-    elif name == 'BagRelation':
-        inAlias, cols, alias, internalRelations = removeEqual(line, 3)
-        cols = pattern.findall(cols)
-        if '\n' in internalRelations:
-            inId, internalRelations = internalRelations.split('\n', 1)
-            for internal in internalRelations.split('\n'):
-                if internal != '': parseRelRecur1(internal)
-        else:
-            inId = internalRelations.split('=', 1)[1]
-        inId = [int(id) for id in inId.split(',')][::-1]
-        bagNode = BagTreeNode(id, inAlias, cols, [], alias, None, [], inId, inAlias)
-        allNodes[id] = bagNode
-    else:
-        raise NotImplementedError("Not implemented relation type! ")
-    
 def parseRel(node: dict[str, str], allNodes: dict[int, TreeNode], supId: set[int]):
     id, name, cols, alias, reserve, hintJoinOrder = node['id'], node['type'], node['columns'], node['alias'], node['reserves'], node["hintJoinOrder"]
     if name == 'BagRelation':
@@ -209,7 +158,6 @@ def parseRel(node: dict[str, str], allNodes: dict[int, TreeNode], supId: set[int
     else:
         raise NotImplementedError("Error Realtion type! ")
     return 
-
 
 def parseRel1(node: dict[str, str], allNodes: dict[int, TreeNode], supId: set[int]):
     id, name, cols, alias, reserve, hintJoinOrder = node['id'], node['type'], node['columns'], node['alias'], node['reserves'], node["hintJoinOrder"]
@@ -361,6 +309,9 @@ def connect(base: int, mode: int, type: GenType, response, responseType: int = 1
     Agg = None
     for aggregation in aggregations:
         func, result, formular = aggregation['func'], aggregation['result'], aggregation['args']
+        if (globalVar.get_value('ANNOT_ELIMINATION') == True and (func != 'MIN' or func != 'MAX')):
+            globalVar.set_value('ANNOT_ELIMINATION', False)
+
         inVars = []
         if len(formular):
             formular = formular[0]
@@ -586,8 +537,9 @@ def init_global_vars(base=2, mode=0, gen_type="DuckDB", yanna=False):
     globalVar.set_value('MODE', mode)
 
     # NOTE: single query keeps here
-    globalVar.set_value('BASE_PATH', 'query/graph/q0/')
+    globalVar.set_value('BASE_PATH', 'query/graph/test/')
     globalVar.set_value('DDL_NAME', "graph.ddl")
+    globalVar.set_value('ANNOT_ELIMINATION', True)
 
     if gen_type != 'PG':
         globalVar.set_value('PLAN_NAME', 'plan.json')
@@ -609,11 +561,12 @@ def command_line():
     init_global_vars(base=2, mode=0, gen_type="DuckDB", yanna=False)
     base = globalVar.get_value('BASE')
     mode = globalVar.get_value('MODE')
-    
+    '''
     # NOTE: auto-rewrite keeps here
     arguments = docopt(__doc__)
     globalVar.set_value('BASE_PATH', arguments['<query>'] + '/')
     globalVar.set_value('DDL_NAME', arguments['<ddl>'] + '.ddl')
+    globalVar.set_value('ANNOT_ELIMINATION', True)
     base = int(arguments['--base'])
     mode=int(arguments['--mode'])
     yanna=True if arguments['--yanna'] == 'Y' else False
@@ -630,7 +583,7 @@ def command_line():
         globalVar.set_value('GEN_TYPE', 'PG')
     else:
         globalVar.set_value('GEN_TYPE', 'DuckDB')
-    
+    '''
     BASE_PATH = globalVar.get_value('BASE_PATH')
     OUT_NAME = globalVar.get_value('OUT_NAME')
     OUT_YA_NAME = globalVar.get_value('OUT_YA_NAME')
@@ -766,7 +719,7 @@ def command_line():
         f.write("Rewrite time(s): " + str(end2-end) + '\n')
 
 if __name__ == '__main__':
-    EXEC_MODE = 0
+    EXEC_MODE = 1
     if EXEC_MODE == 0:
         web_ui()
     else:

@@ -2,6 +2,7 @@
 Aggregation information recording & outside subset view build
 '''
 
+from ast import Pass
 from action import *
 from reduce import Join2tables
 from enumsType import AggFuncType
@@ -11,6 +12,9 @@ from sys import maxsize
 # informaiton about aggregation
 class AggFunc():
     def __init__(self, funcName: str, inVars: list[str], alias: str, formular: str, srcNodeId: list[int] = []) -> None:
+        if (funcName == 'SUM' and formular == '1'): 
+            funcName = 'COUNT'  # special case, sum(1) is count
+            formular = []
         self.funcName = AggFuncType[funcName]    # aggregation type: SUM, COUNT, AVG, MIN/MAX
         self.inVars = inVars        # input var alias -> [v1, v2]
         self.alias = alias          # use as alias, sum(source_name) as alias -> sum(alias) as alias
