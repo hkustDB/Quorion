@@ -35,7 +35,7 @@ def splitLR(LR: str):
 
 def buildJoinRelation(preNode: TreeNode, inNode: TreeNode) -> str:
     whereCondList = []
-    # FIXME: No extra process fro bag joinkey
+    # FIXME: No extra process for bag joinkey
     joinKey = list(set(inNode.cols) & set(preNode.cols))
     # natural join
     if not len(joinKey):
@@ -270,50 +270,25 @@ def buildPrepareView(JT: JoinTree, childNode: TreeNode, Agg: Aggregation = None,
         
 # -1 change corres selectAttrs (actually no need to change, must be tablescan)
 def transSelfComp(originalVars: list[str], comp: Comparison, childNode: TreeNode):
-    if len(originalVars) == 0: return comp.left, comp.right
-            
-    leftVar, opL = splitLR(comp.left)
-    rightVar, opR = splitLR(comp.right)
-
-    for i in range(len(leftVar)):
-        # NOTE: continue for constant
+    if len(originalVars) == 0: return comp.cond
+    pattern = re.compile('v[0-9]+')
+    res = comp.cond
+    extractVars = pattern.findall(res)
+    for i in range(len(extractVars)):
         try:
-            index = childNode.cols.index(leftVar[i])
-            # leftVar[i] = (childNode.alias if tableAlias else '') + (originalVars[index] if len(originalVars) and originalVars[index] != '' else leftVar[i])
-            leftVar[i] = originalVars[index] if len(originalVars) and originalVars[index] != '' else leftVar[i]        
+            index = childNode.cols.index(extractVars[i])
+            if len(originalVars) and originalVars[index] != '':
+                res = res.replace(extractVars[i], originalVars[index])
         except:
             pass
-    for i in range(len(rightVar)):
-        try:
-            # NOTE: continue for constant
-            index = childNode.cols.index(rightVar[i])
-            # rightVar[i] = (childNode.alias if tableAlias else '') + (originalVars[index] if len(originalVars) and originalVars[index] != '' else rightVar[i])
-            rightVar[i] = originalVars[index] if len(originalVars) and originalVars[index] != '' else rightVar[i]
-        except:
-            pass     
-    if opL == ' LIKE ':
-        if opR == ' LIKE ':
-            return '(' + opL.join(leftVar) + ')', '(' + opR.join(rightVar) + ')'
-        else:
-            return '(' + opL.join(leftVar) + ')', opR.join(rightVar)
-    else:
-        if opR == ' LIKE ':
-            return opL.join(leftVar), '(' + opR.join(rightVar) + ')'
-        else:
-            return opL.join(leftVar), opR.join(rightVar)
+    return res
 
 
-#  -2 TableScan childnode, use children attrs
 def makeSelfComp(selfComparisons: list[Comparison], childNode: TreeNode) -> list[str]:
     whereCondList = []
-    
     for comp in selfComparisons:
-        left, right = transSelfComp(childNode.col2vars[1], comp, childNode)
-        if comp.op == ' OR ':
-            whereCondList.append('(' + left + comp.op + right + ')')
-        else:
-            whereCondList.append(left + comp.op + right)
-        
+        res = transSelfComp(childNode.col2vars[1], comp, childNode)
+        whereCondList.append(res)
     return whereCondList
 
 '''
@@ -904,7 +879,6 @@ def buildReducePhase(reduceRel: Edge, JT: JoinTree, incidentComp: list[Compariso
         retReducePhase = ReducePhase(prepareView, None, None, None, semiView, bagAuxView, childNode.id, direction, type, '', [], [], reduceRel)
         return retReducePhase
 
-# FIXME: No aggregation in enumerate non-semijoin deal
 def buildEnumeratePhase(previousView: Action, corReducePhase: ReducePhase, JT: JoinTree, lastEnum: bool = False, isAgg = False, Agg: Aggregation = None, compExtract: list[Comp] = []) -> EnumeratePhase:
     createSample = selectMax = selectTarget = stageEnd = semiEnumerate = None
     origiNode = JT.getNode(corReducePhase.corresNodeId)

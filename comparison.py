@@ -28,7 +28,7 @@ class Comparison:
         self.id = id
         self.op = self.parseOP(op)
         self.fullOp = fullOp
-        self.cond = cond[1:-1] if cond[0] == '(' and cond[-1] == ')' else cond
+        self.cond = cond
         if self.op == ' OR ':
             self.left, self.right = self.cond.split(' OR ')
         else:

@@ -506,7 +506,7 @@ def buildAggReducePhase(reduceRel: Edge, JT: JoinTree, Agg: Aggregation, outputV
     
     ## d. append annot
     # NOTE: Extra optimization for job benchmark
-    if globalVar.get_value('DDL_NAME') != 'job.ddl' and globalVar.get_value('ANNOT_ELIMINATION') == False:
+    if globalVar.get_value('ANNOT_ELIMINATION') == False:
         if childFlag and not pkFlag:
             if not len(selectAttr):
                 selectAttr = [''] * len(selectAttrAlias)
@@ -642,7 +642,7 @@ def buildAggReducePhase(reduceRel: Edge, JT: JoinTree, Agg: Aggregation, outputV
                     if agg not in selectAttrAlias: 
                         selectAttr.append('')
                         selectAttrAlias.append(agg)
-                if globalVar.get_value('DDL_NAME') != 'job.ddl' and globalVar.get_value('ANNOT_ELIMINATION') == False:
+                if globalVar.get_value('ANNOT_ELIMINATION') == False:
                     selectAttr.append('')
                     selectAttrAlias.append('annot')
         elif 'annot' in selectAttrAlias and pkFlag:
@@ -671,7 +671,7 @@ def buildAggReducePhase(reduceRel: Edge, JT: JoinTree, Agg: Aggregation, outputV
         for agg in aggPass2Join:
             if agg not in selectAttrAlias: selectAttrAlias.append(agg)
         if not pkFlag: 
-            if globalVar.get_value('DDL_NAME') != 'job.ddl' and globalVar.get_value('ANNOT_ELIMINATION') == False:
+            if globalVar.get_value('ANNOT_ELIMINATION') == False:
                 selectAttrAlias.append('annot')
     else:
         selectAttr = parentNode.col2vars[1].copy()
@@ -681,7 +681,7 @@ def buildAggReducePhase(reduceRel: Edge, JT: JoinTree, Agg: Aggregation, outputV
                 selectAttr.append('')
                 selectAttrAlias.append(agg)
         if not pkFlag:
-            if globalVar.get_value('DDL_NAME') != 'job.ddl' and globalVar.get_value('ANNOT_ELIMINATION') == False:
+            if globalVar.get_value('ANNOT_ELIMINATION') == False:
                 selectAttr.append('')
                 selectAttrAlias.append('annot')
         for comp in parentExtract:
@@ -817,7 +817,6 @@ def generateAggIR(JT: JoinTree, COMP: dict[int, Comparison], outputVariables: li
     
     def getSupportRelation(relations: list[list[Edge, list[AggFunc]]]) -> list[list[Edge, list[AggFunc]]]:
         supportRelation = []
-        
         # case1
         for rel, aggs in relations :
             childNode = rel.dst
@@ -872,6 +871,7 @@ def generateAggIR(JT: JoinTree, COMP: dict[int, Comparison], outputVariables: li
                 elif update == Direction.Right:
                     compList[index].fullDeletePath(Direction.Right)
     
+    # FIXME: CHECK
     def updateSelfComparison(compList: list[Comparison]):
         if len(compList) == 0: return
         else:
