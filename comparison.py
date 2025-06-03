@@ -123,6 +123,10 @@ class Comparison:
             return ' IN '
         elif 'or' in OP:
             return ' OR '
+        elif 'IsNotNull' in OP:
+            return ' IS NOT NULL '
+        elif 'IsNull' in OP:
+            return ' IS NULL '
         else:
             raise NotImplementedError("Not proper relation! ")
 

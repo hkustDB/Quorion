@@ -537,8 +537,8 @@ def init_global_vars(base=2, mode=0, gen_type="DuckDB", yanna=False):
     globalVar.set_value('MODE', mode)
 
     # NOTE: single query keeps here
-    globalVar.set_value('BASE_PATH', 'query/tpch/test/')
-    globalVar.set_value('DDL_NAME', "tpch.ddl")
+    globalVar.set_value('BASE_PATH', 'query/job/test/')
+    globalVar.set_value('DDL_NAME', "job.ddl")
     globalVar.set_value('ANNOT_ELIMINATION', True)
 
     if gen_type != 'PG':
