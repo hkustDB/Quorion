@@ -18,6 +18,7 @@ query/*/test/*
 query/*/*/cost.csv
 
 query/extra*
+query/job2/*
 !query/extract_runtime.py
 graph_db*
 tpch_db*

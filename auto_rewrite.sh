@@ -5,7 +5,7 @@ python="/usr/bin/python3"
 SCRIPT=$(readlink -f $0)
 SCRIPT_PATH=$(dirname "${SCRIPT}")
 
-PYTHON_ENV="venv/bin/python"
+PYTHON_ENV="/usr/bin/python3"
 
 INPUT_DIR="query/$2"
 INPUT_DIR_PATH="${SCRIPT_PATH}/${INPUT_DIR}"
