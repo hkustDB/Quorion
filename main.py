@@ -11,7 +11,7 @@ Options:
   -g, --genType type    Set generate code mode D(DuckDB)/M(MySql) [default: D]
   -y, --yanna yanna     Set Y for yannakakis generation; N for our rewrite [default: N]
 """
-from email.mime import base
+from pandas import reset_option
 from treenode import *
 from comparison import Comparison
 from jointree import Edge, JoinTree
@@ -219,16 +219,21 @@ def connectJava(Java: bool = False):
     except IOError:
         pass
     try:
+        # print(json.dumps(body, indent=2, ensure_ascii=False))
         # http://localhost:8848/api/v1/parse?orderBy=fanout&sample=true&sampleSize=5000&limit=5000, http://localhost:8848/api/v1/parse?orderBy=fanout&fixRootEnable=true
-        response = requests.post(url="http://localhost:8848/api/v1/parse?orderBy=fanout&fixRootEnable=true&timeout=200", headers=headers, json=body).json()['data']
-        return response
+        response = requests.post(url="http://localhost:8848/api/v1/parse?timeout=200", headers=headers, json=body).json()
+        res_data, res_message = response['data'], response['message']
+        return res_data, res_message, body['query']
     except:
         print(BASE_PATH + QUERY_NAME)
 
 
 def connect(base: int, mode: int, type: GenType, response, responseType: int = 1) -> tuple:
     if responseType == 0:
-        response = connectJava()
+        response, res_message, query = connectJava()
+        if res_message == 'fallback':
+            return None, None, None, None, None, query
+
     # 1. 
     table2vars = dict([(t['name'], t['columns']) for t in response['tables']])
     ddl = response['ddl']
@@ -251,10 +256,8 @@ def connect(base: int, mode: int, type: GenType, response, responseType: int = 1
         setSubset0 = True
     # 2. parse jointree
     joinTrees = response['joinTrees']
-    isFreeConnex = response['freeConnex']
+    isFreeConnex = True 
     isFull = response['full']
-    optJT: JoinTree = None
-    optCOMP: dict[int, Comparison] = None
     allRes, aggFunc = [], []
     for index, jt in enumerate(joinTrees):
         allNodes = dict()
@@ -273,19 +276,38 @@ def connect(base: int, mode: int, type: GenType, response, responseType: int = 1
         # b. parse edge
         allNodes = parse_col2var(allNodes, table2vars)
         extraConds = ExtraCondList(extraConditions)
+
+        def setFreeConnex():
+            nonlocal isFreeConnex
+            if fixRoot:
+                isFreeConnex = False
+            elif not isFull:
+                subset_cols = set()
+                for node_id in subset:
+                    subset_cols.update(allNodes[node_id].cols)
+                if set(outputVariables) != subset_cols:
+                    isFreeConnex = False
+                        
+        setFreeConnex()
         JT = JoinTree(allNodes, isFull, isFreeConnex, supId, subset, extraConds, fixRoot, setSubset0)
         JT.setRootById(root)
         CompareMap: dict[int, Comparison] = dict()
         for edge_data in edges:
-            edge = Edge(JT.getNode(edge_data['src']), JT.getNode(edge_data['dst']), edge_data['key'])
+            src_node = JT.getNode(edge_data['src'])
+            dst_node = JT.getNode(edge_data['dst'])
+
+            edge = Edge(src_node, dst_node, edge_data['key'])
             if JT.getNode(edge.dst.id).reserve is None:
                 JT.getNode(edge.dst.id).reserve = list(set(edge.src.cols) & set(edge.dst.cols))
             JT.addEdge(edge)
-        # NOTE: Add child join order
+
         for id, node in JT.node.items():
             if len(node.children) and len(node.hintJoinOrder):
                 for child in node.children:
-                    child.reduceOrder = len(node.hintJoinOrder) - node.hintJoinOrder.index(child.id)
+                    try:
+                        child.reduceOrder = len(node.hintJoinOrder) - node.hintJoinOrder.index(child.id)
+                    except:
+                        continue
         # c. parse comparison
         for compId, comp in enumerate(comparisons):
             if responseType == 1:
@@ -302,10 +324,6 @@ def connect(base: int, mode: int, type: GenType, response, responseType: int = 1
                 Compare.reversePath()
             CompareMap[Compare.id] = Compare
         # d. final
-        if optJT is not None and JT.root.depth > optJT.root.depth:
-            optJT, optCOMP = JT, CompareMap
-        elif optJT is None:
-            optJT, optCOMP = JT, CompareMap
         allRes.append([JT, CompareMap, index])  
     # 4. aggregation
     aggregations = response['aggregations']
@@ -336,7 +354,7 @@ def connect(base: int, mode: int, type: GenType, response, responseType: int = 1
         comp = Comp(com['result'], com['expr'])
         tempComp.append(comp)
     computationList = CompList(tempComp)
-    return optJT, optCOMP, allRes, outputVariables, Agg, topK, computationList, table2vars
+    return allRes, outputVariables, Agg, topK, computationList, query
 
 
 def parse_col2var(allNodes: dict[int, TreeNode], table2vars: dict[str, list[str]]) -> dict[int, TreeNode]:
@@ -416,6 +434,11 @@ def pass2Java():
         if response['message'] == 'success':
             ddl_name = response['ddl_name']
             response = response['data']
+        elif response['message'] == 'fallback':
+            query = response['data']['query']
+            temp_res = {"index": 0, "queries": query, "cost": -1, "node_stat": []}
+            response_data["data"].append(temp_res)
+            return jsonify(response_data)
             
     if ddl_name is not None:
         if ddl_name == 'graph':
@@ -437,8 +460,8 @@ def pass2Java():
     BASE_PATH = globalVar.get_value('BASE_PATH')
     OUT_NAME = globalVar.get_value('OUT_NAME')
     OUT_YA_NAME = globalVar.get_value('OUT_YA_NAME')
-        
-    optJT, optCOMP, allRes, outputVariables, Agg, topK, computationList, table2vars = connect(base=2, mode=0, type=GenType.PG, response=response, responseType=responseType)
+
+    allRes, outputVariables, Agg, topK, computationList, _ = connect(base=2, mode=0, type=GenType.PG, response=response, responseType=responseType)
 
     IRmode = IRType.Report if not Agg else IRType.Aggregation
     IRmode = IRType.Level_K if topK and topK.mode == 0 else IRmode
@@ -540,8 +563,8 @@ def init_global_vars(base=2, mode=0, gen_type="DuckDB", yanna=False):
     globalVar.set_value('MODE', mode)
 
     # NOTE: single query keeps here
-    globalVar.set_value('BASE_PATH', 'query/job/test/')
-    globalVar.set_value('DDL_NAME', "job.ddl")
+    globalVar.set_value('BASE_PATH', 'query/lsqb/q1/')
+    globalVar.set_value('DDL_NAME', "lsqb.ddl")
     globalVar.set_value('ANNOT_ELIMINATION', True)
 
     if gen_type != 'PG':
@@ -564,7 +587,7 @@ def command_line():
     init_global_vars(base=2, mode=0, gen_type="DuckDB", yanna=False)
     base = globalVar.get_value('BASE')
     mode = globalVar.get_value('MODE')
-    
+    '''
     # NOTE: auto-rewrite keeps here
     arguments = docopt(__doc__)
     globalVar.set_value('BASE_PATH', arguments['<query>'] + '/')
@@ -586,7 +609,7 @@ def command_line():
         globalVar.set_value('GEN_TYPE', 'PG')
     else:
         globalVar.set_value('GEN_TYPE', 'DuckDB')
-    
+    '''
     BASE_PATH = globalVar.get_value('BASE_PATH')
     OUT_NAME = globalVar.get_value('OUT_NAME')
     OUT_YA_NAME = globalVar.get_value('OUT_YA_NAME')
@@ -594,8 +617,14 @@ def command_line():
     REWRITE_TIME = globalVar.get_value('REWRITE_TIME')
     response = None
     start = time.time()
-    optJT, optCOMP, allRes, outputVariables, Agg, topK, computationList, table2vars = connect(base=base, mode=mode, type=type, response=response, responseType=0)
+    allRes, outputVariables, Agg, topK, computationList, Query = connect(base=base, mode=mode, type=type, response=response, responseType=0)
     end = time.time()
+    if allRes is None:
+        outName = BASE_PATH + OUT_NAME.split('.')[0] + str(0) + '.' + OUT_NAME.split('.')[1]
+        with open(outName, 'w+') as f:
+            f.write(Query)
+        return
+
     with open(BASE_PATH + REWRITE_TIME, 'w+') as f:
         print('Parser time(s): ', end-start)
         f.write('Parser time(s): ' + str(end-start) + '\n')
@@ -604,109 +633,69 @@ def command_line():
     IRmode = IRType.Product_K if topK and topK.mode == 1 else IRmode
     # sign for whether process all JT
     optFlag = False
-    if optFlag:
-
-        cost_height, cost_fanout, cost_estimate = getEstimation(globalVar.get_value('DDL_NAME').split('.')[0], optJT)
-        costOutName = COST_NAME.split('.')[0] + 'opt' + '.' + COST_NAME.split('.')[1]
-        costout = open(BASE_PATH + costOutName, 'w+')
-        costout.write(str(cost_height) + '\n' + str(cost_fanout) + '\n' + str(cost_estimate))
-        costout.close()
-        
-        if IRmode == IRType.Report:
-            if globalVar.get_value('YANNA'):
-                semiUp, semiDown, lastUp, finalResult = yaGenerateIR(optJT, optCOMP, outputVariables, computationList)
-                codeGenYa(semiUp, semiDown, lastUp, finalResult, BASE_PATH + 'opt' +OUT_YA_NAME, genType=type, isAgg=False)
-            else:
-                reduceList, enumerateList, finalResult = generateIR(optJT, optCOMP, outputVariables, computationList)
-                codeGen(reduceList, enumerateList, finalResult, BASE_PATH + 'opt' +OUT_NAME, isFull=optJT.isFull, genType=type)
-        elif IRmode == IRType.Aggregation:
-            if globalVar.get_value('YANNA'):
-                semiUp, semiDown, lastUp, finalResult = yaGenerateIR(optJT, optCOMP, outputVariables, computationList, isAgg=True, Agg=Agg)
-                codeGenYa(semiUp, semiDown, lastUp, finalResult, BASE_PATH + 'opt' +OUT_YA_NAME, genType=type, isAgg=True)
-            else:
-                aggList, reduceList, enumerateList, finalResult = generateAggIR(optJT, optCOMP, outputVariables, computationList, Agg)
-                codeGen(reduceList, enumerateList, finalResult, BASE_PATH + 'opt' +OUT_NAME, aggList=aggList, isFreeConnex=optJT.isFreeConnex, Agg=Agg, isFull=optJT.isFull, genType=type)
-        # NOTE: No comparison for TopK yet
-        elif IRmode == IRType.Level_K:
-            reduceList, enumerateList, finalResult = generateTopKIR(optJT, outputVariables, computationList, IRmode=IRType.Level_K, base=topK.base, DESC=topK.DESC, limit=topK.limit)
-            codeGenTopK(reduceList, enumerateList, finalResult,  BASE_PATH + 'opt' +OUT_NAME, IRmode=IRType.Level_K, genType=topK.genType)
-        elif IRmode == IRType.Product_K:
-            reduceList, enumerateList, finalResult = generateTopKIR(optJT, outputVariables, computationList, IRmode=IRType.Product_K, base=topK.base, DESC=topK.DESC, limit=topK.limit)
-            codeGenTopK(reduceList, enumerateList, finalResult,  BASE_PATH + 'opt' +OUT_NAME, IRmode=IRType.Product_K, genType=topK.genType)  
-    else:
-        fields = ['index', 'hight', 'width', 'estimate'] 
-        cost_stat = PQ()
-        # NOTE: Change the number of MAXIMUM generated plans
-        total_number = 6
-        fix_number, nonfix_number = total_number // 2, total_number // 2
-        fix_iter, nonfix_iter = 0, 0
-        best_res_nonfix, best_res_fix = [], []
-        all_res = []
-        has_nonfix: bool = False
-        
-        for jt, comp, index in allRes:
-            cost_height, cost_fanout, cost_estimate = getEstimation(globalVar.get_value('DDL_NAME').split('.')[0], jt)
-            cost_stat.put((cost_estimate, jt, comp, index))
-            all_res.append([index, cost_height, cost_fanout, cost_estimate])
-            if not has_nonfix and not jt.fixRoot:
-                has_nonfix = True
-
-        if not has_nonfix:
-            fix_number = total_number
-        
-        while not cost_stat.empty():
-            cost_estimate, jt, comp, index = cost_stat.get()
-
-            if fix_iter + nonfix_iter >= total_number:
-                break
-
-            if jt.fixRoot and fix_iter >= fix_number:
-                continue
-            if not jt.fixRoot and nonfix_iter >= nonfix_number:
-                continue
-
-            if jt.fixRoot:
-                fix_iter += 1
-                best_res_fix.append(index)
-            else:
-                nonfix_iter += 1
-                best_res_nonfix.append(index)
-
-            try:
-                
-                jtout = open(BASE_PATH + 'jointree' + str(index) + '.txt', 'w+')
-                jtout.write(str(jt))
-                jtout.close()
-                outName = OUT_NAME.split('.')[0] + str(index) + '.' + OUT_NAME.split('.')[1]
-                outYaName = OUT_YA_NAME.split('.')[0] + str(index) + '.' + OUT_YA_NAME.split('.')[1]
-                
-                computationList.reset()
-                if IRmode == IRType.Report:
-                    if globalVar.get_value('YANNA'):
-                        semiUp, semiDown, lastUp, finalResult = yaGenerateIR(jt, comp, outputVariables, computationList)
-                        codeGenYa(semiUp, semiDown, lastUp, finalResult, BASE_PATH + outYaName, genType=type, isAgg=False)
-                    else:
-                        reduceList, enumerateList, finalResult = generateIR(jt, comp, outputVariables, computationList)
-                        codeGen(reduceList, enumerateList, finalResult, BASE_PATH + outName, isFull=jt.isFull, genType=type)
-                elif IRmode == IRType.Aggregation:
-                    Agg.initDoneFlag()
-                    if globalVar.get_value('YANNA'):
-                        semiUp, semiDown, lastUp, finalResult = yaGenerateIR(jt, comp, outputVariables, computationList, isAgg=True, Agg=Agg)
-                        codeGenYa(semiUp, semiDown, lastUp, finalResult, BASE_PATH + outYaName, genType=type, isAgg=True)
-                    else:
-                        aggList, reduceList, enumerateList, finalResult = generateAggIR(jt, comp, outputVariables, computationList, Agg)
-                        codeGen(reduceList, enumerateList, finalResult, BASE_PATH + outName, aggList=aggList, isFreeConnex=jt.isFreeConnex, Agg=Agg, isFull=jt.isFull, genType=type)
-                # NOTE: No comparison for TopK yet
-                elif IRmode == IRType.Level_K:
-                    reduceList, enumerateList, finalResult = generateTopKIR(jt, outputVariables, computationList, IRmode=IRType.Level_K, base=topK.base, DESC=topK.DESC, limit=topK.limit)
-                    codeGenTopK(reduceList, enumerateList, finalResult, BASE_PATH + outName, IRmode=IRType.Level_K, genType=topK.genType)
-                elif IRmode == IRType.Product_K:
-                    reduceList, enumerateList, finalResult = generateTopKIR(jt, outputVariables, computationList, IRmode=IRType.Product_K, base=topK.base, DESC=topK.DESC, limit=topK.limit)
-                    codeGenTopK(reduceList, enumerateList, finalResult, BASE_PATH + outName, IRmode=IRType.Product_K, genType=topK.genType)
-
-            except Exception as e:
-                traceback.print_exc()
-                print("Error JT: " + str(index))
+    fields = ['index', 'hight', 'width', 'estimate'] 
+    cost_stat = PQ()
+    total_number = 8
+    fix_number, nonfix_number = total_number // 2, total_number // 2
+    fix_iter, nonfix_iter = 0, 0
+    best_res_nonfix, best_res_fix = [], []
+    all_res = []
+    has_nonfix: bool = False
+    
+    for jt, comp, index in allRes:
+        cost_height, cost_fanout, cost_estimate = getEstimation(globalVar.get_value('DDL_NAME').split('.')[0], jt)
+        cost_stat.put((cost_estimate, jt, comp, index))
+        all_res.append([index, cost_height, cost_fanout, cost_estimate])
+        if not has_nonfix and not jt.fixRoot:
+            has_nonfix = True
+    if not has_nonfix:
+        fix_number = total_number
+    while not cost_stat.empty():
+        cost_estimate, jt, comp, index = cost_stat.get()
+        if fix_iter + nonfix_iter >= total_number:
+            break
+        if jt.fixRoot and fix_iter >= fix_number:
+            continue
+        if not jt.fixRoot and nonfix_iter >= nonfix_number:
+            continue
+        if jt.fixRoot:
+            fix_iter += 1
+            best_res_fix.append(index)
+        else:
+            nonfix_iter += 1
+            best_res_nonfix.append(index)
+        try: 
+            jtout = open(BASE_PATH + 'jointree' + str(index) + '.txt', 'w+')
+            jtout.write(str(jt))
+            jtout.close()
+            outName = OUT_NAME.split('.')[0] + str(index) + '.' + OUT_NAME.split('.')[1]
+            outYaName = OUT_YA_NAME.split('.')[0] + str(index) + '.' + OUT_YA_NAME.split('.')[1]
+            computationList.reset()
+            if IRmode == IRType.Report:
+                if globalVar.get_value('YANNA'):
+                    semiUp, semiDown, lastUp, finalResult = yaGenerateIR(jt, comp, outputVariables, computationList)
+                    codeGenYa(semiUp, semiDown, lastUp, finalResult, BASE_PATH + outYaName, genType=type, isAgg=False)
+                else:
+                    reduceList, enumerateList, finalResult = generateIR(jt, comp, outputVariables, computationList)
+                    codeGen(reduceList, enumerateList, finalResult, BASE_PATH + outName, isFull=jt.isFull, genType=type)
+            elif IRmode == IRType.Aggregation:
+                Agg.initDoneFlag()
+                if globalVar.get_value('YANNA'):
+                    semiUp, semiDown, lastUp, finalResult = yaGenerateIR(jt, comp, outputVariables, computationList, isAgg=True, Agg=Agg)
+                    codeGenYa(semiUp, semiDown, lastUp, finalResult, BASE_PATH + outYaName, genType=type, isAgg=True)
+                else:
+                    aggList, reduceList, enumerateList, finalResult = generateAggIR(jt, comp, outputVariables, computationList, Agg)
+                    codeGen(reduceList, enumerateList, finalResult, BASE_PATH + outName, aggList=aggList, isFreeConnex=jt.isFreeConnex, Agg=Agg, isFull=jt.isFull, genType=type)
+            # NOTE: No comparison for TopK yet
+            elif IRmode == IRType.Level_K:
+                reduceList, enumerateList, finalResult = generateTopKIR(jt, outputVariables, computationList, IRmode=IRType.Level_K, base=topK.base, DESC=topK.DESC, limit=topK.limit)
+                codeGenTopK(reduceList, enumerateList, finalResult, BASE_PATH + outName, IRmode=IRType.Level_K, genType=topK.genType)
+            elif IRmode == IRType.Product_K:
+                reduceList, enumerateList, finalResult = generateTopKIR(jt, outputVariables, computationList, IRmode=IRType.Product_K, base=topK.base, DESC=topK.DESC, limit=topK.limit)
+                codeGenTopK(reduceList, enumerateList, finalResult, BASE_PATH + outName, IRmode=IRType.Product_K, genType=topK.genType)
+        except Exception as e:
+            traceback.print_exc()
+            print("Error JT: " + str(index))
         with open(BASE_PATH + COST_NAME, 'w+') as f:
             write = csv.writer(f)
             write.writerow(fields)
@@ -722,7 +711,7 @@ def command_line():
         f.write("Rewrite time(s): " + str(end2-end) + '\n')
 
 if __name__ == '__main__':
-    EXEC_MODE = 0
+    EXEC_MODE = 1
     if EXEC_MODE == 0:
         web_ui()
     else:

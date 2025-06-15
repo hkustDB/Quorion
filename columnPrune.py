@@ -25,7 +25,8 @@ def removeAttrAlias(selectAttrs: list[str], selectAlias: list[str], containKeys:
         for alias in Agg.allAggAlias:
             if alias in selectAlias:
                 for inVar in Agg.alias2AggFunc[alias].inVars:
-                    if inVar in containKeys and inVar not in extraKeep:
+                    # NOTE: Incase remove useful vars, for example some complex formular 
+                    if len(Agg.alias2AggFunc[alias].inVars) == 1 and inVar in containKeys and inVar not in extraKeep:
                         containKeys.remove(inVar)
                         break
 
