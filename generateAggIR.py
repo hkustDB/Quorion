@@ -1108,7 +1108,7 @@ def generateAggIR(JT: JoinTree, COMP: dict[int, Comparison], outputVariables: li
                                     selectName.extend(['COUNT(*) as ' + out for _ in range(outputVariables.count(out))])
                             elif func.funcName == AggFuncType.AVG:
                                 selectName.extend(['AVG(' + func.originForm + '/annot' * finalAnnotFlag + ') as ' + out for _ in range(outputVariables.count(out))])
-                            elif func.funcName == AggFuncType.MIN and func.funcName == AggFuncType.MAX:
+                            elif func.funcName == AggFuncType.MIN or func.funcName == AggFuncType.MAX:
                                 selectName.extend([func.funcName.name + '(' + func.originForm + ') as ' + out for _ in range(outputVariables.count(out))])
                             else:
                                 selectName.extend([func.funcName.name + '(' + func.originForm + '* annot' * finalAnnotFlag + ') as ' + out for _ in range(outputVariables.count(out))])
