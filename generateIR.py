@@ -1227,10 +1227,11 @@ def generateIR(JT: JoinTree, COMP: dict[int, Comparison], outputVariables: list[
     global outVars, compKeySet
     outVars = outputVariables
     for comp in comparisons:
-        left, _ = splitLR(comp.left)
-        compKeySet.update(left)
-        right, _ = splitLR(comp.right)
-        compKeySet.update(right)
+        if comp not in selfComparisons:  # Skip self-comparisons
+            left, _ = splitLR(comp.left)
+            compKeySet.update(left)
+            right, _ = splitLR(comp.right)
+            compKeySet.update(right)
     
     reduceList: list[ReducePhase] = []
     enumerateList: list[EnumeratePhase] = []
