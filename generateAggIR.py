@@ -1131,7 +1131,7 @@ def generateAggIR(JT: JoinTree, COMP: dict[int, Comparison], outputVariables: li
                                 selectName.extend(['SUM(annot) as ' + out for _ in range(outputVariables.count(out))])
                             else:
                                 selectName.extend(['COUNT(*) as ' + out for _ in range(outputVariables.count(out))])
-                        elif func.funcName == AggFuncType.MIN and func.funcName == AggFuncType.MAX:
+                        elif func.funcName == AggFuncType.MIN or func.funcName == AggFuncType.MAX:
                                 selectName.extend([func.funcName.name + '(' + func.originForm + ') as ' + out for _ in range(outputVariables.count(out))])
                         else:
                             selectName.extend([func.funcName.name + '(' + func.originForm + '*annot' * finalAnnotFlag + ') as ' + out for _ in range(outputVariables.count(out))])
@@ -1273,7 +1273,7 @@ def generateAggIR(JT: JoinTree, COMP: dict[int, Comparison], outputVariables: li
                                             newForm = newForm.replace(var, 'SUM(annot)')
                                         else:
                                             newForm = newForm.replace(var, 'COUNT(*)')
-                                    elif func.funcName == AggFuncType.MIN and func.funcName == AggFuncType.MAX:
+                                    elif func.funcName == AggFuncType.MIN or func.funcName == AggFuncType.MAX:
                                             newForm = newForm.replace(var, func.funcName.name + '(' + func.originForm + ')')
                                     else:
                                         newForm = newForm.replace(var, func.funcName.name + '(' + func.originForm + '*annot' * finalAnnotFlag + ')')
