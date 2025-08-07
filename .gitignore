@@ -12,7 +12,7 @@ querySum.sql
 # query/job*/[1-9]*/rewrite*.sql
 query/extra*/*
 query/*/*/log_*
-query/*/*/*.sql
+# query/*/*/*.sql
 query/*/*/*.txt
 query/*/test/*
 query/*/*/cost.csv

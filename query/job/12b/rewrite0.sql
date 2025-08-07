@@ -1,0 +1,15 @@
+create or replace view aggView9055095771132018062 as select id as v8 from company_type as ct where (kind IN ('production companies','distributors'));
+create or replace view aggJoin9071072022602220114 as select movie_id as v29, company_id as v1 from movie_companies as mc, aggView9055095771132018062 where mc.company_type_id=aggView9055095771132018062.v8;
+create or replace view aggView8429768342394666028 as select id as v1 from company_name as cn where (country_code = '[us]');
+create or replace view aggJoin6893138147444025524 as select v29 from aggJoin9071072022602220114 join aggView8429768342394666028 using(v1);
+create or replace view aggView7107815214558668459 as select id as v21 from info_type as it1 where (info = 'budget');
+create or replace view aggJoin2082712511736354362 as select movie_id as v29, info as v22 from movie_info as mi, aggView7107815214558668459 where mi.info_type_id=aggView7107815214558668459.v21;
+create or replace view aggView294661506252929850 as select v29, COUNT(*) as annot from aggJoin6893138147444025524 group by v29;
+create or replace view aggJoin3684728172664480246 as select v29, v22, annot from aggJoin2082712511736354362 join aggView294661506252929850 using(v29);
+create or replace view aggView9078616882320697208 as select v29, MIN(v22) as v41, SUM(annot) as annot from aggJoin3684728172664480246 group by v29;
+create or replace view aggJoin5398784802074538896 as select movie_id as v29, info_type_id as v26, v41, annot from movie_info_idx as mi_idx, aggView9078616882320697208 where mi_idx.movie_id=aggView9078616882320697208.v29;
+create or replace view aggView5661938857731024101 as select id as v29, title as v42 from title as t where (production_year > 2000) and ((title LIKE 'Birdemic%') OR (title LIKE '%Movie%'));
+create or replace view aggJoin7806573218282586574 as select v26, v41, annot, v42 as v42 from aggJoin5398784802074538896 join aggView5661938857731024101 using(v29);
+create or replace view aggView1010778997169723263 as select v26, MIN(v41) as v41, MIN(v42) as v42, SUM(annot) as annot from aggJoin7806573218282586574 group by v26;
+create or replace view aggJoin6587040618338101663 as select info as v13, v41, v42, annot from info_type as it2, aggView1010778997169723263 where it2.id=aggView1010778997169723263.v26 and (info = 'bottom 10 rank');
+select MIN(v41) as v41,MIN(v42) as v42 from aggJoin6587040618338101663;
