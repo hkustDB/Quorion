@@ -1,4 +1,3 @@
-create or replace view aggView2780551753118159888 as select p_partkey as v2, CASE WHEN p_type LIKE 'PROMO%' THEN 1 ELSE 0 END as caseCond from part as part;
-create or replace view aggJoin4900641838508704133 as select l_extendedprice as v6, l_discount as v7, l_shipdate as v11, caseCond from lineitem as lineitem, aggView2780551753118159888 where lineitem.l_partkey=aggView2780551753118159888.v2 and l_shipdate>=DATE '1995-09-01' and l_shipdate<DATE '1995-10-01';
-create or replace view aggView918686844974202592 as select v7, v6, caseCond, COUNT(*) as annot from aggJoin4900641838508704133 group by v7,v6,caseCond;
-select ((100.0 * SUM( CASE WHEN caseCond = 1 THEN v6 * (1 - v7)* annot ELSE 0.0 END)) / SUM(((v6 * (1 - v7)))* annot)) as v30 from aggView918686844974202592;
+create or replace view aggView2613770087571579709 as select l_partkey as v2, l_extendedprice * (1 - l_discount) as caseRes, SUM(l_extendedprice * (1 - l_discount)) as v29, COUNT(*) as annot from lineitem as lineitem where l_shipdate>=DATE '1995-09-01' and l_shipdate<DATE '1995-10-01' group by l_partkey,caseRes;
+create or replace view aggJoin1371402862469522667 as select p_type as v21, caseRes, v29, annot from part as part, aggView2613770087571579709 where part.p_partkey=aggView2613770087571579709.v2;
+select ((100.0 * SUM( CASE WHEN v21 LIKE 'PROMO%' THEN caseRes * annot ELSE 0.0 END)) / SUM(v30)) as v30 from aggJoin1371402862469522667;
