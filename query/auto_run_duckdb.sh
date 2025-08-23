@@ -20,7 +20,7 @@ INPUT_DIR_PATH="${SCRIPT_PATH}/${INPUT_DIR}"
 DATABASE=$1
 SCHEMA_FILE=$1
 
-duckdb="/PATH_TO_DUCKDB"
+duckdb="/home/bchenba/duckdb1.0"
 
 NUM_THREADS=${3:-72}
 
@@ -53,7 +53,7 @@ do
             if [ $ret -eq 0 ]
             then
                 filename="${file%.*}"
-                LOG_FILE="${CUR_PATH}/log_${filename}.txt"
+                LOG_FILE="${CUR_PATH}/log_${filename}_duckdb.txt"
                 rm -f $LOG_FILE
                 touch $LOG_FILE
                 QUERY="${CUR_PATH}/${file}"
@@ -68,26 +68,26 @@ do
                     echo ") TO '/dev/null' (DELIMITER ',');" >> ${SUBMIT_QUERY}
                     echo "Start DuckDB Task at ${QUERY}"
                     current_task=1
-                    while [[ ${current_task} -le 10 ]]
+                    while [[ ${current_task} -le 3 ]]
                     do
                         echo "Current Task: ${current_task}"
                         OUT_FILE="${CUR_PATH}/output.txt"
                         rm -f $OUT_FILE
                         touch $OUT_FILE
-                        timeout -s SIGKILL 2h $duckdb -c ".read ${SCHEMA_FILE}" -c "SET threads TO ${NUM_THREADS};" -c ".timer on" -c ".read ${SUBMIT_QUERY}" | grep "Run Time (s): real" >> $OUT_FILE
+                        timeout -s SIGKILL 2h $duckdb -c ".read ${SCHEMA_FILE}" -c "SET threads TO ${NUM_THREADS};" -c ".timer off" -c ".read ${SUBMIT_QUERY}" -c ".timer on" -c ".read ${SUBMIT_QUERY}" | grep "Run Time (s): real" >> $OUT_FILE
                         status_code=$?
                         if [[ ${status_code} -eq 137 ]]; then
-                            echo "duckdb task timed out." >> $LOG_FILE
+                            echo "0" >> $LOG_FILE
                             break
                         elif [[ ${status_code} -ne 0 ]]; then
-                            echo "duckdb task failed." >> $LOG_FILE
+                            echo "0" >> $LOG_FILE
                             break
                         else
                             awk 'BEGIN{sum=0;}{sum+=$5;} END{printf "Exec time(s): %f\n", sum;}' $OUT_FILE >> $LOG_FILE
                         fi
                         current_task=$(($current_task+1))
                     done
-                    echo "======================" >> $LOG_FILE
+                    awk '{s+=$1} END{if(NR) print "AVG", s/NR}' "$LOG_FILE" >> "$LOG_FILE"
                     echo "End DuckDB Task..."
                     rm -f $OUT_FILE
                     rm -f ${SUBMIT_QUERY}
@@ -104,26 +104,26 @@ do
                     echo ") TO '/dev/null' (DELIMITER ',');" >> ${SUBMIT_QUERY_2}
                     echo "Start DuckDB Task at ${QUERY}"
                     current_task=1
-                    while [[ ${current_task} -le 10 ]]
+                    while [[ ${current_task} -le 3 ]]
                     do
                         echo "Current Task: ${current_task}"
                         OUT_FILE="${CUR_PATH}/output.txt"
                         rm -f $OUT_FILE
                         touch $OUT_FILE
-                        timeout -s SIGKILL 2h $duckdb -c ".read ${SCHEMA_FILE}" -c "SET threads TO ${NUM_THREADS};" -c ".timer on" -c ".read ${SUBMIT_QUERY_1}" -c ".read ${SUBMIT_QUERY_2}" | grep "Run Time (s): real" >> $OUT_FILE
+                        timeout -s SIGKILL 2h $duckdb -c ".read ${SCHEMA_FILE}" -c "SET threads TO ${NUM_THREADS};" -c ".timer off" -c ".read ${SUBMIT_QUERY_1}" -c ".read ${SUBMIT_QUERY_2}" " -c ".timer on" -c ".read ${SUBMIT_QUERY_2}" | grep "Run Time (s): real" >> $OUT_FILE
                         status_code=$?
                         if [[ ${status_code} -eq 137 ]]; then
-                            echo "duckdb task timed out." >> $LOG_FILE
+                            echo "0" >> $LOG_FILE
                             break
                         elif [[ ${status_code} -ne 0 ]]; then
-                            echo "duckdb task failed." >> $LOG_FILE
+                            echo "0" >> $LOG_FILE
                             break
                         else
                             awk 'BEGIN{sum=0;}{sum+=$5;} END{printf "Exec time(s): %f\n", sum;}' $OUT_FILE >> $LOG_FILE
                         fi
                         current_task=$(($current_task+1))
                     done
-                    echo "======================" >> $LOG_FILE
+                    awk '{s+=$1} END{if(NR) print "AVG", s/NR}' "$LOG_FILE" >> "$LOG_FILE"
                     echo "End DuckDB Task..."
                     rm -f $OUT_FILE
                     rm -f $SUBMIT_QUERY_1

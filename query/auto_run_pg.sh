@@ -51,7 +51,7 @@ do
             if [ $ret -eq 0 ]
             then
                 filename="${file%.*}"
-                LOG_FILE="${CUR_PATH}/log_${filename}.txt"
+                LOG_FILE="${CUR_PATH}/log_${filename}_pg.txt"
                 rm -f $LOG_FILE
                 touch $LOG_FILE
                 QUERY="${CUR_PATH}/${file}"
@@ -72,19 +72,19 @@ do
                     echo ") TO '/dev/null' DELIMITER ',' CSV;" >> ${SUBMIT_QUERY}
                     echo "Start PG Task at ${QUERY}"
                     current_task=1
-                    while [[ ${current_task} -le 10 ]]
+                    while [[ ${current_task} -le 3 ]]
                     do
                         echo "Current Task: ${current_task}"
                         OUT_FILE="${CUR_PATH}/output.txt"
                         rm -f $OUT_FILE
                         touch $OUT_FILE
-                        timeout -s SIGKILL 2h $PG "-d" "${DB}" "-p" "${port}" "-c" "\timing" "-f" "${SUBMIT_QUERY}" | grep "Time: " >> $OUT_FILE
+                        timeout -s SIGKILL 2h $PG "-d" "${DB}" "-p" "${port}" "-c" "\timing off" "-f" "${SUBMIT_QUERY}" "-c" "\timing on" "-f" "${SUBMIT_QUERY}" | grep "Time: " >> $OUT_FILE
                         status_code=$?
                         if [[ ${status_code} -eq 137 ]]; then
-                            echo "PG task timed out." >> $LOG_FILE
+                            echo "0" >> $LOG_FILE
                             break
                         elif [[ ${status_code} -ne 0 ]]; then
-                            echo "PG task failed." >> $LOG_FILE
+                            echo "0" >> $LOG_FILE
                             break
                         else
                             awk 'BEGIN{sum=0;}{sum+=$2;} END{printf "Exec time(s): %f\n", sum;}' $OUT_FILE >> $LOG_FILE
@@ -92,7 +92,7 @@ do
                         fi
                         current_task=$(($current_task+1))
                     done
-                    echo "======================" >> $LOG_FILE
+                    awk '{s+=$1} END{if(NR) print "AVG", s/NR}' "$LOG_FILE" >> "$LOG_FILE"
                     echo "End PG Task..."
                     rm -f $OUT_FILE
                     rm -f ${SUBMIT_QUERY}
@@ -121,19 +121,19 @@ do
                     echo ") TO '/dev/null' DELIMITER ',' CSV;" >> ${SUBMIT_QUERY_2}
                     echo "Start PG Task at ${QUERY}"
                     current_task=1
-                    while [[ ${current_task} -le 10 ]]
+                    while [[ ${current_task} -le 3 ]]
                     do
                         echo "Current Task: ${current_task}"
                         OUT_FILE="${CUR_PATH}/output.txt"
                         rm -f $OUT_FILE
                         touch $OUT_FILE
-                        timeout -s SIGKILL 2h $PG "-d" "${DB}" "-p" "${port}" "-c" "\timing" "-f" "${SUBMIT_QUERY_1}" "-f" "${SUBMIT_QUERY_2}" | grep "Time: " >> $OUT_FILE
+                        timeout -s SIGKILL 2h $PG "-d" "${DB}" "-p" "${port}" "-c" "\timing off" "-f" "${SUBMIT_QUERY_1}" "-f" "${SUBMIT_QUERY_2}" "-c" "\timing on" "-f" "${SUBMIT_QUERY_2}" | grep "Time: " >> $OUT_FILE
                         status_code=$?
                         if [[ ${status_code} -eq 137 ]]; then
-                           echo "PG task timed out." >> $LOG_FILE
+                           echo "0" >> $LOG_FILE
                            break
                         elif [[ ${status_code} -ne 0 ]]; then
-                            echo "PG task failed." >> $LOG_FILE
+                            echo "0" >> $LOG_FILE
                             break
                         else
                             awk 'BEGIN{sum=0;}{sum+=$2;} END{printf "Exec time(s): %f\n", sum;}' $OUT_FILE >> $LOG_FILE
@@ -141,7 +141,7 @@ do
                         fi
                         current_task=$(($current_task+1))
                     done
-                    echo "======================" >> $LOG_FILE
+                    awk '{s+=$1} END{if(NR) print "AVG", s/NR}' "$LOG_FILE" >> "$LOG_FILE"
                     echo "End PG Task..."
                     rm -f $OUT_FILE
                     rm -f $SUBMIT_QUERY_1
