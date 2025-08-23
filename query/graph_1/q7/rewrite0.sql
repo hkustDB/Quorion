@@ -1,0 +1,14 @@
+create or replace TEMP view g5 as select Graph.src as v4, Graph.dst as v10, v18 from Graph, (SELECT dst, COUNT(*) AS v18 FROM Graph GROUP BY dst) AS c4 where Graph.dst = c4.dst;
+create or replace TEMP view g3 as select Graph.src as v4, Graph.dst as v6, v14 from Graph, (SELECT src, COUNT(*) AS v14 FROM Graph GROUP BY src) AS c2 where Graph.dst = c2.src;
+create or replace TEMP view aggView3687621452745749817 as select v4, COUNT(*) as annot from g5 group by v4;
+create or replace TEMP view aggJoin8127383695062285081 as select v4, v6, annot from g3 join aggView3687621452745749817 using(v4);
+create or replace TEMP view aggView1208998520079050498 as select v6, v4, SUM(annot) as annot from aggJoin8127383695062285081 group by v6,v4;
+create or replace TEMP view g4 as select Graph.src as v7, Graph.dst as v2, v16 from Graph, (SELECT dst, COUNT(*) AS v16 FROM Graph GROUP BY dst) AS c3 where Graph.src = c3.dst;
+create or replace TEMP view aggView6073866241320988187 as select v2, SUM(v2 + v7) as v20, COUNT(*) as annot from g4 group by v2;
+create or replace TEMP view aggJoin3501990564797233123 as select src as v2, dst as v4, v20, annot from Graph as g2, aggView6073866241320988187 where g2.src=aggView6073866241320988187.v2;
+create or replace TEMP view g1 as select Graph.src as v1, Graph.dst as v2, v12 from Graph, (SELECT src, COUNT(*) AS v12 FROM Graph GROUP BY src) AS c1 where Graph.src = c1.src;
+create or replace TEMP view aggView2086073687984064083 as select v2, COUNT(*) as annot from g1 group by v2;
+create or replace TEMP view aggJoin735264488370913323 as select v2, v4, v20*aggView2086073687984064083.annot as v20, aggJoin3501990564797233123.annot * aggView2086073687984064083.annot as annot from aggJoin3501990564797233123 join aggView2086073687984064083 using(v2);
+create or replace TEMP view semiJoinView6844746436133161943 as select distinct v2, v4, v20, annot from aggJoin735264488370913323 where (v4) in (select (v4) from aggView1208998520079050498);
+create or replace TEMP view semiEnum2002352776702754987 as select semiJoinView6844746436133161943.annot * aggView1208998520079050498.annot as annot, v20*aggView1208998520079050498.annot as v20, v6, v2 from semiJoinView6844746436133161943 join aggView1208998520079050498 using(v4);
+select v2,v6,SUM(v20) as v20 from semiEnum2002352776702754987 group by v2, v6;
