@@ -1,0 +1,16 @@
+create or replace TEMP view semiUp9010959506899402751 as select src as v4, dst as v6 from Graph AS g3 where (dst) in (select (src) from Graph AS g4);
+create or replace TEMP view semiUp1284819862970323104 as select src as v2, dst as v4 from Graph AS g2 where (dst) in (select (v4) from semiUp9010959506899402751);
+create or replace TEMP view g2Aux99 as select v2 from semiUp1284819862970323104;
+create or replace TEMP view semiUp7637217252280336764 as select v2 from g2Aux99 where (v2) in (select (dst) from Graph AS g1);
+create or replace TEMP view semiDown3740253495336474976 as select v2, v4 from semiUp1284819862970323104 where (v2) in (select (v2) from semiUp7637217252280336764);
+create or replace TEMP view semiDown4048893141065965039 as select src as v1, dst as v2 from Graph AS g1 where (dst) in (select (v2) from semiUp7637217252280336764);
+create or replace TEMP view semiDown3328435231087891381 as select v4, v6 from semiUp9010959506899402751 where (v4) in (select (v4) from semiDown3740253495336474976);
+create or replace TEMP view semiDown5965313730253884653 as select src as v6, dst as v8 from Graph AS g4 where (src) in (select (v6) from semiDown3328435231087891381);
+create or replace TEMP view aggView8322213366760293533 as select v6, SUM(v6) as v9, AVG(v8) as v10, COUNT(*) as annot from semiDown5965313730253884653 group by v6;
+create or replace TEMP view aggJoin4864979462389047724 as select v4, v9, v10, annot from semiDown3328435231087891381 join aggView8322213366760293533 using(v6);
+create or replace TEMP view aggView4772135631000814491 as select v4, SUM(v9) as v9, SUM(v10) as v10, SUM(annot) as annot from aggJoin4864979462389047724 group by v4,v10,v9;
+create or replace TEMP view aggJoin1649745651542758788 as select v2, v9, v10, annot from semiDown3740253495336474976 join aggView4772135631000814491 using(v4);
+create or replace TEMP view aggView1318665771361471385 as select v2, SUM(v9) as v9, SUM(v10) as v10, SUM(annot) as annot from aggJoin1649745651542758788 group by v2,v10,v9;
+create or replace TEMP view aggView541579284528215749 as select v2, AVG(v1) as v11, COUNT(*) as annot from semiDown4048893141065965039 group by v2;
+create or replace TEMP view aggJoin1921612896706127912 as select v2, v9*aggView541579284528215749.annot as v9, v10*aggView541579284528215749.annot as v10, aggView1318665771361471385.annot * aggView541579284528215749.annot as annot, v11 * aggView1318665771361471385.annot as v11 from aggView1318665771361471385 join aggView541579284528215749 using(v2);
+select v2,SUM(v9) as v9,SUM(v10/annot) as v10,SUM(v11/annot) as v11 from aggJoin1921612896706127912 group by v2;

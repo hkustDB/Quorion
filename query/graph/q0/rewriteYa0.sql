@@ -1,0 +1,13 @@
+create or replace TEMP view semiUp5612192529602051954 as select src as v4, dst as v6 from Graph AS g3 where (dst) in (select (src) from Graph AS g4);
+create or replace TEMP view semiUp4226580526473955889 as select src as v2, dst as v4 from Graph AS g2 where (dst) in (select (v4) from semiUp5612192529602051954);
+create or replace TEMP view semiUp4008874539017805445 as select dst as v2 from Graph AS g1 where (dst) in (select (v2) from semiUp4226580526473955889);
+create or replace TEMP view semiDown6593877615879126418 as select v2, v4 from semiUp4226580526473955889 where (v2) in (select (v2) from semiUp4008874539017805445);
+create or replace TEMP view semiDown5243509567483019418 as select v4, v6 from semiUp5612192529602051954 where (v4) in (select (v4) from semiDown6593877615879126418);
+create or replace TEMP view semiDown1121423372671625390 as select src as v6 from Graph AS g4 where (src) in (select (v6) from semiDown5243509567483019418);
+create or replace TEMP view aggView3921883500969346140 as select v6, COUNT(*) as annot from semiDown1121423372671625390 group by v6;
+create or replace TEMP view aggJoin3479270167255403264 as select v4, annot from semiDown5243509567483019418 join aggView3921883500969346140 using(v6);
+create or replace TEMP view aggView1952955554626423504 as select v4, SUM(annot) as annot from aggJoin3479270167255403264 group by v4;
+create or replace TEMP view aggJoin7503980578823617353 as select v2, annot from semiDown6593877615879126418 join aggView1952955554626423504 using(v4);
+create or replace TEMP view aggView5908124085212604539 as select v2, SUM(annot) as annot from aggJoin7503980578823617353 group by v2;
+create or replace TEMP view aggJoin2705502687121169267 as select annot from semiUp4008874539017805445 join aggView5908124085212604539 using(v2);
+select SUM(annot) as v9 from aggJoin2705502687121169267;
