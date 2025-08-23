@@ -1,0 +1,12 @@
+create or replace TEMP view g3 as select Graph.src as v4, Graph.dst as v6, v10 from Graph, (SELECT src, COUNT(*) AS v10 FROM Graph GROUP BY src) AS c2 where Graph.dst = c2.src;
+create or replace TEMP view g3Aux18 as select v4, v6 from g3;
+create or replace TEMP view g1 as select Graph.src as v7, Graph.dst as v2, v8 from Graph, (SELECT src, COUNT(*) AS v8 FROM Graph GROUP BY src) AS c1 where Graph.src = c1.src and v8<3;
+create or replace TEMP view semiUp3817347118763555965 as select src as v2, dst as v4 from Graph AS g2 where (src) in (select (v2) from g1);
+create or replace TEMP view semiUp2393912156477994379 as select v4, v6 from g3Aux18 where (v4) in (select (v4) from semiUp3817347118763555965);
+create or replace TEMP view semiDown5004911623386709423 as select v4, v6 from g3 where (v6, v4) in (select (v6, v4) from semiUp2393912156477994379);
+create or replace TEMP view semiDown7426980393135003089 as select v2, v4 from semiUp3817347118763555965 where (v4) in (select (v4) from semiUp2393912156477994379);
+create or replace TEMP view semiDown3540645320613470813 as select v2 from g1 where (v2) in (select (v2) from semiDown7426980393135003089);
+create or replace TEMP view joinView4922338836433578669 as select v4, v6 from semiUp2393912156477994379 join semiDown5004911623386709423 using(v6, v4);
+create or replace TEMP view joinView3282847986916892149 as select v4 from semiDown7426980393135003089 join semiDown3540645320613470813 using(v2);
+create or replace TEMP view joinView4639729576878267683 as select v4, v6 from joinView4922338836433578669 join joinView3282847986916892149 using(v4);
+select distinct v4, v6 from joinView4639729576878267683;
