@@ -74,7 +74,7 @@ do
                         OUT_FILE="${CUR_PATH}/output.txt"
                         rm -f $OUT_FILE
                         touch $OUT_FILE
-                        timeout -s SIGKILL 30m $duckdb -c ".read ${SCHEMA_FILE}" -c "SET threads TO ${NUM_THREADS};" -c ".timer on" -c ".read ${SUBMIT_QUERY}" | grep "Run Time (s): real" >> $OUT_FILE
+                        timeout -s SIGKILL 2h $duckdb -c ".read ${SCHEMA_FILE}" -c "SET threads TO ${NUM_THREADS};" -c ".timer on" -c ".read ${SUBMIT_QUERY}" | grep "Run Time (s): real" >> $OUT_FILE
                         status_code=$?
                         if [[ ${status_code} -eq 137 ]]; then
                             echo "duckdb task timed out." >> $LOG_FILE
@@ -110,7 +110,7 @@ do
                         OUT_FILE="${CUR_PATH}/output.txt"
                         rm -f $OUT_FILE
                         touch $OUT_FILE
-                        timeout -s SIGKILL 30m $duckdb -c ".read ${SCHEMA_FILE}" -c "SET threads TO ${NUM_THREADS};" -c ".timer on" -c ".read ${SUBMIT_QUERY_1}" -c ".read ${SUBMIT_QUERY_2}" | grep "Run Time (s): real" >> $OUT_FILE
+                        timeout -s SIGKILL 2h $duckdb -c ".read ${SCHEMA_FILE}" -c "SET threads TO ${NUM_THREADS};" -c ".timer on" -c ".read ${SUBMIT_QUERY_1}" -c ".read ${SUBMIT_QUERY_2}" | grep "Run Time (s): real" >> $OUT_FILE
                         status_code=$?
                         if [[ ${status_code} -eq 137 ]]; then
                             echo "duckdb task timed out." >> $LOG_FILE
