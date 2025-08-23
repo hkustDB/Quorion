@@ -587,7 +587,7 @@ def command_line():
     init_global_vars(base=2, mode=0, gen_type="DuckDB", yanna=False)
     base = globalVar.get_value('BASE')
     mode = globalVar.get_value('MODE')
-    '''
+    
     # NOTE: auto-rewrite keeps here
     arguments = docopt(__doc__)
     globalVar.set_value('BASE_PATH', arguments['<query>'] + '/')
@@ -609,7 +609,7 @@ def command_line():
         globalVar.set_value('GEN_TYPE', 'PG')
     else:
         globalVar.set_value('GEN_TYPE', 'DuckDB')
-    '''
+    
     BASE_PATH = globalVar.get_value('BASE_PATH')
     OUT_NAME = globalVar.get_value('OUT_NAME')
     OUT_YA_NAME = globalVar.get_value('OUT_YA_NAME')

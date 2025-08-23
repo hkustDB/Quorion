@@ -78,7 +78,7 @@ do
                         OUT_FILE="${CUR_PATH}/output.txt"
                         rm -f $OUT_FILE
                         touch $OUT_FILE
-                        timeout -s SIGKILL 30m $PG "-d" "${DB}" "-p" "${port}" "-c" "\timing" "-f" "${SUBMIT_QUERY}" | grep "Time: " >> $OUT_FILE
+                        timeout -s SIGKILL 2h $PG "-d" "${DB}" "-p" "${port}" "-c" "\timing" "-f" "${SUBMIT_QUERY}" | grep "Time: " >> $OUT_FILE
                         status_code=$?
                         if [[ ${status_code} -eq 137 ]]; then
                             echo "PG task timed out." >> $LOG_FILE
@@ -127,7 +127,7 @@ do
                         OUT_FILE="${CUR_PATH}/output.txt"
                         rm -f $OUT_FILE
                         touch $OUT_FILE
-                        timeout -s SIGKILL 30m $PG "-d" "${DB}" "-p" "${port}" "-c" "\timing" "-f" "${SUBMIT_QUERY_1}" "-f" "${SUBMIT_QUERY_2}" | grep "Time: " >> $OUT_FILE
+                        timeout -s SIGKILL 2h $PG "-d" "${DB}" "-p" "${port}" "-c" "\timing" "-f" "${SUBMIT_QUERY_1}" "-f" "${SUBMIT_QUERY_2}" | grep "Time: " >> $OUT_FILE
                         status_code=$?
                         if [[ ${status_code} -eq 137 ]]; then
                            echo "PG task timed out." >> $LOG_FILE

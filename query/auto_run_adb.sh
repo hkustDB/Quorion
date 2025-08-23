@@ -52,7 +52,7 @@ do
                     OUT_FILE="${CUR_PATH}/output.txt"
                     rm -f $OUT_FILE
                     touch $OUT_FILE
-                    timeout -s SIGKILL 5m ${adb} ${adb_config} < "${QUERY}" | grep "row in set" >> $OUT_FILE
+                    timeout -s SIGKILL 2h ${adb} ${adb_config} < "${QUERY}" | grep "row in set" >> $OUT_FILE
                     status_code=$?
                     if [[ ${status_code} -eq 137 ]]; then
                         echo "ADB task timed out." >> $LOG_FILE
