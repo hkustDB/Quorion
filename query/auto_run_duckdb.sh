@@ -1,5 +1,7 @@
 #!/bin/bash
 
+trap 'echo "Interrupted"; kill 0; exit 130' INT
+
 uNames=`uname -s`
 osName=${uNames: 0: 4}
 if [ "$osName" == "Darw" ] # Darwin
@@ -74,7 +76,7 @@ do
                         OUT_FILE="${CUR_PATH}/output.txt"
                         rm -f $OUT_FILE
                         touch $OUT_FILE
-                        timeout -s SIGKILL 2h $duckdb -c ".read ${SCHEMA_FILE}" -c "SET threads TO ${NUM_THREADS};" -c ".timer off" -c ".read ${SUBMIT_QUERY}" -c ".timer on" -c ".read ${SUBMIT_QUERY}" | grep "Run Time (s): real" >> $OUT_FILE
+                        timeout -s SIGKILL 10m $duckdb -c ".open ${SCHEMA_FILE}_db" -c "SET threads TO ${NUM_THREADS};" -c ".timer off" -c ".read ${SUBMIT_QUERY}" -c ".timer on" -c ".read ${SUBMIT_QUERY}" | grep "Run Time (s): real" >> $OUT_FILE
                         status_code=$?
                         if [[ ${status_code} -eq 137 ]]; then
                             echo "0" >> $LOG_FILE
@@ -87,7 +89,7 @@ do
                         fi
                         current_task=$(($current_task+1))
                     done
-                    awk '{s+=$1} END{if(NR) print "AVG", s/NR}' "$LOG_FILE" >> "$LOG_FILE"
+                    awk '{s+=$3} END{if(NR) print "AVG", s/NR}' "$LOG_FILE" >> "$LOG_FILE"
                     echo "End DuckDB Task..."
                     rm -f $OUT_FILE
                     rm -f ${SUBMIT_QUERY}
@@ -110,7 +112,7 @@ do
                         OUT_FILE="${CUR_PATH}/output.txt"
                         rm -f $OUT_FILE
                         touch $OUT_FILE
-                        timeout -s SIGKILL 2h $duckdb -c ".read ${SCHEMA_FILE}" -c "SET threads TO ${NUM_THREADS};" -c ".timer off" -c ".read ${SUBMIT_QUERY_1}" -c ".read ${SUBMIT_QUERY_2}" " -c ".timer on" -c ".read ${SUBMIT_QUERY_2}" | grep "Run Time (s): real" >> $OUT_FILE
+                        timeout -s SIGKILL 10m $duckdb -c ".open ${SCHEMA_FILE}_db" -c "SET threads TO ${NUM_THREADS};" -c ".timer off" -c ".read ${SUBMIT_QUERY_1}" -c ".read ${SUBMIT_QUERY_2}" -c ".timer on" -c ".read ${SUBMIT_QUERY_2}" | grep "Run Time (s): real" >> $OUT_FILE
                         status_code=$?
                         if [[ ${status_code} -eq 137 ]]; then
                             echo "0" >> $LOG_FILE
@@ -123,7 +125,7 @@ do
                         fi
                         current_task=$(($current_task+1))
                     done
-                    awk '{s+=$1} END{if(NR) print "AVG", s/NR}' "$LOG_FILE" >> "$LOG_FILE"
+                    awk '{s+=$3} END{if(NR) printf "AVG %.6f\n", s/NR}' "$LOG_FILE" >> "$LOG_FILE"
                     echo "End DuckDB Task..."
                     rm -f $OUT_FILE
                     rm -f $SUBMIT_QUERY_1
