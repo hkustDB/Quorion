@@ -7,7 +7,7 @@
 - Scala 2.12.10
 - Maven 3.8.6
 - Python version >= 3.9
-- Python package requirements: docopt, requests, flask, openpyxl, pandas
+- Python package requirements: docopt, requests, flask, openpyxl, pandas, matplotlib, numpy
 
 0. Preprocessing[option]. 
 - Statistics: For generating new statistics (`cost.csv`), we offer the DuckDB version scripts `query/preprocess.sh` and `query/gen_cost.sh`. Modify the configurations in them, and execute the following command. For web-ui, please move the generated statistics files to folder `graph/q1/`, `tpch/q2/`, `lsqb/q1/`, `job/1a/`, and `custom/q1/` respectively; for command-line operations, please move them to the specific corresponding query folders. 

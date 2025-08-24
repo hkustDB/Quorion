@@ -44,7 +44,8 @@ function IsSuffix() {
     fi
 }
 
-for dir in $(find ${INPUT_DIR} -type d);
+dirs=$(find ${INPUT_DIR} -mindepth 1 -maxdepth 1 -type d | sort -V)
+for dir in $dirs;
 do
     if [ $dir != ${INPUT_DIR} ]; then
         CUR_PATH="${SCRIPT_PATH}/${dir}"
