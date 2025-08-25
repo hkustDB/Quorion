@@ -20,9 +20,41 @@ PARALLEL=${2:-2}
 HALF_PARALLEL=$(((PARALLEL + 1) / 2))
 INPUT_DIR_PATH="${SCRIPT_PATH}/${INPUT_DIR}"
 
-PG="/home/bchenba/postgresql-16.2/bin/psql"
-DB="test"
-port="5434"
+function prop {
+    config_files=$1
+    for config_file in ${config_files[@]}; do
+        # search the property key in config file if file exists
+        if [[ -f ${config_file} ]]; then
+            result=$(grep "^\s*$2=" $config_file | tail -n1 | cut -d '=' -f2)
+            if [[ -n ${result} ]]; then
+                break
+            fi
+        fi
+    done
+
+    if [[ -n ${result} ]]; then
+        echo ${result}
+    elif [[ $# -gt 2 ]]; then
+        echo $3
+    else
+        err "ERROR: unable to load property $2 in ${config_files}"
+        exit 1
+    fi
+}
+
+config_files=("${SCRIPT_PATH}/config.properties")
+repeat_count=$(prop ${config_files} "common.experiment.repeat")
+timeout_time=$(prop ${config_files} 'common.experiment.timeout')
+PG=$(prop ${config_files} "pg.path")
+DB=$(prop ${config_files} "pg.db")
+port=$(prop ${config_files} "pg.port")
+
+echo "Config file: ${config_files}"
+echo "Repeat count: ${repeat_count}"
+echo "Timeout time: ${timeout_time}"
+echo "PostgreSQL path: ${PG}"
+echo "PostgreSQL DB: ${DB}"
+echo "PostgreSQL port: ${port}"
 
 # Suffix function
 function FileSuffix() {
@@ -73,13 +105,13 @@ do
                     echo ") TO '/dev/null' DELIMITER ',' CSV;" >> ${SUBMIT_QUERY}
                     echo "Start PG Task at ${QUERY}"
                     current_task=1
-                    while [[ ${current_task} -le 3 ]]
+                    while [[ ${current_task} -le ${repeat_count} ]]
                     do
                         echo "Current Task: ${current_task}"
                         OUT_FILE="${CUR_PATH}/output.txt"
                         rm -f $OUT_FILE
                         touch $OUT_FILE
-                        timeout -s SIGKILL 10m $PG "-d" "${DB}" "-p" "${port}" "-c" "\timing off" "-f" "${SUBMIT_QUERY}" "-c" "\timing on" "-f" "${SUBMIT_QUERY}" | grep "Time: " >> $OUT_FILE
+                        timeout -s SIGKILL "${timeout_time}" $PG "-d" "${DB}" "-p" "${port}" "-c" "\timing off" "-f" "${SUBMIT_QUERY}" "-c" "\timing on" "-f" "${SUBMIT_QUERY}" | grep "Time: " >> $OUT_FILE
                         status_code=$?
                         if [[ ${status_code} -eq 137 ]]; then
                             echo "0" >> $LOG_FILE
@@ -118,13 +150,13 @@ do
                     echo ") TO '/dev/null' DELIMITER ',' CSV;" >> ${SUBMIT_QUERY_2}
                     echo "Start PG Task at ${QUERY}"
                     current_task=1
-                    while [[ ${current_task} -le 3 ]]
+                    while [[ ${current_task} -le ${repeat_count} ]]
                     do
                         echo "Current Task: ${current_task}"
                         OUT_FILE="${CUR_PATH}/output.txt"
                         rm -f $OUT_FILE
                         touch $OUT_FILE
-                        timeout -s SIGKILL 10m $PG "-d" "${DB}" "-p" "${port}" "-c" "\timing off" "-f" "${SUBMIT_QUERY_1}" "-f" "${SUBMIT_QUERY_2}" "-c" "\timing on" "-f" "${SUBMIT_QUERY_2}" | grep "Time: " >> $OUT_FILE
+                        timeout -s SIGKILL "${timeout_time}" $PG "-d" "${DB}" "-p" "${port}" "-c" "\timing off" "-f" "${SUBMIT_QUERY_1}" "-f" "${SUBMIT_QUERY_2}" "-c" "\timing on" "-f" "${SUBMIT_QUERY_2}" | grep "Time: " >> $OUT_FILE
                         status_code=$?
                         if [[ ${status_code} -eq 137 ]]; then
                            echo "0" >> $LOG_FILE

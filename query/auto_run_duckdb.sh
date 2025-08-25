@@ -22,9 +22,39 @@ INPUT_DIR_PATH="${SCRIPT_PATH}/${INPUT_DIR}"
 DATABASE=$1
 SCHEMA_FILE=$1
 
-duckdb="/home/bchenba/duckdb1.0"
-
 NUM_THREADS=${3:-72}
+
+function prop {
+    config_files=$1
+    for config_file in ${config_files[@]}; do
+        # search the property key in config file if file exists
+        if [[ -f ${config_file} ]]; then
+            result=$(grep "^\s*$2=" $config_file | tail -n1 | cut -d '=' -f2)
+            if [[ -n ${result} ]]; then
+                break
+            fi
+        fi
+    done
+
+    if [[ -n ${result} ]]; then
+        echo ${result}
+    elif [[ $# -gt 2 ]]; then
+        echo $3
+    else
+        err "ERROR: unable to load property $2 in ${config_files}"
+        exit 1
+    fi
+}
+
+config_files=("${SCRIPT_PATH}/config.properties")
+repeat_count=$(prop ${config_files} "common.experiment.repeat")
+timeout_time=$(prop ${config_files} 'common.experiment.timeout')
+duckdb=$(prop ${config_files} "duckdb.path")
+
+echo "Config file: ${config_files}"
+echo "Repeat count: ${repeat_count}"
+echo "Timeout time: ${timeout_time}"
+echo "DuckDB path: ${duckdb}"
 
 # Suffix function
 function FileSuffix() {
@@ -71,13 +101,13 @@ do
                     echo ") TO '/dev/null' (DELIMITER ',');" >> ${SUBMIT_QUERY}
                     echo "Start DuckDB Task at ${QUERY}"
                     current_task=1
-                    while [[ ${current_task} -le 3 ]]
+                    while [[ ${current_task} -le ${repeat_count} ]]
                     do
                         echo "Current Task: ${current_task}"
                         OUT_FILE="${CUR_PATH}/output.txt"
                         rm -f $OUT_FILE
                         touch $OUT_FILE
-                        timeout -s SIGKILL 10m $duckdb -c ".open ${SCHEMA_FILE}_db" -c "SET threads TO ${NUM_THREADS};" -c ".timer off" -c ".read ${SUBMIT_QUERY}" -c ".timer on" -c ".read ${SUBMIT_QUERY}" | grep "Run Time (s): real" >> $OUT_FILE
+                        timeout -s SIGKILL "${timeout_time}" $duckdb -c ".open ${SCHEMA_FILE}_db" -c "SET threads TO ${NUM_THREADS};" -c ".timer off" -c ".read ${SUBMIT_QUERY}" -c ".timer on" -c ".read ${SUBMIT_QUERY}" | grep "Run Time (s): real" >> $OUT_FILE
                         status_code=$?
                         if [[ ${status_code} -eq 137 ]]; then
                             echo "0" >> $LOG_FILE
@@ -107,13 +137,13 @@ do
                     echo ") TO '/dev/null' (DELIMITER ',');" >> ${SUBMIT_QUERY_2}
                     echo "Start DuckDB Task at ${QUERY}"
                     current_task=1
-                    while [[ ${current_task} -le 3 ]]
+                    while [[ ${current_task} -le ${repeat_count} ]]
                     do
                         echo "Current Task: ${current_task}"
                         OUT_FILE="${CUR_PATH}/output.txt"
                         rm -f $OUT_FILE
                         touch $OUT_FILE
-                        timeout -s SIGKILL 10m $duckdb -c ".open ${SCHEMA_FILE}_db" -c "SET threads TO ${NUM_THREADS};" -c ".timer off" -c ".read ${SUBMIT_QUERY_1}" -c ".read ${SUBMIT_QUERY_2}" -c ".timer on" -c ".read ${SUBMIT_QUERY_2}" | grep "Run Time (s): real" >> $OUT_FILE
+                        timeout -s SIGKILL "${timeout_time}" $duckdb -c ".open ${SCHEMA_FILE}_db" -c "SET threads TO ${NUM_THREADS};" -c ".timer off" -c ".read ${SUBMIT_QUERY_1}" -c ".read ${SUBMIT_QUERY_2}" -c ".timer on" -c ".read ${SUBMIT_QUERY_2}" | grep "Run Time (s): real" >> $OUT_FILE
                         status_code=$?
                         if [[ ${status_code} -eq 137 ]]; then
                             echo "0" >> $LOG_FILE

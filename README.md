@@ -12,7 +12,7 @@
 0. Preprocessing[option]. 
 - Statistics: For generating new statistics (`cost.csv`), we offer the DuckDB version scripts `query/preprocess.sh` and `query/gen_cost.sh`. Modify the configurations in them, and execute the following command. For web-ui, please move the generated statistics files to folder `graph/q1/`, `tpch/q2/`, `lsqb/q1/`, `job/1a/`, and `custom/q1/` respectively; for command-line operations, please move them to the specific corresponding query folders. 
 - Plan: Here, we also provide the conversion of DuckDB plans. Please modify the DuckDB and Python paths in gen_plan.sh. Then execute the following command. After running the command, the original DuckDB plan will be generated as `db_plan.json`, and the newly generated plan will be `plan.json`, which is suitable for our parser. Here `${DB_FILE_PATH}` represents a persistent database in DuckDB. Please change the parameter to `timeout=0` in `requests.post` at `main.py:223` if you want to use the self-defined plan. 
-```
+```shell
 $ ./gen_plan.sh ${DB_FILE_PATH} ${QUERY_DIRECTORY}
 e.g.
 ./gen_plan.sh ~/test_db job
@@ -21,12 +21,12 @@ e.g.
 
 #### Web-UI
 2. Execute main.py to launch the Python backend rewriter component.
-```
+```shell
 $ python main.py
 ```
 3. Execute the Java backend parser component through command `java -jar sparksql-plus-web-jar-with-dependencies.jar` build from `SparkSQLPlus`, which is included as a submodule. [Option] You can also build `jar` file by yourself. 
 4. Please use the following command to init and update it. 
-```
+```shell
 $ git submodule init
 $ git submodule update [--remote]
     or
@@ -43,7 +43,7 @@ $ git submodule update --init --recursive
 - Yannakakis/Yannakakis-Plus
 : Set Y for Yannakakis; N for Yannakakis-Plus
  [default: N]
-```
+```shell
 $ bash start_parser.sh
 $ Parser started.
 $ ./auto_rewrite.sh ${DDL_NAME} ${QUERY_DIR} [OPTIONS]
@@ -70,7 +70,7 @@ e.g ./auto_rewrite.sh lsqb lsqb M N
 1. Download Spark 3.5.1 from https://archive.apache.org/dist/spark/spark-3.5.1/
 2. Extract the downloaded package
 3. Set environment variables. Please ensure to modify them according to your file path.
-```
+```shell
 export SPARK_HOME="/path/to/spark-3.5.1xxx"
 export PATH="${SPARK_HOME}/bin":"${PATH}"
 ```
@@ -117,9 +117,9 @@ Run `bash download_graph.sh` to download a graph from [SNAP](https://snap.stanfo
 
 ### Step4: Run experiments
 #### DuckDB & PostgreSQL
-1. Change the specifications in `query/auto_run_duckdb.sh`, `query/auto_run_pg.sh`. The default timeout is 2 hours. You can change the timeout part at `SIGKILL 2h xxx` in `query/auto_run_*.sh` from `2h` to `kh` (k hours), `km` (k minutes) where k is the number in [1-9].
+1. Change the specifications in `query/config.properties` about DuckDB, PostgreSQL settings, and other common settings.
 2. Execute `query/auto_run_duckdb.sh` to run duckdb experiements, `query/auto_run_pg.sh` to run postgresql experiements.
-```
+```shell
 syntax: 
 ./auto_run_duckdb.sh ${DATABSE} ${INPUT_DIRECTORY} [parallism]
 ./auto_run_pg.sh ${INPUT_DIRECTORY} [parallism]
@@ -139,25 +139,38 @@ eg:
 ```
 3. The queries for parallism, scale & selectivity is under query directory. 
 - For parallism testing, the queries is under query/parallelism_[lsqb|sgpb], please set parallism through
-```
+```shell
 ./auto_run_duckdb.sh parallelism_[lsqb|sgpb] [1|2|4|8|16|32|48]
 ```
 
+4. Note: DuckDB and PostgreSQL have slightly different syntax.
+
+    (1.1) DuckDB requires (XXX) IN (SELECT (XXX))—the columns in the subquery must be wrapped as a tuple with parentheses.
+
+    (1.2) PostgreSQL requires (XXX) IN (SELECT XXX)—no parentheses around the subquery’s SELECT list. The current scripts are written for DuckDB. 
+    
+    (1.3) If you plan to run them on PostgreSQL, please make the following changes: Remove the extra parentheses inside the subquery (i.e., change (SELECT (XXX)) to (SELECT XXX)).
+
+    (2.1) PostgreSQL does not allow column aliases in CREATE OR REPLACE VIEW. Therefore, before every rewritten query, add
+    ```sql
+    DROP VIEW IF EXISTS xxx CASCADE;
+    ```
+    to discard any previously created view with the same name. DuckDB has no such limitation.
 
 #### SparkSQL
 For details, please refer to the [SparkSQLRunner README](SparkSQLRunner/README.md).
 
 ### Step5: plot
 1. Execute `./auto_summary.sh ${INPUT_DIR}` or `./auto_summary_job.sh ${INPUT_DIR}` to gather results for queries in `INPUT_DIR`. The generated statistis is `summary_*_statistics[_default].csv`. 
-```
-eg: Gether results for query under directory graph & lsqb & tpch & job
+```shell
+# Gather results for query under directory graph & lsqb & tpch & job
 ./auto_summary.sh graph
 ./auto_summary.sh lsqb
 ./auto_summary.sh tpch
 ./auto_summary_job.sh job
 ```
 2. Execute scripts under `draw/*` to do the plotting and generated picture is under `draw/*.pdf`. 
-```
+```shell
 # Generate pictures(graph.pdf, lsqb.pdf, tpch.pdf) about running times for SGPB, LSQB and TPCH. Corresponding to Figure 9. 
 python3 draw_graph.py
 
