@@ -84,20 +84,20 @@ Run `bash download_graph.sh` to download a graph from [SNAP](https://snap.stanfo
 1. Clone lsqb dataset generate tool from https://github.com/ldbc/lsqb
 2. Follow the instruction and generate the scale factor = 30 data result
 ##### Choice 2: download directly from the cloud storage (~13G)
-1. Please download from [lsqb_30](https://hkustconnect-my.sharepoint.com/:f:/g/personal/bchenba_connect_ust_hk/EnqiyJpKU9pLiFhye6B1wc4B33IU2CqRfMoEM31hF9WrBg?e=eE542e). 
+1. Please download from [lsqb_30](https://hkustconnect-my.sharepoint.com/:f:/g/personal/bchenba_connect_ust_hk/EnqiyJpKU9pLiFhye6B1wc4B33IU2CqRfMoEM31hF9WrBg?e=n97qf0). 
 
 #### TPC-H data
 ##### Choice 1: generate by yourself from official site
 1. Clone TPC-H dataset generation tool from https://www.tpc.org/tpc_documents_current_versions/current_specifications5.asp
 2. Follow the instruction and generate the scale factor = 100 data result
 ##### Choice 2: download directly from the cloud storage (~108G)
-1. Please download from [tpch_100](https://hkustconnect-my.sharepoint.com/:f:/g/personal/bchenba_connect_ust_hk/EsAuPFzXcb9GpfP143xOPmMBJjga6agVX05bF99ztqNxsQ?e=lOkorH)
+1. Please download from [tpch_100](https://hkustconnect-my.sharepoint.com/:f:/g/personal/bchenba_connect_ust_hk/EnqiyJpKU9pLiFhye6B1wc4B33IU2CqRfMoEM31hF9WrBg?e=n97qf0)
 
 #### JOB data
 ##### Choice 1: download from script (~3.7G, scale=1)
 1. Run `bash download_job.sh` to download job data from [DuckDB Support](https://github.com/duckdb/duckdb/blob/main/benchmark/imdb/init/load.sql)
 ##### Choice 2: download directly from the cloud storage (take some time ~242G, scale=100)
-1. Please download from [job_100](https://hkustconnect-my.sharepoint.com/:f:/g/personal/bchenba_connect_ust_hk/EsAuPFzXcb9GpfP143xOPmMBJjga6agVX05bF99ztqNxsQ?e=lOkorH)
+1. Please download from [job_100](https://hkustconnect-my.sharepoint.com/:f:/g/personal/bchenba_connect_ust_hk/EnqiyJpKU9pLiFhye6B1wc4B33IU2CqRfMoEM31hF9WrBg?e=n97qf0)
 
 ### Step3: Database Initialization
 #### DuckDB
