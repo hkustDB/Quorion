@@ -1,0 +1,13 @@
+create or replace TEMP view aggView7481899530145680082 as select id as v25 from keyword as k where keyword= 'character-name-in-title';
+create or replace TEMP view aggJoin5951610377306979654 as select movie_id as v3 from smovie_keywordp as mk, aggView7481899530145680082 where mk.keyword_id=aggView7481899530145680082.v25;
+create or replace TEMP view aggView3872525793054005298 as select v3 from aggJoin5951610377306979654 group by v3;
+create or replace TEMP view aggJoin8449253388864249264 as select id as v3 from title as t, aggView3872525793054005298 where t.id=aggView3872525793054005298.v3;
+create or replace TEMP view aggView9102275669148749344 as select v3 from aggJoin8449253388864249264 group by v3;
+create or replace TEMP view aggJoin7805060275971365036 as select movie_id as v3, company_id as v20 from xmovie_companiesc as mc, aggView9102275669148749344 where mc.movie_id=aggView9102275669148749344.v3;
+create or replace TEMP view aggView2864835793311930410 as select v20, v3 from aggJoin7805060275971365036 group by v20,v3;
+create or replace TEMP view aggJoin913929062004935467 as select v3 from lcompany_namem as cn, aggView2864835793311930410 where cn.id=aggView2864835793311930410.v20;
+create or replace TEMP view aggView6257700152885205341 as select v3 from aggJoin913929062004935467 group by v3;
+create or replace TEMP view aggJoin24526803624937704 as select person_id as v26, movie_id as v3 from ecast_infof as ci, aggView6257700152885205341 where ci.movie_id=aggView6257700152885205341.v3;
+create or replace TEMP view aggView8819716808418727396 as select id as v26, name as v47 from name as n where name LIKE 'X%';
+create or replace TEMP view aggJoin3088970358909797471 as select v3, v47 from aggJoin24526803624937704 join aggView8819716808418727396 using(v26);
+select MIN(v47) as v47 from aggJoin3088970358909797471;

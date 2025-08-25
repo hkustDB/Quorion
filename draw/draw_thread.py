@@ -16,8 +16,19 @@ for thread_name in thread_names:
     try:
         df = pd.read_csv(primary_file)  # Remove header=None to read column names
         print(f"Successfully loaded: {primary_file}")
+        
+        # Check if data contains zeros (missing data) - skip header row
+        data_columns = df.columns[1:]  # Skip first column (thread)
+        has_zeros = (df[data_columns] == 0).any().any()
+        
+        if has_zeros:
+            print(f"Warning: Primary file contains zero values, falling back to default file")
+            df = pd.read_csv(fallback_file)
+            print(f"Loaded fallback file: {fallback_file}")
+            
     except FileNotFoundError:
-        print(f"Successfully loaded: {fallback_file}")
+        print(f"Primary file not found: {primary_file}")
+        print(f"Loading fallback file: {fallback_file}")
         df = pd.read_csv(fallback_file)  # Remove header=None to read column names
 
     # 检查数据是否正确读取
