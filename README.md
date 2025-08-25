@@ -49,12 +49,7 @@ $ Parser started.
 $ ./auto_rewrite.sh ${DDL_NAME} ${QUERY_DIR} [OPTIONS]
 e.g ./auto_rewrite.sh lsqb lsqb M N
 ```
-5. Modify configurations in `query/load_XXX.sql` (load table schemas) and `query/auto_run_XXX.sh` (auto-run script for different DBMSs). 
-6. Execute the following command to execute the queries in different DBMSs.
-```
-$ ./auto_run_XXX.sh [OPTIONS]
-```
-7. If you want to run a single query, please change the code commented `# NOTE: single query keeps here` in function `init_global_vars` (Line `587` - Line `589` in `main.py`), and comment the code block labeled `# NOTE: auto-rewrite keeps here` (the code between the two blank lines, Line `610` - Line `629` in `main.py`).
+5. If you want to run a single query, please change the code commented `# NOTE: single query keeps here` in function `init_global_vars` (Line `587` - Line `589` in `main.py`), and comment the code block labeled `# NOTE: auto-rewrite keeps here` (the code between the two blank lines, Line `610` - Line `629` in `main.py`).
 
 
 ## Part2: Reproducibility of the Experiments
@@ -121,11 +116,60 @@ Run `bash download_graph.sh` to download a graph from [SNAP](https://snap.stanfo
 
 
 ### Step4: Run experiments
-1. Change the specifications in `query/auto_run_duckdb.sh`, `query/auto_run_pg.sh`, `query/auto_run_spark.sh`. The default timeout is 2 hours. You can change the timeout part at `SIGKILL 2h xxx` in `query/auto_run_*.sh` from `2h` to `kh` (k hours), `km` (k minutes) where k is the number in [1-9].
-2. Execute `query/auto_run_duckdb.sh` to run duckdb experiements, `query/auto_run_pg.sh` to run postgresql experiements, `query/auto_run_spark.sh` to run sparksql experiements.
+#### DuckDB & PostgreSQL
+1. Change the specifications in `query/auto_run_duckdb.sh`, `query/auto_run_pg.sh`. The default timeout is 2 hours. You can change the timeout part at `SIGKILL 2h xxx` in `query/auto_run_*.sh` from `2h` to `kh` (k hours), `km` (k minutes) where k is the number in [1-9].
+2. Execute `query/auto_run_duckdb.sh` to run duckdb experiements, `query/auto_run_pg.sh` to run postgresql experiements.
+```
+syntax: 
+./auto_run_duckdb.sh ${DATABSE} ${INPUT_DIRECTORY} [parallism]
+./auto_run_pg.sh ${INPUT_DIRECTORY} [parallism]
+
+eg:
+# Execute queries under graph in database graph with default parallism with DuckDB
+./auto_run_duckdb.sh graph graph
+
+# Execute queries under graph in database graph with parallism=72 with DuckDB
+./auto_run_duckdb.sh lsqb lsqb 72
+
+# Execute queries under tpch with default parallism with PostgreSQL
+./auto_run_pg.sh tpch
+
+# Execute queries under job with parallism=72 with PostgreSQL
+./auto_run_pg.sh job 72
+```
+3. The queries for parallism, scale & selectivity is under query directory. 
+- For parallism testing, the queries is under query/parallelism_[lsqb|sgpb], please set parallism through
+```
+./auto_run_duckdb.sh parallelism_[lsqb|sgpb] [1|2|4|8|16|32|48]
+```
+
+
+#### SparkSQL
+For details, please refer to the [SparkSQLRunner README](SparkSQLRunner/README.md).
 
 ### Step5: plot
+1. Execute `./auto_summary.sh ${INPUT_DIR}` or `./auto_summary_job.sh ${INPUT_DIR}` to gather results for queries in `INPUT_DIR`. The generated statistis is `summary_*_statistics[_default].csv`. 
+```
+eg: Gether results for query under directory graph & lsqb & tpch & job
+./auto_summary.sh graph
+./auto_summary.sh lsqb
+./auto_summary.sh tpch
+./auto_summary_job.sh job
+```
+2. Execute scripts under `draw/*` to do the plotting and generated picture is under `draw/*.pdf`. 
+```
+# Generate pictures(graph.pdf, lsqb.pdf, tpch.pdf) about running times for SGPB, LSQB and TPCH. Corresponding to Figure 9. 
+python3 draw_graph.py
 
+# Generate pictures(job_duckdb.pdf, job_postgresql.pdf) about running times for JOB. Corresponding to Figure 10. 
+python3 draw_job.py
+
+# Generate picture(selectivity_scale.pdf) about selectivity & scale. Corresponding to Figure 11. 
+python3 draw_selectivity.py
+
+# Generate pictures(thread1.pdf, thread2.pdf) about parallelism. Corresponding to Figure 12.
+python3 draw_thread.py
+```
 
 
 ## Part3: Extra Information [Option]

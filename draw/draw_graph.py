@@ -21,8 +21,19 @@ for graph_name in graph_names:
     try:
         df1 = pd.read_csv(primary_file, header=None).T
         print(f"Successfully loaded: {primary_file}")
+        
+        # Check if data contains zeros (missing data) - skip header row
+        data_rows = df1.iloc[1:, 1:]  # Skip first row (headers) and first column
+        has_zeros = (data_rows == 0).any().any()
+        
+        if has_zeros:
+            print(f"Warning: Primary file contains zero values, falling back to default file")
+            df1 = pd.read_csv(fallback_file, header=None).T
+            print(f"Loaded fallback file: {fallback_file}")
+            
     except FileNotFoundError:
-        print(f"Successfully loaded: {fallback_file}")
+        print(f"Primary file not found: {primary_file}")
+        print(f"Loading fallback file: {fallback_file}")
         df1 = pd.read_csv(fallback_file, header=None).T
 
     df1.replace(['>24h', '>2h', '-1', 'X', 'OOM'], 0, inplace=True)

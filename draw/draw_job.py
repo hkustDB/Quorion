@@ -38,11 +38,22 @@ def drawEach(db_name: str, db_columns: list):
 
     # 使用 pandas 读取 Excel 文件的特定表单
     try:
-        df = pd.read_csv(primary_file, header=None)
+        df = pd.read_csv(primary_file)  # Remove header=None to read with headers
         print(f"Successfully loaded: {primary_file}")
+        
+        # Check if data contains zeros (missing data) - skip header row
+        data_columns = df.columns[1:]  # Skip JOB column
+        has_zeros = (df[data_columns] == 0).any().any()
+        
+        if has_zeros:
+            print(f"Warning: Primary file contains zero values, falling back to default file")
+            df = pd.read_csv(fallback_file)  # Remove header=None
+            print(f"Loaded fallback file: {fallback_file}")
+            
     except FileNotFoundError:
-        print(f"Successfully loaded: {fallback_file}")
-        df = pd.read_csv(fallback_file, header=None)
+        print(f"Primary file not found: {primary_file}")
+        print(f"Loading fallback file: {fallback_file}")
+        df = pd.read_csv(fallback_file)  # Remove header=None
 
     # Convert all columns except the first one (JOB column) to numeric
     for col in range(1, len(df.columns)):

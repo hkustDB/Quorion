@@ -16,15 +16,37 @@ fallback_file2 = os.path.join(script_dir, '..', 'query', 'summary_scale_statisti
 try:
     df1 = pd.read_csv(primary_file1)
     print(f"Successfully loaded: {primary_file1}")
+    
+    # Check if data contains zeros (missing data) - skip header row
+    data_columns = df1.columns[1:]  # Skip first column (thread)
+    has_zeros = (df1[data_columns] == 0).any().any()
+    
+    if has_zeros:
+        print(f"Warning: Primary file contains zero values, falling back to default file")
+        df1 = pd.read_csv(fallback_file1)
+        print(f"Loaded fallback file: {fallback_file1}")
+        
 except FileNotFoundError:
-    print(f"Successfully loaded: {fallback_file1}")
+    print(f"Primary file not found: {primary_file1}")
+    print(f"Loading fallback file: {fallback_file1}")
     df1 = pd.read_csv(fallback_file1)
 
 try:
     df2 = pd.read_csv(primary_file2)
     print(f"Successfully loaded: {primary_file2}")
+    
+    # Check if data contains zeros (missing data) - skip header row
+    data_columns = df2.columns[1:]  # Skip first column (thread)
+    has_zeros = (df2[data_columns] == 0).any().any()
+    
+    if has_zeros:
+        print(f"Warning: Primary file contains zero values, falling back to default file")
+        df2 = pd.read_csv(fallback_file2)
+        print(f"Loaded fallback file: {fallback_file2}")
+        
 except FileNotFoundError:
-    print(f"Successfully loaded: {fallback_file2}")
+    print(f"Primary file not found: {primary_file2}")
+    print(f"Loading fallback file: {fallback_file2}")
     df2 = pd.read_csv(fallback_file2)
 
 # 检查数据是否正确读取
