@@ -1,0 +1,15 @@
+create or replace TEMP view aggView4565585958645211647 as select id as v22 from keyword as k where keyword= 'sequel';
+create or replace TEMP view aggJoin5259620837542077120 as select movie_id as v24 from smovie_keywordp as mk, aggView4565585958645211647 where mk.keyword_id=aggView4565585958645211647.v22;
+create or replace TEMP view aggView7014969371054862704 as select v24 from aggJoin5259620837542077120 group by v24;
+create or replace TEMP view aggJoin109577016371076749 as select id as v24, title as v28, production_year as v31 from title as t, aggView7014969371054862704 where t.id=aggView7014969371054862704.v24 and production_year<=2000 and production_year>=1950;
+create or replace TEMP view aggView62318183403957489 as select id as v18 from ocompany_typen as ct where kind= 'production companies';
+create or replace TEMP view aggJoin2934452985108332954 as select movie_id as v24, company_id as v17 from xmovie_companiesc as mc, aggView62318183403957489 where mc.company_type_id=aggView62318183403957489.v18;
+create or replace TEMP view aggView4594748160260248678 as select v24, MIN(v28) as v41 from aggJoin109577016371076749 group by v24;
+create or replace TEMP view aggJoin1575756490485557498 as select v24, v17, v41 from aggJoin2934452985108332954 join aggView4594748160260248678 using(v24);
+create or replace TEMP view aggView6021944932180763097 as select v17, v24, MIN(v41) as v41 from aggJoin1575756490485557498 group by v17,v24;
+create or replace TEMP view aggJoin1125966577120605410 as select name as v2, country_code as v3, v24, v41 from lcompany_namem as cn, aggView6021944932180763097 where cn.id=aggView6021944932180763097.v17 and country_code<> '[pl]' and ((name LIKE '%Film%') OR (name LIKE '%Warner%'));
+create or replace TEMP view aggView8018507049886966992 as select v24, MIN(v41) as v41, MIN(v2) as v39 from aggJoin1125966577120605410 group by v24;
+create or replace TEMP view aggJoin7254272006960077040 as select movie_id as v24, link_type_id as v13, v41, v39 from lmovie_linkq as ml, aggView8018507049886966992 where ml.movie_id=aggView8018507049886966992.v24;
+create or replace TEMP view aggView4214328720769702621 as select id as v13, link as v40 from ylink_typeb as lt where link LIKE '%follow%';
+create or replace TEMP view aggJoin2025295837622073802 as select v24, v41, v39, v40 from aggJoin7254272006960077040 join aggView4214328720769702621 using(v13);
+select MIN(v39) as v39,MIN(v40) as v40,MIN(v41) as v41 from aggJoin2025295837622073802;

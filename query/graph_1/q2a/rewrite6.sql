@@ -1,7 +1,7 @@
 create or replace view bag146 as select g5.src as v11, g4.weight as v12, g5.dst as v14, g5.weight as v15, g4.src as v17 from bitcoin as g5, bitcoin as g4 where g5.src=g4.dst;
-create or replace view semiJoinView405405512828912179 as select src as v14, dst as v17, weight as v18 from bitcoin AS g6 where (dst, src) in (select v17, v14 from bag146);
+create or replace view semiJoinView405405512828912179 as select src as v14, dst as v17, weight as v18 from bitcoin AS g6 where (dst, src) in (select (v17, v14) from bag146);
 create or replace view bag147 as select g2.src as v2, g3.src as v5, g2.weight as v6, g3.dst as v8, g3.weight as v9 from bitcoin as g3, bitcoin as g2 where g3.src=g2.dst;
-create or replace view semiJoinView3373194824686483720 as select src as v8, dst as v2, weight as v3 from bitcoin AS g1 where (src, dst) in (select v8, v2 from bag147) and weight<2;
+create or replace view semiJoinView3373194824686483720 as select src as v8, dst as v2, weight as v3 from bitcoin AS g1 where (src, dst) in (select (v8, v2) from bag147) and weight<2;
 create or replace view semiJoinView7272165093693344488 as select src as v2, dst as v17, weight as v21 from bitcoin AS g7 where (dst) in (select v17 from semiJoinView405405512828912179);
 create or replace view semiJoinView5406759702447789712 as select v2, v17, v21 from semiJoinView7272165093693344488 where (v2) in (select v2 from semiJoinView3373194824686483720);
 create or replace view semiEnum1828986716496813122 as select v21, v8, v3, v17, v2 from semiJoinView5406759702447789712 join semiJoinView3373194824686483720 using(v2);

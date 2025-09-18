@@ -1,0 +1,17 @@
+create or replace TEMP view aggView7423677622383020175 as select id as v10 from rinfo_types as it where info= 'rating';
+create or replace TEMP view aggJoin8039017866233981285 as select movie_id as v22, info as v29 from tmovie_info_idxd as mi_idx, aggView7423677622383020175 where mi_idx.info_type_id=aggView7423677622383020175.v10;
+create or replace TEMP view aggView2387795388438090606 as select v22, MIN(v29) as v44 from aggJoin8039017866233981285 group by v22;
+create or replace TEMP view aggJoin8346086533380520102 as select id as v22, title as v32, kind_id as v14, v44 from title as t, aggView2387795388438090606 where t.id=aggView2387795388438090606.v22;
+create or replace TEMP view aggView8525655512302638393 as select id as v14 from zkind_typea as kt where kind= 'movie';
+create or replace TEMP view aggJoin7173629063542518943 as select v22, v32, v44 from aggJoin8346086533380520102 join aggView8525655512302638393 using(v14);
+create or replace TEMP view aggView1052662697459713807 as select v22, MIN(v44) as v44, MIN(v32) as v45 from aggJoin7173629063542518943 group by v22;
+create or replace TEMP view aggJoin811550832652431149 as select movie_id as v22, company_id as v1, company_type_id as v8, v44, v45 from xmovie_companiesc as mc, aggView1052662697459713807 where mc.movie_id=aggView1052662697459713807.v22;
+create or replace TEMP view aggView5998891792044569245 as select id as v8 from ocompany_typen as ct where kind= 'production companies';
+create or replace TEMP view aggJoin8077339261171409809 as select v22, v1, v44, v45 from aggJoin811550832652431149 join aggView5998891792044569245 using(v8);
+create or replace TEMP view aggView3099550649694918937 as select v1, v22, MIN(v44) as v44, MIN(v45) as v45 from aggJoin8077339261171409809 group by v1,v22;
+create or replace TEMP view aggJoin505575264984079122 as select name as v2, country_code as v3, v22, v44, v45 from lcompany_namem as cn, aggView3099550649694918937 where cn.id=aggView3099550649694918937.v1 and country_code= '[us]';
+create or replace TEMP view aggView7762868530028009718 as select v22, MIN(v44) as v44, MIN(v45) as v45, MIN(v2) as v43 from aggJoin505575264984079122 group by v22;
+create or replace TEMP view aggJoin6288877298218834574 as select movie_id as v22, info_type_id as v12, v44, v45, v43 from emovie_infoa as mi, aggView7762868530028009718 where mi.movie_id=aggView7762868530028009718.v22;
+create or replace TEMP view aggView5758340854873788623 as select id as v12 from rinfo_types as it2 where info= 'release dates';
+create or replace TEMP view aggJoin3467540717255050804 as select v22, v44, v45, v43 from aggJoin6288877298218834574 join aggView5758340854873788623 using(v12);
+select MIN(v43) as v43,MIN(v44) as v44,MIN(v45) as v45 from aggJoin3467540717255050804;
