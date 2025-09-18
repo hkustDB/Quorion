@@ -1,5 +1,7 @@
 #!/bin/bash
 
+trap 'echo "Interrupted"; kill 0; exit 130' INT
+
 uNames=`uname -s`
 osName=${uNames: 0: 4}
 if [ "$osName" == "Darw" ] # Darwin
@@ -20,9 +22,39 @@ INPUT_DIR_PATH="${SCRIPT_PATH}/${INPUT_DIR}"
 DATABASE=$1
 SCHEMA_FILE=$1
 
-duckdb="/PATH_TO_DUCKDB"
-
 NUM_THREADS=${3:-72}
+
+function prop {
+    config_files=$1
+    for config_file in ${config_files[@]}; do
+        # search the property key in config file if file exists
+        if [[ -f ${config_file} ]]; then
+            result=$(grep "^\s*$2=" $config_file | tail -n1 | cut -d '=' -f2)
+            if [[ -n ${result} ]]; then
+                break
+            fi
+        fi
+    done
+
+    if [[ -n ${result} ]]; then
+        echo ${result}
+    elif [[ $# -gt 2 ]]; then
+        echo $3
+    else
+        err "ERROR: unable to load property $2 in ${config_files}"
+        exit 1
+    fi
+}
+
+config_files=("${SCRIPT_PATH}/config.properties")
+repeat_count=$(prop ${config_files} "common.experiment.repeat")
+timeout_time=$(prop ${config_files} 'common.experiment.timeout')
+duckdb=$(prop ${config_files} "duckdb.path")
+
+echo "Config file: ${config_files}"
+echo "Repeat count: ${repeat_count}"
+echo "Timeout time: ${timeout_time}"
+echo "DuckDB path: ${duckdb}"
 
 # Suffix function
 function FileSuffix() {
@@ -42,7 +74,8 @@ function IsSuffix() {
     fi
 }
 
-for dir in $(find ${INPUT_DIR} -type d);
+dirs=$(find ${INPUT_DIR} -mindepth 1 -maxdepth 1 -type d | sort -V)
+for dir in $dirs;
 do
     if [ $dir != ${INPUT_DIR} ]; then
         CUR_PATH="${SCRIPT_PATH}/${dir}"
@@ -53,7 +86,7 @@ do
             if [ $ret -eq 0 ]
             then
                 filename="${file%.*}"
-                LOG_FILE="${CUR_PATH}/log_${filename}.txt"
+                LOG_FILE="${CUR_PATH}/log_${filename}_duckdb.txt"
                 rm -f $LOG_FILE
                 touch $LOG_FILE
                 QUERY="${CUR_PATH}/${file}"
@@ -68,26 +101,26 @@ do
                     echo ") TO '/dev/null' (DELIMITER ',');" >> ${SUBMIT_QUERY}
                     echo "Start DuckDB Task at ${QUERY}"
                     current_task=1
-                    while [[ ${current_task} -le 10 ]]
+                    while [[ ${current_task} -le ${repeat_count} ]]
                     do
                         echo "Current Task: ${current_task}"
                         OUT_FILE="${CUR_PATH}/output.txt"
                         rm -f $OUT_FILE
                         touch $OUT_FILE
-                        timeout -s SIGKILL 2h $duckdb -c ".read ${SCHEMA_FILE}" -c "SET threads TO ${NUM_THREADS};" -c ".timer on" -c ".read ${SUBMIT_QUERY}" | grep "Run Time (s): real" >> $OUT_FILE
+                        timeout -s SIGKILL "${timeout_time}" $duckdb -c ".open ${SCHEMA_FILE}_db" -c "SET threads TO ${NUM_THREADS};" -c ".timer off" -c ".read ${SUBMIT_QUERY}" -c ".timer on" -c ".read ${SUBMIT_QUERY}" | grep "Run Time (s): real" >> $OUT_FILE
                         status_code=$?
                         if [[ ${status_code} -eq 137 ]]; then
-                            echo "duckdb task timed out." >> $LOG_FILE
+                            echo "0" >> $LOG_FILE
                             break
                         elif [[ ${status_code} -ne 0 ]]; then
-                            echo "duckdb task failed." >> $LOG_FILE
+                            echo "0" >> $LOG_FILE
                             break
                         else
                             awk 'BEGIN{sum=0;}{sum+=$5;} END{printf "Exec time(s): %f\n", sum;}' $OUT_FILE >> $LOG_FILE
                         fi
                         current_task=$(($current_task+1))
                     done
-                    echo "======================" >> $LOG_FILE
+                    awk '{s+=$3} END{if(NR) print "AVG", s/NR}' "$LOG_FILE" >> "$LOG_FILE"
                     echo "End DuckDB Task..."
                     rm -f $OUT_FILE
                     rm -f ${SUBMIT_QUERY}
@@ -104,26 +137,26 @@ do
                     echo ") TO '/dev/null' (DELIMITER ',');" >> ${SUBMIT_QUERY_2}
                     echo "Start DuckDB Task at ${QUERY}"
                     current_task=1
-                    while [[ ${current_task} -le 10 ]]
+                    while [[ ${current_task} -le ${repeat_count} ]]
                     do
                         echo "Current Task: ${current_task}"
                         OUT_FILE="${CUR_PATH}/output.txt"
                         rm -f $OUT_FILE
                         touch $OUT_FILE
-                        timeout -s SIGKILL 2h $duckdb -c ".read ${SCHEMA_FILE}" -c "SET threads TO ${NUM_THREADS};" -c ".timer on" -c ".read ${SUBMIT_QUERY_1}" -c ".read ${SUBMIT_QUERY_2}" | grep "Run Time (s): real" >> $OUT_FILE
+                        timeout -s SIGKILL "${timeout_time}" $duckdb -c ".open ${SCHEMA_FILE}_db" -c "SET threads TO ${NUM_THREADS};" -c ".timer off" -c ".read ${SUBMIT_QUERY_1}" -c ".read ${SUBMIT_QUERY_2}" -c ".timer on" -c ".read ${SUBMIT_QUERY_2}" | grep "Run Time (s): real" >> $OUT_FILE
                         status_code=$?
                         if [[ ${status_code} -eq 137 ]]; then
-                            echo "duckdb task timed out." >> $LOG_FILE
+                            echo "0" >> $LOG_FILE
                             break
                         elif [[ ${status_code} -ne 0 ]]; then
-                            echo "duckdb task failed." >> $LOG_FILE
+                            echo "0" >> $LOG_FILE
                             break
                         else
                             awk 'BEGIN{sum=0;}{sum+=$5;} END{printf "Exec time(s): %f\n", sum;}' $OUT_FILE >> $LOG_FILE
                         fi
                         current_task=$(($current_task+1))
                     done
-                    echo "======================" >> $LOG_FILE
+                    awk '{s+=$3} END{if(NR) printf "AVG %.6f\n", s/NR}' "$LOG_FILE" >> "$LOG_FILE"
                     echo "End DuckDB Task..."
                     rm -f $OUT_FILE
                     rm -f $SUBMIT_QUERY_1

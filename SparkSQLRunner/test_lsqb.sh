@@ -1,0 +1,16 @@
+bash ExecuteQuery.sh q1_r lsqbSchema 4
+bash ExecuteQuery.sh q1 lsqbSchema 4
+bash ExecuteQuery.sh q3_r lsqbSchema 4
+bash ExecuteQuery.sh q3 lsqbSchema 4
+bash ExecuteQuery.sh q4_r lsqbSchema 4
+bash ExecuteQuery.sh q4 lsqbSchema 4
+bash ExecuteQuery.sh q5_r lsqbSchema 4
+bash ExecuteQuery.sh q5 lsqbSchema 4
+bash ExecuteQuery.sh q6_r lsqbSchema 4
+bash ExecuteQuery.sh q6 lsqbSchema 4
+bash ExecuteQuery.sh q7_r lsqbSchema 4
+bash ExecuteQuery.sh q7 lsqbSchema 4
+bash ExecuteQuery.sh q8_r lsqbSchema 4
+bash ExecuteQuery.sh q8 lsqbSchema 4
+bash ExecuteQuery.sh q9_r lsqbSchema 4
+bash ExecuteQuery.sh q9 lsqbSchema 4

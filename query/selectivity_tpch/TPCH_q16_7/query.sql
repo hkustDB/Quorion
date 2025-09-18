@@ -1,0 +1,6 @@
+SELECT p_brand, p_type, p_size, COUNT(ps_suppkey) AS supplier_cnt
+FROM  partsupp, part
+WHERE  p_partkey = ps_partkey
+AND  p_brand <> 'Brand#45'
+AND  (p_type NOT LIKE 'MEDIUM POLISHED%') 
+AND  (p_size not IN (49)) GROUP BY p_brand, p_type, p_size

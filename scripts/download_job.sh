@@ -1,5 +1,5 @@
 #!/bin/bash
-
+mkdir -p job_1 && cd job_1
 wget https://github.com/duckdb/duckdb-data/releases/download/v1.0/job_aka_name.parquet
 wget https://github.com/duckdb/duckdb-data/releases/download/v1.0/job_aka_title.parquet
 wget https://github.com/duckdb/duckdb-data/releases/download/v1.0/job_cast_info.parquet
