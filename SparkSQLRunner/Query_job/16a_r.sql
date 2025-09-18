@@ -1,0 +1,15 @@
+create or replace TEMP view aggView293725189919268144 as select id as v33 from keyword as k where keyword= 'character-name-in-title';
+create or replace TEMP view aggJoin8409587478022746368 as select movie_id as v11 from smovie_keywordp as mk, aggView293725189919268144 where mk.keyword_id=aggView293725189919268144.v33;
+create or replace TEMP view aggView4865840758487022684 as select v11 from aggJoin8409587478022746368 group by v11;
+create or replace TEMP view aggJoin5250789776066044543 as select id as v11, title as v44, episode_nr as v52 from title as t, aggView4865840758487022684 where t.id=aggView4865840758487022684.v11 and episode_nr>=50 and episode_nr<100;
+create or replace TEMP view aggView4233821191795368554 as select v11, MIN(v44) as v56 from aggJoin5250789776066044543 group by v11;
+create or replace TEMP view aggJoin6307788483113758701 as select movie_id as v11, company_id as v28, v56 from xmovie_companiesc as mc, aggView4233821191795368554 where mc.movie_id=aggView4233821191795368554.v11;
+create or replace TEMP view aggView5333236126904899262 as select v11, v28, MIN(v56) as v56 from aggJoin6307788483113758701 group by v11,v28;
+create or replace TEMP view aggJoin3797142102411995368 as select person_id as v2, v28, v56 from ecast_infof as ci, aggView5333236126904899262 where ci.movie_id=aggView5333236126904899262.v11;
+create or replace TEMP view aggView6702278081903942180 as select v28, v2, MIN(v56) as v56 from aggJoin3797142102411995368 group by v28,v2;
+create or replace TEMP view aggJoin5673187918622137208 as select id as v28, country_code as v18, v2, v56 from lcompany_namem as cn, aggView6702278081903942180 where cn.id=aggView6702278081903942180.v28 and country_code= '[us]';
+create or replace TEMP view aggView3450102610413657547 as select v2, MIN(v56) as v56 from aggJoin5673187918622137208 group by v2;
+create or replace TEMP view aggJoin5148465462208012870 as select id as v2, v56 from name as n, aggView3450102610413657547 where n.id=aggView3450102610413657547.v2;
+create or replace TEMP view aggView1391894847704022578 as select v2, MIN(v56) as v56 from aggJoin5148465462208012870 group by v2;
+create or replace TEMP view aggJoin7894346676114995968 as select person_id as v2, name as v3, v56 from aaka_nameb as an, aggView1391894847704022578 where an.person_id=aggView1391894847704022578.v2;
+select MIN(v3) as v55,MIN(v56) as v56 from aggJoin7894346676114995968;

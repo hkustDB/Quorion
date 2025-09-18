@@ -46,7 +46,7 @@ do
 
                 echo "Start ADB Task at ${QUERY}"
                 current_task=1
-                while [[ ${current_task} -le 10 ]]
+                while [[ ${current_task} -le 3 ]]
                 do
                     echo "Current Task: ${current_task}"
                     OUT_FILE="${CUR_PATH}/output.txt"
