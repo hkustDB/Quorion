@@ -159,13 +159,13 @@ e.g ./auto_rewrite.sh lsqb lsqb M N
 
 ### Demonstration
 #### Step 1
-![Step1](1.png "Step 1")
+![Step1](figure/1.png "Step 1")
 #### Step 2
-![Step2](2.png "Step 2")
+![Step2](figure/2.png "Step 2")
 #### Step 3
-![Step3](3.png "Step 3")
+![Step3](figure/3.png "Step 3")
 #### Step 4
-![Step4](4.png "Step 4")
+![Step4](figure/4.png "Step 4")
 
 #### NOTE
 - For queries like `SELECT DISTINCT ...`, please remove `DISTINCT` keyword before parsing. 
