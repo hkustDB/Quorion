@@ -711,7 +711,7 @@ def command_line():
         f.write("Rewrite time(s): " + str(end2-end) + '\n')
 
 if __name__ == '__main__':
-    EXEC_MODE = 1
+    EXEC_MODE = 0
     if EXEC_MODE == 0:
         web_ui()
     else:
