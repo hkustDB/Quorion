@@ -5,5 +5,5 @@ create or replace view aggJoin8524680132817539633 as select src as v4, v12, anno
 create or replace view aggView4644602948599854019 as select v4, SUM(v12) as v12, SUM(annot) as annot from aggJoin8524680132817539633 group by v4;
 create or replace view aggJoin3810399316989836391 as select src as v2, dst as v4, v12, annot from Graph as g2, aggView4644602948599854019 where g2.dst=aggView4644602948599854019.v4;
 create or replace view aggView4611876661274631158 as select dst as v2, COUNT(*) as annot from Graph as g1 group by dst;
-create or replace view aggJoin5310185265778202901 as select v2 * aggView4611876661274631158.annot as v2, v4 * aggView4611876661274631158.annot as v4, v12 * aggView4611876661274631158.annot as v12 from aggJoin3810399316989836391 join aggView4611876661274631158 using(v2);
+create or replace view aggJoin5310185265778202901 as select v2 * annot as v2, v4 * annot as v4, v12 * annot as v12 from aggJoin3810399316989836391 join aggView4611876661274631158 using(v2);
 select v2,v4,SUM(v12) from aggJoin5310185265778202901 group by v2,v4;
