@@ -74,7 +74,8 @@ Move all downloaded data to path `Quorion/Data/[graph|lsqb|tpch|job]`
 ```
 $ ./scripts/update_paths.sh
 ```
-4. Load data. Load data to the DuckDB and PostgreSQL. 
+4. Change the specifications in `query/config.properties` to set the corresponding PostgreSQL config and DuckDB config. 
+5. Then load data to the DuckDB and PostgreSQL by the following commands. 
 ```
 $ ./scripts/load_data_duckdb.sh
 $ ./scripts/load_data_pg.sh
@@ -82,7 +83,7 @@ $ ./scripts/load_data_pg.sh
 
 ### Step4: Run experiments
 #### Use prepared rewritten queries directly
-1. Change the specifications in `query/config.properties`. Please set the corresponding PostgreSQL config and DuckDB config. As for the Experiment config, the default repeat times is 5 and timeout is 7200 seconds. 
+1. Change the specifications in `query/config.properties`. As for the Experiment config, the default repeat times is 5 and timeout is 7200 seconds. 
 2. Execute `./auto_run_duckdb_batch.sh` to run all duckdb experiements, `./auto_run_pg_batch.sh` to run all postgresql experiements.
 ```shell
 $ ./auto_run_duckdb_batch.sh
@@ -115,7 +116,7 @@ For details, please refer to the [SparkSQLRunner README](SparkSQLRunner/README.m
 
 
 ### Step5: plot
-1. Execute `./auto_summary.sh ${INPUT_DIR}` or `./auto_summary_job.sh ${INPUT_DIR}` to gather results for queries in `INPUT_DIR`. The generated statistis is `summary_*_statistics[_default].csv`. 
+1. Execute the following command to gather statistics. The generated statistis is in `summary_*_statistics[_default].csv`. 
 ```shell
 # Gather results for query under directory graph & lsqb & tpch & job
 ./auto_summary.sh graph
@@ -137,8 +138,6 @@ python3 draw_selectivity.py
 # Generate pictures(thread1.pdf, thread2.pdf) about parallelism. Corresponding to Figure 12.
 python3 draw_thread.py
 ```
-
-
 
 ## Part2: Extra Information [Option]
 
