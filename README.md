@@ -18,7 +18,17 @@
 0. Change directory to any directory that you want to install your PostgreSQL
 1. Install PostgreSQL 16.2 according to the instructions on https://www.postgresql.org/download/
 2. Create a database `test`. You may use another name for the database.
-3. Make sure you can access the database by `psql -d {db_name} -U {your_name} -p {your_port}` (without a password)
+3. Make sure you can access the database by `/path/to/postgresql-16.2/bin/psql -p {your_port} -d test` (without a password)
+4. Install extension after access the database by using command `CREATE EXTENSION file_fdw;`. If executing the command failed, executing the following commands. 
+```shell
+$ cd /path/to/postgresql-16.2/contrib/file_fdw
+$ make
+$ make install
+$ /path/to/postgresql-16.2/bin/pg_ctl -D /path/to/data stop
+$ /path/to/postgresql-16.2/bin/pg_ctl -D /path/to/data start
+$ /path/to/postgresql-16.2/bin/psql -p {your_port} -d test
+test=# CREATE EXTENSION file_fdw;
+```
 
 #### Spark 3.5.1
 0. Change directory to any directory that you want to install your Spark
@@ -55,28 +65,82 @@ Run `bash download_graph.sh` to download a graph from [SNAP](https://snap.stanfo
 1. Please download from [job_100](https://hkustconnect-my.sharepoint.com/:f:/g/personal/bchenba_connect_ust_hk/EsAuPFzXcb9GpfP143xOPmMBJjga6agVX05bF99ztqNxsQ?e=lOkorH)
 
 #### 5. [Important] Move the data
-Move all downloaded data to path `Quorion/Data/*`
+Move all downloaded data to path `Quorion/Data/[graph|lsqb|tpch|job]`
 
 ### Step3: Database Initialization
-#### DuckDB
-1. Make sure you have already created the experiemente data in the previous steps
+1. Make sure you have already move the data to path `Quorion/Data/[graph|lsqb|tpch|job]`.
 2. Locate to the duckdb installed location and execute `duckdb` to get into duckdb environment. 
-3. Load data. 
-- Graph data: execute `.open graph_db`. Change `PATH_TO_GRAPH_DATA` to your download graph data and execute queries in `query/load_graph.sql`
-- LSQB data: execute `.open lsqb_db`. Change `PATH_TO_LSQB_DATA` to your download lsqb data and execute queries in `query/load_lsqb.sql`
-- TPC-H data: execute `.open tpch_db`. Change `PATH_TO_TPCH_DATA` to your download tpch data and execute queries in `query/load_tpch.sql`
-- JOB data: execute `.open job_db`. Change `PATH_TO_JOB_DATA` to your download job data and execute queries in `query/load_job.sql`
-
-#### PostgreSQL
-1. Make sure you have already created the experiemente data in the previous steps
-2. Locate to the PostgreSQL installed location and execute `postgresql-16.2/bin/psql -p ${port} -d test`
-3. Load data: execute queries in `query/load_graph.sql`, `query/load_lsqb.sql`, `query/load_tpch.sql`, `query/load_job.sql`
-
+3. Replace data default path. Run the command below to replace the data path in `load_[graph|lsqb|tpch|job]_[duckdb|pg].sql`. 
+```
+$ ./scripts/update_paths.sh
+```
+4. Load data. Load data to the DuckDB and PostgreSQL. 
+```
+$ ./scripts/load_data_duckdb.sh
+$ ./scripts/load_data_pg.sh
+```
 
 ### Step4: Run experiments
 #### Use prepared rewritten queries directly
-1. Change the specifications in `query/auto_run_duckdb.sh`, `query/auto_run_pg.sh`, `query/auto_run_spark.sh`. The default timeout is 2 hours. You can change the timeout part at `SIGKILL 2h xxx` in `query/auto_run_*.sh` from `2h` to `kh` (k hours), `km` (k minutes) where k is the number in [1-9].
-2. Execute `query/auto_run_duckdb.sh` to run duckdb experiements, `query/auto_run_pg.sh` to run postgresql experiements, `query/auto_run_spark.sh` to run sparksql experiements.
+1. Change the specifications in `query/config.properties`. Please set the corresponding PostgreSQL config and DuckDB config. As for the Experiment config, the default repeat times is 5 and timeout is 7200 seconds. 
+2. Execute `./auto_run_duckdb_batch.sh` to run all duckdb experiements, `./auto_run_pg_batch.sh` to run all postgresql experiements.
+```shell
+$ ./auto_run_duckdb_batch.sh
+$ ./auto_run_pg_batch.sh
+```
+3. The queries for parallism, scale & selectivity is under query directory. 
+- For parallism testing, the queries is under query/parallelism_[lsqb|sgpb], please set parallism through
+```shell
+./auto_run_duckdb.sh parallelism_[lsqb|sgpb] [1|2|4|8|16|32|48]
+```
+- For scale testing, the queries is under query/scale_[job|lsqb]
+- For selectivity testing, the queries is under query/selectivity_[lsqb|tpch]
+
+4. Note: DuckDB and PostgreSQL have slightly different syntax.
+
+    (1.1) DuckDB requires (XXX) IN (SELECT (XXX))—the columns in the subquery must be wrapped as a tuple with parentheses.
+
+    (1.2) PostgreSQL requires (XXX) IN (SELECT XXX)—no parentheses around the subquery’s SELECT list. The current scripts are written for DuckDB. 
+    
+    (1.3) If you plan to run them on PostgreSQL, please make the following changes: Remove the extra parentheses inside the subquery (i.e., change (SELECT (XXX)) to (SELECT XXX)).
+
+    (2.1) PostgreSQL does not allow column aliases in CREATE OR REPLACE VIEW. Therefore, before every rewritten query, add
+    ```sql
+    DROP VIEW IF EXISTS xxx CASCADE;
+    ```
+    to discard any previously created view with the same name. DuckDB has no such limitation.
+
+#### SparkSQL
+For details, please refer to the [SparkSQLRunner README](SparkSQLRunner/README.md).
+
+
+### Step5: plot
+1. Execute `./auto_summary.sh ${INPUT_DIR}` or `./auto_summary_job.sh ${INPUT_DIR}` to gather results for queries in `INPUT_DIR`. The generated statistis is `summary_*_statistics[_default].csv`. 
+```shell
+# Gather results for query under directory graph & lsqb & tpch & job
+./auto_summary.sh graph
+./auto_summary.sh lsqb
+./auto_summary.sh tpch
+./auto_summary_job.sh job
+```
+2. Execute scripts under `draw/*` to do the plotting and generated picture is under `draw/*.pdf`. 
+```shell
+# Generate pictures(graph.pdf, lsqb.pdf, tpch.pdf) about running times for SGPB, LSQB and TPCH. Corresponding to Figure 9. 
+python3 draw_graph.py
+
+# Generate pictures(job_duckdb.pdf, job_postgresql.pdf) about running times for JOB. Corresponding to Figure 10. 
+python3 draw_job.py
+
+# Generate picture(selectivity_scale.pdf) about selectivity & scale. Corresponding to Figure 11. 
+python3 draw_selectivity.py
+
+# Generate pictures(thread1.pdf, thread2.pdf) about parallelism. Corresponding to Figure 12.
+python3 draw_thread.py
+```
+
+
+
+## Part2: Extra Information [Option]
 
 #### [Option] Generate rewritten queries by yourself
 1. Start parser using command 
@@ -84,11 +148,11 @@ Move all downloaded data to path `Quorion/Data/*`
 $ java -jar sparksql-plus-web-jar-with-dependencies.jar
 ```
 2. Execute main.py to launch the Python backend rewriter component.
-```
+```shell
 $ python main.py
 ```
 3. Generate rewritten queries for DuckDB SQL syntax. 
-```
+```shell
 ./auto_rewrite.sh graph graph D N
 ./auto_rewrite.sh lsqb lsqb D N
 ./auto_rewrite.sh tpch tpch D N
@@ -96,11 +160,6 @@ $ python main.py
 ```
 
 
-### Step5: plot
-
-
-
-## Part2: Extra Information [Option]
 #### Structure Overview
 - Web-based Interface
 - Java Parser Backend

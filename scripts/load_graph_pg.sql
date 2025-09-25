@@ -1,14 +1,17 @@
-drop table if exists graph;
-CREATE TABLE graph (src int, dst int);
-COPY graph FROM '/PATH_TO_GRAPH_DATA/epinions.txt' (DELIMITER '\t');
+DROP TABLE IF EXISTS graph;
+CREATE TABLE graph (src integer, dst integer);
+COPY graph FROM '/PATH_TO_GRAPH_DATA/epinions.txt' WITH (FORMAT csv, DELIMITER E'\t');
 
-drop table if exists bitcoin;
-CREATE TABLE bitcoin AS SELECT column0::INT AS src, column1::INT AS dst, column2::INT AS weight FROM read_csv_auto('/PATH_TO_GRAPH_DATA/bitcoin.txt', delim=',', header=False);
+DROP TABLE IF EXISTS bitcoin;
+CREATE TABLE bitcoin (src integer, dst integer, weight integer);
+COPY bitcoin (src, dst, weight) 
+FROM '/PATH_TO_GRAPH_DATA/bitcoin.txt' 
+WITH (FORMAT csv, DELIMITER ',', HEADER false);
 
-drop table if exists dblp;
-CREATE TABLE dblp (src int, dst int);
-COPY dblp FROM '/PATH_TO_GRAPH_DATA/dblp.txt' (DELIMITER '\t');
+DROP TABLE IF EXISTS dblp;
+CREATE TABLE dblp (src integer, dst integer);
+COPY dblp FROM '/PATH_TO_GRAPH_DATA/dblp.txt' WITH (FORMAT csv, DELIMITER E'\t');
 
-drop table if exists google;
-CREATE TABLE google (src int, dst int);
-COPY google FROM '/PATH_TO_GRAPH_DATA/google.txt' (DELIMITER '\t');
+DROP TABLE IF EXISTS google;
+CREATE TABLE google (src integer, dst integer);
+COPY google FROM '/PATH_TO_GRAPH_DATA/google.txt' WITH (FORMAT csv, DELIMITER E'\t');

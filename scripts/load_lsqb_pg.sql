@@ -3,55 +3,55 @@ CREATE TABLE Company (
     isLocatedIn_CountryId bigint,
     PRIMARY KEY (CompanyId)
 );
-COPY Company FROM '/PATH_TO_LSQB_DATA/Company.csv' (DELIMITER '|', HEADER, FORMAT csv);
+COPY Company FROM '/PATH_TO_LSQB_DATA/Company.csv' WITH (FORMAT csv, DELIMITER '|', HEADER true);
 
 CREATE TABLE University (
     UniversityId bigint,
     isLocatedIn_CityId bigint,
     PRIMARY KEY (UniversityId)
 );
-COPY University FROM '/PATH_TO_LSQB_DATA/University.csv' (DELIMITER '|', HEADER, FORMAT csv);
+COPY University FROM '/PATH_TO_LSQB_DATA/University.csv' WITH (FORMAT csv, DELIMITER '|', HEADER true);
 
 CREATE TABLE Continent (
     ContinentId bigint,
     PRIMARY KEY (ContinentId)
 );
-COPY Continent FROM '/PATH_TO_LSQB_DATA/Continent.csv' (DELIMITER '|', HEADER, FORMAT csv);
+COPY Continent FROM '/PATH_TO_LSQB_DATA/Continent.csv' WITH (FORMAT csv, DELIMITER '|', HEADER true);
 
 CREATE TABLE Country (
     CountryId bigint,
     isPartOf_ContinentId bigint,
     PRIMARY KEY (CountryId)
 );
-COPY Country FROM '/PATH_TO_LSQB_DATA/Country.csv' (DELIMITER '|', HEADER, FORMAT csv);
+COPY Country FROM '/PATH_TO_LSQB_DATA/Country.csv' WITH (FORMAT csv, DELIMITER '|', HEADER true);
 
 CREATE TABLE City (
     CityId bigint,
     isPartOf_CountryId bigint,
     PRIMARY KEY (CityId)
 );
-COPY City FROM '/PATH_TO_LSQB_DATA/City.csv' (DELIMITER '|', HEADER, FORMAT csv);
+COPY City FROM '/PATH_TO_LSQB_DATA/City.csv' WITH (FORMAT csv, DELIMITER '|', HEADER true);
 
 CREATE TABLE Tag (
     TagId bigint,
     hasType_TagClassId bigint,
     PRIMARY KEY (TagId)
 );
-COPY Tag FROM '/PATH_TO_LSQB_DATA/Tag.csv' (DELIMITER '|', HEADER, FORMAT csv);
+COPY Tag FROM '/PATH_TO_LSQB_DATA/Tag.csv' WITH (FORMAT csv, DELIMITER '|', HEADER true);
 
 CREATE TABLE TagClass (
     TagClassId bigint,
     isSubclassOf_TagClassId bigint,
     PRIMARY KEY (TagClassId)
 );
-COPY TagClass FROM '/PATH_TO_LSQB_DATA/TagClass.csv' (DELIMITER '|', HEADER, FORMAT csv);
+COPY TagClass FROM '/PATH_TO_LSQB_DATA/TagClass.csv' WITH (FORMAT csv, DELIMITER '|', HEADER true);
 
 CREATE TABLE Forum (
     ForumId bigint,
     hasModerator_PersonId bigint,
     PRIMARY KEY (ForumId)
 );
-COPY Forum FROM '/PATH_TO_LSQB_DATA/Forum.csv' (DELIMITER '|', HEADER, FORMAT csv);
+COPY Forum FROM '/PATH_TO_LSQB_DATA/Forum.csv' WITH (FORMAT csv, DELIMITER '|', HEADER true);
 
 CREATE TABLE Comment (
     CommentId bigint,
@@ -61,7 +61,7 @@ CREATE TABLE Comment (
     replyOf_CommentId bigint,
     PRIMARY KEY (CommentId)
 );
-COPY Comment FROM '/PATH_TO_LSQB_DATA/Comment.csv' (DELIMITER '|', HEADER, FORMAT csv);
+COPY Comment FROM '/PATH_TO_LSQB_DATA/Comment.csv' WITH (FORMAT csv, DELIMITER '|', HEADER true);
 
 CREATE TABLE Post (
     PostId bigint,
@@ -70,92 +70,94 @@ CREATE TABLE Post (
     isLocatedIn_CountryId bigint,
     PRIMARY KEY (PostId)
 );
-COPY Post FROM '/PATH_TO_LSQB_DATA/Post.csv' (DELIMITER '|', HEADER, FORMAT csv);
+COPY Post FROM '/PATH_TO_LSQB_DATA/Post.csv' WITH (FORMAT csv, DELIMITER '|', HEADER true);
 
 CREATE TABLE Person (
     PersonId bigint,
     isLocatedIn_CityId bigint,
     PRIMARY KEY (PersonId)
 );
-COPY Person FROM '/PATH_TO_LSQB_DATA/Person.csv' (DELIMITER '|', HEADER, FORMAT csv);
+COPY Person FROM '/PATH_TO_LSQB_DATA/Person.csv' WITH (FORMAT csv, DELIMITER '|', HEADER true);
 
-CREATE TABLE Comment_hasTag_Tag       (
-	CommentId bigint, 
-	TagId        bigint,
-	PRIMARY KEY (CommentId, TagId)
+CREATE TABLE Comment_hasTag_Tag (
+    CommentId bigint,
+    TagId bigint,
+    PRIMARY KEY (CommentId, TagId)
 );
-COPY Comment_hasTag_Tag FROM '/PATH_TO_LSQB_DATA/Comment_hasTag_Tag.csv' (DELIMITER '|', HEADER, FORMAT csv);
+COPY Comment_hasTag_Tag FROM '/PATH_TO_LSQB_DATA/Comment_hasTag_Tag.csv' WITH (FORMAT csv, DELIMITER '|', HEADER true);
 
-CREATE TABLE Post_hasTag_Tag          (
-	PostId    bigint, 
-	TagId        bigint,
-	PRIMARY KEY (PostId, TagId)
+CREATE TABLE Post_hasTag_Tag (
+    PostId bigint,
+    TagId bigint,
+    PRIMARY KEY (PostId, TagId)
 );
-COPY Post_hasTag_Tag FROM '/PATH_TO_LSQB_DATA/Post_hasTag_Tag.csv' (DELIMITER '|', HEADER, FORMAT csv);
+COPY Post_hasTag_Tag FROM '/PATH_TO_LSQB_DATA/Post_hasTag_Tag.csv' WITH (FORMAT csv, DELIMITER '|', HEADER true);
 
-CREATE TABLE Forum_hasMember_Person   (
-	ForumId   bigint, 
-	PersonId     bigint,
-	PRIMARY KEY (ForumId, PersonId)
+CREATE TABLE Forum_hasMember_Person (
+    ForumId bigint,
+    PersonId bigint,
+    PRIMARY KEY (ForumId, PersonId)
 );
-COPY Forum_hasMember_Person FROM '/PATH_TO_LSQB_DATA/Forum_hasMember_Person.csv' (DELIMITER '|', HEADER, FORMAT csv);
+COPY Forum_hasMember_Person FROM '/PATH_TO_LSQB_DATA/Forum_hasMember_Person.csv' WITH (FORMAT csv, DELIMITER '|', HEADER true);
 
-CREATE TABLE Forum_hasTag_Tag         (
-	ForumId   bigint, 
-	TagId        bigint,
-	PRIMARY KEY (ForumId, TagId)
+CREATE TABLE Forum_hasTag_Tag (
+    ForumId bigint,
+    TagId bigint,
+    PRIMARY KEY (ForumId, TagId)
 );
-COPY Forum_hasTag_Tag FROM '/PATH_TO_LSQB_DATA/Forum_hasTag_Tag.csv' (DELIMITER '|', HEADER, FORMAT csv);
+COPY Forum_hasTag_Tag FROM '/PATH_TO_LSQB_DATA/Forum_hasTag_Tag.csv' WITH (FORMAT csv, DELIMITER '|', HEADER true);
 
-CREATE TABLE Person_hasInterest_Tag   (
-	PersonId  bigint, 
-	TagId        bigint,
-	PRIMARY KEY (PersonId, TagId)
+CREATE TABLE Person_hasInterest_Tag (
+    PersonId bigint,
+    TagId bigint,
+    PRIMARY KEY (PersonId, TagId)
 );
-COPY Person_hasInterest_Tag FROM '/PATH_TO_LSQB_DATA/Person_hasInterest_Tag.csv' (DELIMITER '|', HEADER, FORMAT csv);
+COPY Person_hasInterest_Tag FROM '/PATH_TO_LSQB_DATA/Person_hasInterest_Tag.csv' WITH (FORMAT csv, DELIMITER '|', HEADER true);
 
-CREATE TABLE Person_likes_Comment     (
-	PersonId  bigint, 
-	CommentId    bigint,
-	PRIMARY KEY (PersonId, CommentId)
+CREATE TABLE Person_likes_Comment (
+    PersonId bigint,
+    CommentId bigint,
+    PRIMARY KEY (PersonId, CommentId)
 );
-COPY Person_likes_Comment FROM '/PATH_TO_LSQB_DATA/Person_likes_Comment.csv' (DELIMITER '|', HEADER, FORMAT csv);
+COPY Person_likes_Comment FROM '/PATH_TO_LSQB_DATA/Person_likes_Comment.csv' WITH (FORMAT csv, DELIMITER '|', HEADER true);
 
-CREATE TABLE Person_likes_Post        (
-	PersonId  bigint, 
-	PostId       bigint,
-	PRIMARY KEY (PersonId, PostId)
+CREATE TABLE Person_likes_Post (
+    PersonId bigint,
+    PostId bigint,
+    PRIMARY KEY (PersonId, PostId)
 );
-COPY Person_likes_Post FROM '/PATH_TO_LSQB_DATA/Person_likes_Post.csv' (DELIMITER '|', HEADER, FORMAT csv);
+COPY Person_likes_Post FROM '/PATH_TO_LSQB_DATA/Person_likes_Post.csv' WITH (FORMAT csv, DELIMITER '|', HEADER true);
 
-CREATE TABLE Person_studyAt_University(
-	PersonId  bigint, 
-	UniversityId bigint,
-	PRIMARY KEY (PersonId)
+CREATE TABLE Person_studyAt_University (
+    PersonId bigint,
+    UniversityId bigint,
+    PRIMARY KEY (PersonId)
 );
-COPY Person_studyAt_University FROM '/PATH_TO_LSQB_DATA/Person_studyAt_University.csv' (DELIMITER '|', HEADER, FORMAT csv);
+COPY Person_studyAt_University FROM '/PATH_TO_LSQB_DATA/Person_studyAt_University.csv' WITH (FORMAT csv, DELIMITER '|', HEADER true);
 
-CREATE TABLE Person_workAt_Company    (
-	PersonId  bigint, 
-	CompanyId    bigint,
-	PRIMARY KEY (PersonId, CompanyId)
+CREATE TABLE Person_workAt_Company (
+    PersonId bigint,
+    CompanyId bigint,
+    PRIMARY KEY (PersonId, CompanyId)
 );
-COPY Person_workAt_Company FROM '/PATH_TO_LSQB_DATA/Person_workAt_Company.csv' (DELIMITER '|', HEADER, FORMAT csv);
+COPY Person_workAt_Company FROM '/PATH_TO_LSQB_DATA/Person_workAt_Company.csv' WITH (FORMAT csv, DELIMITER '|', HEADER true);
 
-CREATE TABLE Person_knows_Person      (
-	Person1Id bigint, 
-	Person2Id    bigint,
-	PRIMARY KEY (Person1Id, Person2Id)
+CREATE TABLE Person_knows_Person (
+    Person1Id bigint,
+    Person2Id bigint,
+    PRIMARY KEY (Person1Id, Person2Id)
 );
-COPY Person_knows_Person FROM '/PATH_TO_LSQB_DATA/Person_knows_Person.csv' (DELIMITER '|', HEADER, FORMAT csv);
+COPY Person_knows_Person FROM '/PATH_TO_LSQB_DATA/Person_knows_Person.csv' WITH (FORMAT csv, DELIMITER '|', HEADER true);
 
-CREATE TABLE Person_knows_Person2      (
-	Person1Id bigint, 
-	Person2Id    bigint,
-	PRIMARY KEY (Person1Id, Person2Id)
+CREATE TABLE Person_knows_Person2 (
+    Person1Id bigint,
+    Person2Id bigint,
+    PRIMARY KEY (Person1Id, Person2Id)
 );
-COPY Person_knows_Person2 FROM '/PATH_TO_LSQB_DATA/Person_knows_Person.csv' (DELIMITER '|', HEADER, FORMAT csv);
-insert into Person_knows_Person select Person2Id, Person1Id from Person_knows_Person2;
+COPY Person_knows_Person2 FROM '/PATH_TO_LSQB_DATA/Person_knows_Person.csv' WITH (FORMAT csv, DELIMITER '|', HEADER true);
+
+INSERT INTO Person_knows_Person
+SELECT Person2Id, Person1Id FROM Person_knows_Person2;
 
 CREATE VIEW Message AS
   SELECT CommentId AS MessageId FROM Comment
@@ -178,7 +180,7 @@ CREATE VIEW Message_hasTag_Tag AS
   SELECT CommentId AS MessageId, TagId FROM Comment_hasTag_Tag
   UNION ALL
   SELECT PostId AS MessageId, TagId FROM Post_hasTag_Tag;
- 
+
 CREATE VIEW Message_isLocatedIn_Country AS
   SELECT CommentId AS MessageId, isLocatedIn_CountryId FROM Comment
   UNION ALL
