@@ -1,130 +1,153 @@
-drop table if exists nation;
-CREATE TABLE NATION  ( N_NATIONKEY  INTEGER NOT NULL,
-                            N_NAME       CHAR(25) NOT NULL,
-                            N_REGIONKEY  INTEGER NOT NULL,
-                            N_COMMENT    VARCHAR(152));
-COPY NATION FROM '/PATH_TO_TPCH_DATA/nation.tbl' ( DELIMITER '|' );
-
-drop table if exists region;
-CREATE TABLE REGION  ( R_REGIONKEY  INTEGER NOT NULL,
-                            R_NAME       CHAR(25) NOT NULL,
-                            R_COMMENT    VARCHAR(152));
-COPY REGION FROM '/PATH_TO_TPCH_DATA/region.tbl' ( DELIMITER '|' );
-
-drop table if exists part;
-CREATE TABLE PART  ( P_PARTKEY     INTEGER NOT NULL,
-                          P_NAME        VARCHAR(55) NOT NULL,
-                          P_MFGR        CHAR(25) NOT NULL,
-                          P_BRAND       CHAR(10) NOT NULL,
-                          P_TYPE        VARCHAR(25) NOT NULL,
-                          P_SIZE        INTEGER NOT NULL,
-                          P_CONTAINER   CHAR(10) NOT NULL,
-                          P_RETAILPRICE DECIMAL(15,2) NOT NULL,
-                          P_COMMENT     VARCHAR(23) NOT NULL );
-COPY PART FROM '/PATH_TO_TPCH_DATA/part.tbl' ( DELIMITER '|' );
-
-drop table if exists supplier;
-CREATE TABLE SUPPLIER ( S_SUPPKEY     INTEGER NOT NULL,
-                             S_NAME        CHAR(25) NOT NULL,
-                             S_ADDRESS     VARCHAR(40) NOT NULL,
-                             S_NATIONKEY   INTEGER NOT NULL,
-                             S_PHONE       CHAR(15) NOT NULL,
-                             S_ACCTBAL     DECIMAL(15,2) NOT NULL,
-                             S_COMMENT     VARCHAR(101) NOT NULL);
-COPY SUPPLIER FROM '/PATH_TO_TPCH_DATA/supplier.tbl' ( DELIMITER '|' );
-
-drop table if exists partsupp;
-CREATE TABLE PARTSUPP ( PS_PARTKEY     INTEGER NOT NULL,
-                             PS_SUPPKEY     INTEGER NOT NULL,
-                             PS_AVAILQTY    INTEGER NOT NULL,
-                             PS_SUPPLYCOST  DECIMAL(15,2)  NOT NULL,
-                             PS_COMMENT     VARCHAR(199) NOT NULL );
-COPY PARTSUPP FROM '/PATH_TO_TPCH_DATA/partsupp.tbl' ( DELIMITER '|' );
-
-drop table if exists customer;
-CREATE TABLE CUSTOMER ( C_CUSTKEY     INTEGER NOT NULL,
-                             C_NAME        VARCHAR(25) NOT NULL,
-                             C_ADDRESS     VARCHAR(40) NOT NULL,
-                             C_NATIONKEY   INTEGER NOT NULL,
-                             C_PHONE       CHAR(15) NOT NULL,
-                             C_ACCTBAL     DECIMAL(15,2)   NOT NULL,
-                             C_MKTSEGMENT  CHAR(10) NOT NULL,
-                             C_COMMENT     VARCHAR(117) NOT NULL);
-COPY CUSTOMER FROM '/PATH_TO_TPCH_DATA/customer.tbl' ( DELIMITER '|' );
-
-drop table if exists orders;
-CREATE TABLE orders (  
-  o_orderkey bigint NOT NULL,
-  o_custkey int NOT NULL,
-  o_orderstatus varchar NOT NULL,
-  o_totalprice decimal(15,2) NOT NULL,
-  o_orderdate DATE NOT NULL,
-  o_orderpriority varchar NOT NULL,
-  o_clerk varchar NOT NULL,
-  o_shippriority int NOT NULL,
-  o_comment varchar NOT NULL,
-  dummy varchar
+DROP TABLE IF EXISTS nation;
+CREATE TABLE nation (
+    n_nationkey INTEGER NOT NULL,
+    n_name CHAR(25) NOT NULL,
+    n_regionkey INTEGER NOT NULL,
+    n_comment VARCHAR(152)
 );
+COPY nation FROM '/PATH_TO_TPCH_DATA/nation.tbl' WITH (FORMAT csv, DELIMITER '|');
 
-COPY ORDERS FROM '/PATH_TO_TPCH_DATA/orders.tbl' ( DELIMITER '|' );
-
-drop table if exists lineitem;
-CREATE TABLE lineitem ( 
-  l_orderkey bigint NOT NULL,
-  l_partkey int NOT NULL,
-  l_suppkey int NOT NULL,
-  l_linenumber int NOT NULL,
-  l_quantity decimal(15,2) NOT NULL,
-  l_extendedprice decimal(15,2) NOT NULL,
-  l_discount decimal(15,2) NOT NULL,
-  l_tax decimal(15,2) NOT NULL,
-  l_returnflag varchar NOT NULL,
-  l_linestatus varchar NOT NULL,
-  l_shipdate DATE NOT NULL,
-  l_commitdate DATE NOT NULL,
-  l_receiptdate DATE NOT NULL,
-  l_shipinstruct varchar NOT NULL,
-  l_shipmode varchar NOT NULL,
-  l_comment varchar NOT NULL,
-  dummy varchar
+DROP TABLE IF EXISTS region;
+CREATE TABLE region (
+    r_regionkey INTEGER NOT NULL,
+    r_name CHAR(25) NOT NULL,
+    r_comment VARCHAR(152)
 );
+COPY region FROM '/PATH_TO_TPCH_DATA/region.tbl' WITH (FORMAT csv, DELIMITER '|');
 
-COPY LINEITEM FROM '/PATH_TO_TPCH_DATA/lineitem.tbl' ( DELIMITER '|' );
+DROP TABLE IF EXISTS part;
+CREATE TABLE part (
+    p_partkey INTEGER NOT NULL,
+    p_name VARCHAR(55) NOT NULL,
+    p_mfgr CHAR(25) NOT NULL,
+    p_brand CHAR(10) NOT NULL,
+    p_type VARCHAR(25) NOT NULL,
+    p_size INTEGER NOT NULL,
+    p_container CHAR(10) NOT NULL,
+    p_retailprice DECIMAL(15,2) NOT NULL,
+    p_comment VARCHAR(23) NOT NULL
+);
+COPY part FROM '/PATH_TO_TPCH_DATA/part.tbl' WITH (FORMAT csv, DELIMITER '|');
 
-create or replace view q2_inner as
-SELECT ps_partkey as v1_partkey, MIN(ps_supplycost) as v1_supplycost_min
-FROM partsupp, supplier, nation, region
-WHERE s_suppkey = ps_suppkey
-  AND s_nationkey = n_nationkey
-  AND n_regionkey = r_regionkey
-  AND r_name = 'EUROPE'
+DROP TABLE IF EXISTS supplier;
+CREATE TABLE supplier (
+    s_suppkey INTEGER NOT NULL,
+    s_name CHAR(25) NOT NULL,
+    s_address VARCHAR(40) NOT NULL,
+    s_nationkey INTEGER NOT NULL,
+    s_phone CHAR(15) NOT NULL,
+    s_acctbal DECIMAL(15,2) NOT NULL,
+    s_comment VARCHAR(101) NOT NULL
+);
+COPY supplier FROM '/PATH_TO_TPCH_DATA/supplier.tbl' WITH (FORMAT csv, DELIMITER '|');
+
+DROP TABLE IF EXISTS partsupp;
+CREATE TABLE partsupp (
+    ps_partkey INTEGER NOT NULL,
+    ps_suppkey INTEGER NOT NULL,
+    ps_availqty INTEGER NOT NULL,
+    ps_supplycost DECIMAL(15,2) NOT NULL,
+    ps_comment VARCHAR(199) NOT NULL
+);
+COPY partsupp FROM '/PATH_TO_TPCH_DATA/partsupp.tbl' WITH (FORMAT csv, DELIMITER '|');
+
+DROP TABLE IF EXISTS customer;
+CREATE TABLE customer (
+    c_custkey INTEGER NOT NULL,
+    c_name VARCHAR(25) NOT NULL,
+    c_address VARCHAR(40) NOT NULL,
+    c_nationkey INTEGER NOT NULL,
+    c_phone CHAR(15) NOT NULL,
+    c_acctbal DECIMAL(15,2) NOT NULL,
+    c_mktsegment CHAR(10) NOT NULL,
+    c_comment VARCHAR(117) NOT NULL
+);
+COPY customer FROM '/PATH_TO_TPCH_DATA/customer.tbl' WITH (FORMAT csv, DELIMITER '|');
+
+DROP TABLE IF EXISTS orders;
+CREATE TABLE orders (
+    o_orderkey BIGINT NOT NULL,
+    o_custkey INT NOT NULL,
+    o_orderstatus VARCHAR NOT NULL,
+    o_totalprice DECIMAL(15,2) NOT NULL,
+    o_orderdate DATE NOT NULL,
+    o_orderpriority VARCHAR NOT NULL,
+    o_clerk VARCHAR NOT NULL,
+    o_shippriority INT NOT NULL,
+    o_comment VARCHAR NOT NULL,
+    dummy VARCHAR
+);
+COPY orders FROM '/PATH_TO_TPCH_DATA/orders.tbl' WITH (FORMAT csv, DELIMITER '|');
+
+DROP TABLE IF EXISTS lineitem;
+CREATE TABLE lineitem (
+    l_orderkey BIGINT NOT NULL,
+    l_partkey INT NOT NULL,
+    l_suppkey INT NOT NULL,
+    l_linenumber INT NOT NULL,
+    l_quantity DECIMAL(15,2) NOT NULL,
+    l_extendedprice DECIMAL(15,2) NOT NULL,
+    l_discount DECIMAL(15,2) NOT NULL,
+    l_tax DECIMAL(15,2) NOT NULL,
+    l_returnflag VARCHAR NOT NULL,
+    l_linestatus VARCHAR NOT NULL,
+    l_shipdate DATE NOT NULL,
+    l_commitdate DATE NOT NULL,
+    l_receiptdate DATE NOT NULL,
+    l_shipinstruct VARCHAR NOT NULL,
+    l_shipmode VARCHAR NOT NULL,
+    l_comment VARCHAR NOT NULL,
+    dummy VARCHAR
+);
+COPY lineitem FROM '/PATH_TO_TPCH_DATA/lineitem.tbl' WITH (FORMAT csv, DELIMITER '|');
+
+-- Views
+CREATE OR REPLACE VIEW q2_inner AS
+SELECT ps_partkey AS v1_partkey, MIN(ps_supplycost) AS v1_supplycost_min
+FROM partsupp
+JOIN supplier ON s_suppkey = ps_suppkey
+JOIN nation   ON s_nationkey = n_nationkey
+JOIN region   ON n_regionkey = r_regionkey
+WHERE r_name = 'EUROPE'
 GROUP BY ps_partkey;
 
 CREATE OR REPLACE VIEW orderswithyear AS
 SELECT orders.*, EXTRACT(YEAR FROM o_orderdate) AS o_year
 FROM orders;
 
+CREATE OR REPLACE VIEW lineitemwithyear AS
+SELECT lineitem.*, EXTRACT(YEAR FROM l_shipdate) AS l_year
+FROM lineitem;
 
-create or replace view orderswithyear as select orders.*, year(o_orderdate) as o_year from orders;
+CREATE OR REPLACE VIEW revenue0 (supplier_no, total_revenue) AS
+SELECT l_suppkey, SUM(l_extendedprice * (1 - l_discount))
+FROM lineitem
+WHERE l_shipdate >= DATE '1995-02-01'
+  AND l_shipdate < DATE '1995-05-01'
+GROUP BY l_suppkey;
 
-create or replace view lineitemwithyear as select lineitem.*, year(l_shipdate) as l_year from lineitem;
+CREATE OR REPLACE VIEW q15_inner AS
+SELECT MAX(total_revenue) AS max_tr FROM revenue0;
 
-create or replace view revenue0 (supplier_no, total_revenue) as select l_suppkey, sum(l_extendedprice * (1 - l_discount))
-from lineitem
-where l_shipdate >= DATE '1995-02-01' and l_shipdate < DATE '1995-05-01'
-group by l_suppkey;
+CREATE OR REPLACE VIEW q17_inner AS
+SELECT l_partkey AS v1_partkey, 0.2 * AVG(l_quantity) AS v1_quantity_avg
+FROM lineitem l2
+GROUP BY l_partkey;
 
-create or replace view q15_inner as select max(total_revenue) as max_tr from revenue0;
+CREATE OR REPLACE VIEW q18_inner AS
+SELECT l_orderkey AS v1_orderkey
+FROM lineitem l2
+GROUP BY l_orderkey
+HAVING SUM(l_quantity) > 312;
 
-create or replace view q17_inner as select l_partkey as v1_partkey, 0.2 * AVG(l_quantity) as v1_quantity_avg from lineitem l2 group by l_partkey;
+CREATE OR REPLACE VIEW q20_inner1 AS
+SELECT p_partkey AS v1_partkey
+FROM part
+WHERE p_name LIKE 'forest%';
 
-create or replace view q18_inner as select l_orderkey as v1_orderkey from lineitem l2 group by l_orderkey having sum(l_quantity) > 312;
-
-create or replace view q20_inner1 as SELECT p_partkey as v1_partkey FROM part WHERE p_name LIKE 'forest%';
-
-create or replace view q20_inner2 as 
-SELECT 0.5 * SUM(l_quantity) as v2_quantity_sum FROM lineitem, partsupp
-WHERE l_partkey = ps_partkey
-	AND l_suppkey = ps_suppkey
-	AND l_shipdate >= DATE '1994-01-01'
-	AND l_shipdate < DATE '1995-01-01';
+CREATE OR REPLACE VIEW q20_inner2 AS
+SELECT 0.5 * SUM(l_quantity) AS v2_quantity_sum
+FROM lineitem
+JOIN partsupp ON l_partkey = ps_partkey AND l_suppkey = ps_suppkey
+WHERE l_shipdate >= DATE '1994-01-01'
+  AND l_shipdate < DATE '1995-01-01';
