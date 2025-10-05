@@ -10,9 +10,29 @@
 
 ### Step1: DBMS Requirement Preparation
 #### DuckDB 1.0: 
-0. Change directory to any directory that you want to install your DuckDB
+0. Move into install directory. Do the following command:
 1. Download *.zip or *.tar.gz file from https://github.com/duckdb/duckdb/releases/tag/v1.0.0 
 2. Extract the content and generate duckdb executable file
+```shell
+# Step 0:
+$ cd Quorion/query
+
+# Step 1:
+# duckdb_cli-linux-aarch64.zip
+$ wget https://github.com/duckdb/duckdb/releases/download/v1.0.0/duckdb_cli-linux-aarch64.zip
+    or
+# duckdb_cli-linux-amd64.zip
+wget https://github.com/duckdb/duckdb/releases/download/v1.0.0/duckdb_cli-linux-amd64.zip
+    or 
+# duckdb_cli-osx-universal.zip
+wget https://github.com/duckdb/duckdb/releases/download/v1.0.0/duckdb_cli-osx-universal.zip
+    or
+# duckdb_cli-windows-amd64.zip
+wget https://github.com/duckdb/duckdb/releases/download/v1.0.0/duckdb_cli-windows-amd64.zip
+
+# Step 3:
+unzip duckdb_cli-*.zip
+```
 
 #### PostgreSQL 16.2
 0. Change directory to any directory that you want to install your PostgreSQL
@@ -41,44 +61,56 @@ export PATH="${SPARK_HOME}/bin":"${PATH}"
 ```
 
 ### Step2: Dataset Download
+#### 0. [Important] Download path
+1. make directory under Quorion
+```shell
+$ cd Quorion/
+$ mkdir Data
+$ cd Data/
+$ mkdir graph
+$ mkdir lsqb
+$ mkdir tpch
+$ mkdir job
+
+```
+2. Move all downloaded data to path `Quorion/Data/[graph|lsqb|tpch|job]`
+
 #### 1. Graph data
-Run `bash download_graph.sh` to download a graph from [SNAP](https://snap.stanford.edu/). It is also possible to use other input data as long as the columns are separated by commas.
+1. Run `bash download_graph.sh` to download a graph from [SNAP](https://snap.stanford.edu/).
+2. Move graph data under `Quorion/Data/graph`. 
 
 #### 2. LSQB data
 ##### Choice 1: generate by yourself from official site
-1. Clone lsqb dataset generate tool from https://github.com/ldbc/lsqb
-2. Follow the instruction and generate the scale factor = 30 data result
+1. Clone lsqb dataset generate tool from https://github.com/ldbc/lsqb and generate the scale factor = 30 data result. 
+2. Move graph data under `Quorion/Data/lsqb`. 
 ##### Choice 2: download directly from the cloud storage (~13G)
 1. Please download from [lsqb_30](https://hkustconnect-my.sharepoint.com/:f:/g/personal/bchenba_connect_ust_hk/EnqiyJpKU9pLiFhye6B1wc4B33IU2CqRfMoEM31hF9WrBg?e=eE542e). 
+2. Move graph data under `Quorion/Data/lsqb`. 
 
 #### 3. TPC-H data
 ##### Choice 1: generate by yourself from official site
-1. Clone TPC-H dataset generation tool from https://www.tpc.org/tpc_documents_current_versions/current_specifications5.asp
-2. Follow the instruction and generate the scale factor = 100 data result
+1. Clone TPC-H dataset generation tool from https://www.tpc.org/tpc_documents_current_versions/current_specifications5.asp and generate the scale factor = 100 data result. 
+2. Move graph data under `Quorion/Data/tpch`. 
 ##### Choice 2: download directly from the cloud storage (~108G)
 1. Please download from [tpch_100](https://hkustconnect-my.sharepoint.com/:f:/g/personal/bchenba_connect_ust_hk/EsAuPFzXcb9GpfP143xOPmMBJjga6agVX05bF99ztqNxsQ?e=lOkorH)
+2. Move graph data under `Quorion/Data/tpch`. 
 
 #### 4. JOB data
-##### Choice 1: download from script (~3.7G, scale=1)
-1. Run `bash download_job.sh` to download job data from [DuckDB Support](https://github.com/duckdb/duckdb/blob/main/benchmark/imdb/init/load.sql)
-##### Choice 2: download directly from the cloud storage (take some time ~242G, scale=100)
-1. Please download from [job_100](https://hkustconnect-my.sharepoint.com/:f:/g/personal/bchenba_connect_ust_hk/EsAuPFzXcb9GpfP143xOPmMBJjga6agVX05bF99ztqNxsQ?e=lOkorH)
+1. Please download from [job_100](https://hkustconnect-my.sharepoint.com/:f:/g/personal/bchenba_connect_ust_hk/EsAuPFzXcb9GpfP143xOPmMBJjga6agVX05bF99ztqNxsQ?e=lOkorH). 
+2. Move graph data under `Quorion/Data/job`. 
 
-#### 5. [Important] Move the data
-Move all downloaded data to path `Quorion/Data/[graph|lsqb|tpch|job]`
 
 ### Step3: Database Initialization
 1. Make sure you have already move the data to path `Quorion/Data/[graph|lsqb|tpch|job]`.
-2. Locate to the duckdb installed location and execute `duckdb` to get into duckdb environment. 
-3. Replace data default path. Run the command below to replace the data path in `load_[graph|lsqb|tpch|job]_[duckdb|pg].sql`. 
+2. Replace the default path in `load_[graph|lsqb|tpch|job]_[duckdb|pg].sql` by running the command below.
+```shell
+$ bash scripts/update_paths.sh
 ```
-$ ./scripts/update_paths.sh
-```
-4. Change the specifications in `query/config.properties` to set the corresponding PostgreSQL config and DuckDB config. 
-5. Then load data to the DuckDB and PostgreSQL by the following commands. 
-```
-$ ./scripts/load_data_duckdb.sh
-$ ./scripts/load_data_pg.sh
+3. Copy the file `query/config.properties.template` and rename it as `query/config.properties`. Change the settings in `query/config.properties` to set the corresponding PostgreSQL config and DuckDB config. 
+4. Then load data to the DuckDB and PostgreSQL by the following commands. 
+```shell
+$ bash scripts/load_data_duckdb.sh
+$ bash scripts/load_data_pg.sh
 ```
 
 ### Step4: Generate rewritten queries
@@ -157,6 +189,81 @@ python3 draw_selectivity.py
 python3 draw_thread.py
 ```
 
+### Step7: File Structure
+```shell
+Quorion/
+├── README.md
+├── *.py                              # Python backend rewriter component
+├── sparksql-plus-web-jar-with-dependencies.jar  # Parser jar file
+├── SparkSQLRunner/
+│   └── README.md
+├── SparkSQLPlus/                     # Git submodule for Java parser
+├── Data/                             # Dataset directory (created by user)
+│   ├── graph/                        # Graph dataset
+│   ├── lsqb/                         # LSQB dataset (scale=30)
+│   ├── tpch/                         # TPC-H dataset (scale=100)
+│   └── job/                          # JOB dataset (scale=100)
+├── query/                            # Query and execution scripts
+│   ├── config.properties.template    # Configuration template
+│   ├── config.properties             # User configuration (created from template)
+│   ├── auto_run_duckdb.sh            # DuckDB execution script
+│   ├── auto_run_pg.sh                # PostgreSQL execution script
+│   ├── auto_run_duckdb_batch.sh      # Batch DuckDB execution script
+│   ├── auto_run_pg_batch.sh          # Batch PostgreSQL execution script
+│   ├── auto_rewrite.sh               # Query rewriting script
+│   ├── auto_summary.sh               # Results summary script
+│   ├── auto_summary_job.sh           # JOB results summary script
+│   ├── load_graph_duckdb.sql         # Graph data loading for DuckDB
+│   ├── load_graph_pg.sql             # Graph data loading for PostgreSQL
+│   ├── load_lsqb_duckdb.sql          # LSQB data loading for DuckDB
+│   ├── load_lsqb_pg.sql              # LSQB data loading for PostgreSQL
+│   ├── load_tpch_duckdb.sql          # TPC-H data loading for DuckDB
+│   ├── load_tpch_pg.sql              # TPC-H data loading for PostgreSQL
+│   ├── load_job_duckdb.sql           # JOB data loading for DuckDB
+│   ├── load_job_pg.sql               # JOB data loading for PostgreSQL
+│   ├── summary_*_statistics.csv      # Generated statistics files
+│   ├── summary_*_statistics_default.csv  # Default/fallback statistics
+│   ├── graph/                        # Graph queries directory
+│   ├── lsqb/                         # LSQB queries directory
+│   ├── tpch/                         # TPC-H queries directory
+│   ├── job/                          # JOB queries directory
+│   ├── parallelism_lsqb/             # Parallelism test queries (LSQB)
+│   ├── parallelism_sgpb/             # Parallelism test queries (SGPB)
+│   ├── scale_job/                    # Scale test queries (JOB)
+│   ├── scale_lsqb/                   # Scale test queries (LSQB)
+│   ├── selectivity_lsqb/             # Selectivity test queries (LSQB)
+│   ├── selectivity_tpch/             # Selectivity test queries (TPC-H)
+│   ├── src/                          # SparkSQL source files
+│   ├── Schema/                       # Schema files for SparkSQL
+│   ├── preprocess.sh                 # Cost generated script
+│   ├── gen_cost.sh                   # Cost statistics generation
+│   ├── gen_plan.sh                   # Plan generation script
+│   └── start_parser.sh               # Parser startup script
+├── draw/                             # Visualization scripts
+│   ├── draw_graph.py                 # Generate Figure 9 (SGPB, LSQB, TPCH)
+│   ├── draw_job.py                   # Generate Figure 10 (JOB performance)
+│   ├── draw_selectivity.py           # Generate Figure 11 (selectivity & scale)
+│   ├── draw_thread.py                # Generate Figure 12 (parallelism)
+│   ├── graph.pdf                     # Generated visualization output
+│   ├── lsqb.pdf                      # Generated visualization output
+│   ├── tpch.pdf                      # Generated visualization output
+│   ├── job_duckdb.pdf                # Generated visualization output
+│   ├── job_postgresql.pdf            # Generated visualization output
+│   ├── selectivity_scale.pdf         # Generated visualization output
+│   ├── thread1.pdf                   # Generated visualization output
+│   └── thread2.pdf                   # Generated visualization output
+├── scripts/                          # Utility scripts
+│   ├── update_paths.sh               # Update data paths in SQL files
+│   ├── load_data_duckdb.sh           # Load all data into DuckDB
+│   ├── load_data_pg.sh               # Load all data into PostgreSQL
+│   └── download_graph.sh             # Download graph dataset
+├── figure/                           # Documentation figures
+│   ├── 1.png
+│   ├── 2.png
+│   ├── 3.png
+└── └── 4.png
+```
+
 ## Part2: Extra Information [Option]
 
 #### Structure Overview
@@ -205,15 +312,6 @@ $ ./auto_rewrite.sh ${DDL_NAME} ${QUERY_DIR} [OPTIONS]
 e.g ./auto_rewrite.sh lsqb lsqb M N
 ```
 5. If you want to run a single query, please change the code commented `# NOTE: single query keeps here` in function `init_global_vars` (Line `587` - Line `589` in `main.py`), and comment the code block labeled `# NOTE: auto-rewrite keeps here` (the code between the two blank lines, Line `610` - Line `629` in `main.py`).
-
-
-#### Files
-- `./query/[graph|lsqb|tpch|job]`: plans for different DBMSs
-- `./query/*.sh`: auto-run scripts
-- `./query/*.sql`: load data scripts
-- `./query/[src|Schema]`: files for auto-run SparkSQL
-- `./*.py`: code for rewriter and optimizer
-- `./sparksql-plus-web-jar-with-dependencies.jar`: parser jar file
 
 ### Demonstration
 #### Step 1
