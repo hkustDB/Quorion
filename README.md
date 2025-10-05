@@ -81,13 +81,51 @@ $ ./scripts/load_data_duckdb.sh
 $ ./scripts/load_data_pg.sh
 ```
 
-### Step4: Run experiments
+### Step4: Generate rewritten queries
+#### Option1: Use the generated rewritten queries
+- Go to Step5 directly. 
+#### Option2: Generate rewritten queries by yourself
+1. Build *.jar. 
+```shell
+$ cd SparkSQLPlus
+$ mvn clean package
+$ cp sqlplus-web/target/sparksql-plus-web-jar-with-dependencies.jar ../
+```
+2. Change the `Parser config` at `query/config.properties`. 
+3. Start parser using command 
+```shell
+$ bash ./scripts/start_parser.sh
+```
+4. Execute main.py to launch the Python backend rewriter component.
+```shell
+$ python main.py
+```
+5. Generate rewritten queries for DuckDB SQL syntax. 
+```shell
+./auto_rewrite.sh graph graph_duckdb D N
+./auto_rewrite.sh graph graph_pg M N
+./auto_rewrite.sh lsqb lsqb D N
+./auto_rewrite.sh tpch tpch D N
+./auto_rewrite.sh job job D N
+```
+
+### Step5: Run experiments
 #### Use prepared rewritten queries directly
 1. Change the specifications in `query/config.properties`. As for the Experiment config, the default repeat times is 5 and timeout is 7200 seconds. 
-2. Execute `./auto_run_duckdb_batch.sh` to run all duckdb experiements, `./auto_run_pg_batch.sh` to run all postgresql experiements.
+2. Execute `./auto_run_duckdb_batch.sh` to run all duckdb experiements, `./auto_run_pg_batch.sh` to run all postgresql experiements. Or run different benchmakr seperately. 
 ```shell
 $ ./auto_run_duckdb_batch.sh
 $ ./auto_run_pg_batch.sh
+    or
+$ ./auto_run_duckdb.sh graph graph_duckdb
+$ ./auto_run_duckdb.sh lsqb lsqb
+$ ./auto_run_duckdb.sh tpch tpch
+$ ./auto_run_duckdb.sh job job
+
+$ ./auto_run_pg.sh graph_pg
+$ ./auto_run_pg.sh lsqb
+$ ./auto_run_pg.sh tpch
+$ ./auto_run_pg.sh job
 ```
 3. The queries for parallism, scale & selectivity is under query directory. 
 - For parallism testing, the queries is under query/parallelism_[lsqb|sgpb], please set parallism through
@@ -97,25 +135,11 @@ $ ./auto_run_pg_batch.sh
 - For scale testing, the queries is under query/scale_[job|lsqb]
 - For selectivity testing, the queries is under query/selectivity_[lsqb|tpch]
 
-4. Note: DuckDB and PostgreSQL have slightly different syntax.
-
-    (1.1) DuckDB requires (XXX) IN (SELECT (XXX))—the columns in the subquery must be wrapped as a tuple with parentheses.
-
-    (1.2) PostgreSQL requires (XXX) IN (SELECT XXX)—no parentheses around the subquery’s SELECT list. The current scripts are written for DuckDB. 
-    
-    (1.3) If you plan to run them on PostgreSQL, please make the following changes: Remove the extra parentheses inside the subquery (i.e., change (SELECT (XXX)) to (SELECT XXX)).
-
-    (2.1) PostgreSQL does not allow column aliases in CREATE OR REPLACE VIEW. Therefore, before every rewritten query, add
-    ```sql
-    DROP VIEW IF EXISTS xxx CASCADE;
-    ```
-    to discard any previously created view with the same name. DuckDB has no such limitation.
-
 #### SparkSQL
 For details, please refer to the [SparkSQLRunner README](SparkSQLRunner/README.md).
 
 
-### Step5: plot
+### Step6: plot
 1. Execute the following command to gather statistics. The generated statistis is in `summary_*_statistics[_default].csv`. 
 ```shell
 # Gather results for query under directory graph & lsqb & tpch & job
@@ -140,24 +164,6 @@ python3 draw_thread.py
 ```
 
 ## Part2: Extra Information [Option]
-
-#### [Option] Generate rewritten queries by yourself
-1. Start parser using command 
-```
-$ java -jar sparksql-plus-web-jar-with-dependencies.jar
-```
-2. Execute main.py to launch the Python backend rewriter component.
-```shell
-$ python main.py
-```
-3. Generate rewritten queries for DuckDB SQL syntax. 
-```shell
-./auto_rewrite.sh graph graph D N
-./auto_rewrite.sh lsqb lsqb D N
-./auto_rewrite.sh tpch tpch D N
-./auto_rewrite.sh job job D N
-```
-
 
 #### Structure Overview
 - Web-based Interface
