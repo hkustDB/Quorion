@@ -1,0 +1,17 @@
+# PostgreSQL config
+pg.path=/path/to/postgresql-16.2/bin/psql
+pg.db=test
+
+# DuckDB config
+duckdb.path=/path/to/duckdb
+
+# Experiment config
+common.experiment.repeat=5
+common.experiment.timeout=7200
+
+# Parser config (SparkSQL Plus)
+parser.home=/path/to/Quorion/SparkSQLPlus
+parser.mode=local
+parser.hdfs.host=localhost
+parser.hdfs.port=50070
+parser.hdfs.user=sqlplus
