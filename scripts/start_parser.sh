@@ -20,12 +20,12 @@ PARSER_HDFS_USER=$(prop "$CONFIG_FILE" "parser.hdfs.user")
 # Calculate JAR path
 PARSER_JAR_PATH="$PARSER_HOME/../sparksql-plus-web-jar-with-dependencies.jar"
 
-java -jar sparksql-plus-web-jar-with-dependencies.jar
-# java -Dsqlplus.home="$PARSER_HOME" \
-#            -Dexperiment.data.path="$PARSER_DATA_PATH" \
-#            -Dexperiment.mode="$PARSER_MODE" \
-#            -Dexperiment.hdfs.host="$PARSER_HDFS_HOST" \
-#            -Dexperiment.hdfs.port="$PARSER_HDFS_PORT" \
-#            -Dexperiment.hdfs.path="$PARSER_HDFS_PATH" \
-#            -Dexperiment.hdfs.user="$PARSER_HDFS_USER" \
-#            -jar sparksql-plus-web-jar-with-dependencies.jar
+# java -jar sparksql-plus-web-jar-with-dependencies.jar
+java -Dsqlplus.home="$PARSER_HOME" \
+           -Dexperiment.data.path="$PARSER_DATA_PATH" \
+           -Dexperiment.mode="$PARSER_MODE" \
+           -Dexperiment.hdfs.host="$PARSER_HDFS_HOST" \
+           -Dexperiment.hdfs.port="$PARSER_HDFS_PORT" \
+           -Dexperiment.hdfs.path="$PARSER_HDFS_PATH" \
+           -Dexperiment.hdfs.user="$PARSER_HDFS_USER" \
+           -jar sparksql-plus-web-jar-with-dependencies.jar
