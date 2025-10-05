@@ -49,7 +49,7 @@ find "$SCRIPT_DIR" -name "load_*_pg.sql" -type f | while read -r sql_file; do
     
     # Execute SQL file in PostgreSQL
     echo "  Loading data into PostgreSQL..."
-    $pg_path "-d" "${pg_db}" "-p" "${pg_port}" "-f" "${sql_file}"
+    $pg_path "-U" "postgres" "-d" "${DB}" "-f" "${sql_file}"
     
     if [ $? -eq 0 ]; then
         echo "  ✅ Successfully loaded $dataset_name data into $pg_db"

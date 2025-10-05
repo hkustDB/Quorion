@@ -156,7 +156,7 @@ do
                         OUT_FILE="${CUR_PATH}/output.txt"
                         rm -f $OUT_FILE
                         touch $OUT_FILE
-                        timeout -s SIGKILL "${timeout_time}" $PG "-d" "${DB}" "-p" "${port}" "-c" "\timing off" "-f" "${SUBMIT_QUERY_1}" "-f" "${SUBMIT_QUERY_2}" "-c" "\timing on" "-f" "${SUBMIT_QUERY_2}" | grep "Time: " >> $OUT_FILE
+                        timeout -s SIGKILL "${timeout_time}" $PG "-U" "postgres" "-d" "${DB}" "-c" "\timing off" "-f" "${SUBMIT_QUERY_1}" "-f" "${SUBMIT_QUERY_2}" "-c" "\timing on" "-f" "${SUBMIT_QUERY_2}" | grep "Time: " >> $OUT_FILE
                         status_code=$?
                         if [[ ${status_code} -eq 137 ]]; then
                            echo "0" >> $LOG_FILE
