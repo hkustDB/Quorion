@@ -1,16 +1,11 @@
 #!/bin/bash
 
-# Function to read properties from config file
-prop() {
-    local config_file="$1"
-    local property_key="$2"
-    grep "^${property_key}=" "$config_file" | cut -d'=' -f2
-}
-
 # Get the directory where the script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PARENT_DIR="$(dirname "$SCRIPT_DIR")"
 QUERY_DIR="$PARENT_DIR/query"
+
+source "$PARENT_DIR/query/common.sh"
 
 # Read configuration from config.properties
 config_files=("${QUERY_DIR}/config.properties")

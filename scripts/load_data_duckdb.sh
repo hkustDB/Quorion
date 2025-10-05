@@ -5,6 +5,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PARENT_DIR="$(dirname "$SCRIPT_DIR")"
 QUERY_DIR="$PARENT_DIR/query"
 
+source "$PARENT_DIR/query/common.sh"
+
 config_files=("${QUERY_DIR}/config.properties")
 repeat_count=$(prop ${config_files} "common.experiment.repeat")
 timeout_time=$(prop ${config_files} 'common.experiment.timeout')
@@ -52,7 +54,7 @@ find "$SCRIPT_DIR" -name "load_*_duckdb.sql" -type f | while read -r sql_file; d
     
     # Create database and load data
     echo "  Creating database and loading data..."
-    duckdb -c ".open $db_file" -c ".read $sql_file"
+    $duckdb -c ".open $db_file" -c ".read $sql_file"
     
     if [ $? -eq 0 ]; then
         echo "  ✅ Successfully created: $db_file"
