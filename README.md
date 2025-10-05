@@ -85,22 +85,16 @@ $ ./scripts/load_data_pg.sh
 #### Option1: Use the generated rewritten queries
 - Go to Step5 directly. 
 #### Option2: Generate rewritten queries by yourself
-1. Build *.jar. 
-```shell
-$ cd SparkSQLPlus
-$ mvn clean package
-$ cp sqlplus-web/target/sparksql-plus-web-jar-with-dependencies.jar ../
-```
-2. Change the `Parser config` at `query/config.properties`. 
-3. Start parser using command 
+1. Change the `Parser config` at `query/config.properties`. 
+2. Start parser using command 
 ```shell
 $ bash ./scripts/start_parser.sh
 ```
-4. Execute main.py to launch the Python backend rewriter component.
+3. Execute main.py to launch the Python backend rewriter component.
 ```shell
 $ python main.py
 ```
-5. Generate rewritten queries for DuckDB SQL syntax. 
+4. Generate rewritten queries for DuckDB SQL syntax. 
 ```shell
 ./auto_rewrite.sh graph graph_duckdb D N
 ./auto_rewrite.sh graph graph_pg M N
