@@ -64,7 +64,7 @@ $ bin/psql -U postgres test
   # Show
   test=#
 ```
-3. Make sure you can access the database by `/path/to/postgresql-16.2/bin/psql -p {your_port} -d test` (without a password)
+3. Make sure you can access the database by `/path/to/postgresql-16.2/bin/psql -U postgres -d test` (without a password)
 4. Install extension after access the database by using command `CREATE EXTENSION file_fdw;`. If executing the command failed, executing the following commands. 
 ```shell
 $ cd /path/to/postgresql-16.2/contrib/file_fdw
