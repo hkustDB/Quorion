@@ -172,16 +172,17 @@ $ python main.py
 ### Step5: Run experiments
 #### Use prepared rewritten queries directly
 1. Change the specifications in `query/config.properties`. As for the Experiment config, the default repeat times is 5 and timeout is 7200 seconds. 
-2. Execute `./auto_run_duckdb_batch.sh` to run all duckdb experiements, `./auto_run_pg_batch.sh` to run all postgresql experiements. Or run different benchmakr seperately. 
+2. Execute `./auto_run_duckdb_batch.sh` to run all duckdb experiements, `./auto_run_pg_batch.sh` to run all postgresql experiements. Or run different benchmark seperately. 
 ```shell
 $ ./auto_run_duckdb_batch.sh
 $ ./auto_run_pg_batch.sh
     or
+# Run DuckDB
 $ ./auto_run_duckdb.sh graph graph_duckdb
 $ ./auto_run_duckdb.sh lsqb lsqb
 $ ./auto_run_duckdb.sh tpch tpch
 $ ./auto_run_duckdb.sh job job
-
+# Run PG
 $ ./auto_run_pg.sh graph_pg
 $ ./auto_run_pg.sh lsqb
 $ ./auto_run_pg.sh tpch
