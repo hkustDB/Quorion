@@ -36,8 +36,34 @@ unzip duckdb_cli-*.zip
 
 #### PostgreSQL 16.2
 0. Change directory to any directory that you want to install your PostgreSQL
-1. Install PostgreSQL 16.2 according to the instructions on https://www.postgresql.org/download/
+1. Install PostgreSQL 16.2. 
+```shell
+# 1. Download 
+$ wget https://ftp.postgresql.org/pub/source/v16.2/postgresql-16.2.tar.gz
+$ tar -xvzf postgresql-16.2.tar.gz 
+$ cd postgresql-16.2
+# 2. Build
+$ ./configure --prefix=/path/to/postgresql-16.2
+$ make -j
+$ make install
+$ mkdir data
+# 3. Set environment
+$ export PGDATA=/path/to/postgresql-16.2/data
+$ export PATH=/opt/pgsql16/bin:$PATH
+# 4. Initialization
+$ initdb -D $PGDATA -E UTF8 --locale=C -U postgres
+# 5. Start pg server
+$ bin/pg_ctl -D $PGDATA -l logfile start
+```
 2. Create a database `test`. You may use another name for the database.
+```shell
+# 6. Create test database
+$ createdb -U postgres test
+# 7. Check
+$ bin/psql -U postgres test
+  # Show
+  test=#
+```
 3. Make sure you can access the database by `/path/to/postgresql-16.2/bin/psql -p {your_port} -d test` (without a password)
 4. Install extension after access the database by using command `CREATE EXTENSION file_fdw;`. If executing the command failed, executing the following commands. 
 ```shell
@@ -46,7 +72,7 @@ $ make
 $ make install
 $ /path/to/postgresql-16.2/bin/pg_ctl -D /path/to/data stop
 $ /path/to/postgresql-16.2/bin/pg_ctl -D /path/to/data start
-$ /path/to/postgresql-16.2/bin/psql -p {your_port} -d test
+$ /path/to/postgresql-16.2/bin/psql -U postgres -d test
 test=# CREATE EXTENSION file_fdw;
 ```
 
@@ -65,12 +91,12 @@ export PATH="${SPARK_HOME}/bin":"${PATH}"
 1. make directory under Quorion
 ```shell
 $ cd Quorion/
-$ mkdir Data
+$ mkdir -p Data
 $ cd Data/
-$ mkdir graph
-$ mkdir lsqb
-$ mkdir tpch
-$ mkdir job
+$ mkdir -p graph
+$ mkdir -p lsqb
+$ mkdir -p tpch
+$ mkdir -p job
 
 ```
 2. Move all downloaded data to path `Quorion/Data/[graph|lsqb|tpch|job]`
@@ -119,6 +145,8 @@ $ bash scripts/load_data_pg.sh
 #### Option2: Generate rewritten queries by yourself
 1. Build jar file. 
 ```shell
+$ git submodule init
+$ git submodule update
 $ cd SparkSQLPlus
 $ mvn clean package
 $ cp sqlplus-web/target/sparksql-plus-web-jar-with-dependencies.jar ../
