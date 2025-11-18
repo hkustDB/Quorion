@@ -30,7 +30,7 @@ job_db*
 /target/
 /.idea/
 */target/
-config.properties
+# config.properties
 /Data*/*
 /log*/*
 temp*
