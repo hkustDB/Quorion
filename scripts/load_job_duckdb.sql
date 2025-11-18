@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS aka_name (
     md5sum varchar(65),
     PRIMARY KEY (id)
 );
-insert into aka_name SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/aka_name.parquet');
+insert into aka_name SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_aka_name.parquet');
 
 CREATE TABLE IF NOT EXISTS aka_title (
     id integer NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS aka_title (
     md5sum varchar(32),
     PRIMARY KEY (id)
 );
-insert into aka_title SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/aka_title.parquet');
+insert into aka_title SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_aka_title.parquet');
 
 CREATE TABLE IF NOT EXISTS cast_info (
     id integer,
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS cast_info (
     role_id integer,
     PRIMARY KEY (id)
 );
-insert into cast_info SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/cast_info.parquet');
+insert into cast_info SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_cast_info.parquet');
 
 CREATE TABLE IF NOT EXISTS char_name (
     id integer,
@@ -50,14 +50,14 @@ CREATE TABLE IF NOT EXISTS char_name (
     md5sum varchar(32),
     PRIMARY KEY (id)
 );
-insert into char_name SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/char_name.parquet');
+insert into char_name SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_char_name.parquet');
 
 CREATE TABLE IF NOT EXISTS comp_cast_type (
     id integer,
     kind varchar(32),
     PRIMARY KEY (id)
 );
-insert into comp_cast_type SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/comp_cast_type.parquet');
+insert into comp_cast_type SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_comp_cast_type.parquet');
 
 CREATE TABLE IF NOT EXISTS company_name (
     id integer,
@@ -69,14 +69,14 @@ CREATE TABLE IF NOT EXISTS company_name (
     md5sum varchar(32),
     PRIMARY KEY (id)
 );
-insert into company_name SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/company_name.parquet');
+insert into company_name SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_company_name.parquet');
 
 CREATE TABLE IF NOT EXISTS company_type (
     id integer,
     kind varchar(32),
     PRIMARY KEY (id)
 );
-insert into company_type SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/company_type.parquet');
+insert into company_type SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_company_type.parquet');
 
 CREATE TABLE IF NOT EXISTS complete_cast (
     id integer,
@@ -85,14 +85,14 @@ CREATE TABLE IF NOT EXISTS complete_cast (
     status_id integer,
     PRIMARY KEY (id)
 );
-insert into complete_cast SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/complete_cast.parquet');
+insert into complete_cast SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_complete_cast.parquet');
 
 CREATE TABLE IF NOT EXISTS info_type (
     id integer,
     info varchar(32),
     PRIMARY KEY (id)
 );
-insert into info_type SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/info_type.parquet');
+insert into info_type SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_info_type.parquet');
 
 CREATE TABLE IF NOT EXISTS keyword (
     id integer,
@@ -100,21 +100,21 @@ CREATE TABLE IF NOT EXISTS keyword (
     phonetic_code varchar(5),
     PRIMARY KEY (id)
 );
-insert into keyword SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/keyword.parquet');
+insert into keyword SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_keyword.parquet');
 
 CREATE TABLE IF NOT EXISTS kind_type (
     id integer,
     kind varchar(15),
     PRIMARY KEY (id)
 );
-insert into kind_type SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/kind_type.parquet');
+insert into kind_type SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_kind_type.parquet');
 
 CREATE TABLE IF NOT EXISTS link_type (
     id integer,
     link varchar(32),
     PRIMARY KEY (id)
 );
-insert into link_type SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/link_type.parquet');
+insert into link_type SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_link_type.parquet');
 
 CREATE TABLE IF NOT EXISTS movie_companies (
     id integer,
@@ -124,7 +124,7 @@ CREATE TABLE IF NOT EXISTS movie_companies (
     note text,
     PRIMARY KEY (id)
 );
-insert into movie_companies SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/movie_companies.parquet');
+insert into movie_companies SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_movie_companies.parquet');
 
 CREATE TABLE IF NOT EXISTS movie_info_idx (
     id integer,
@@ -134,7 +134,7 @@ CREATE TABLE IF NOT EXISTS movie_info_idx (
     note text,
     PRIMARY KEY (id)
 );
-insert into movie_info SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/movie_info.parquet');
+insert into movie_info SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_movie_info.parquet');
 
 CREATE TABLE IF NOT EXISTS movie_keyword (
     id integer,
@@ -142,7 +142,7 @@ CREATE TABLE IF NOT EXISTS movie_keyword (
     keyword_id integer,
     PRIMARY KEY (id)
 );
-insert into movie_info_idx SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/movie_info_idx.parquet');
+insert into movie_info_idx SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_movie_info_idx.parquet');
 
 CREATE TABLE IF NOT EXISTS movie_link (
     id integer,
@@ -151,7 +151,7 @@ CREATE TABLE IF NOT EXISTS movie_link (
     link_type_id integer,
     PRIMARY KEY (id)
 );
-insert into movie_keyword SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/movie_keyword.parquet');
+insert into movie_keyword SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_movie_keyword.parquet');
 
 CREATE TABLE IF NOT EXISTS name (
     id integer,
@@ -165,14 +165,14 @@ CREATE TABLE IF NOT EXISTS name (
     md5sum varchar(32),
     PRIMARY KEY (id)
 );
-insert into movie_link SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/movie_link.parquet');
+insert into movie_link SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_movie_link.parquet');
 
 CREATE TABLE IF NOT EXISTS role_type (
     id integer,
     role varchar(32),
     PRIMARY KEY (id)
 );
-insert into name SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/name.parquet');
+insert into name SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_name.parquet');
 
 CREATE TABLE IF NOT EXISTS title (
     id integer,
@@ -189,7 +189,7 @@ CREATE TABLE IF NOT EXISTS title (
     md5sum varchar(32),
     PRIMARY KEY (id)
 );
-insert into role_type SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/role_type.parquet');
+insert into role_type SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_role_type.parquet');
 
 CREATE TABLE IF NOT EXISTS movie_info (
     id integer,
@@ -199,7 +199,7 @@ CREATE TABLE IF NOT EXISTS movie_info (
     note text,
     PRIMARY KEY (id)
 );
-insert into title SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/title.parquet');
+insert into title SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_title.parquet');
 
 CREATE TABLE IF NOT EXISTS person_info (
     id integer,
@@ -209,4 +209,4 @@ CREATE TABLE IF NOT EXISTS person_info (
     note text,
     PRIMARY KEY (id)
 );
-insert into person_info SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/person_info.parquet');
+insert into person_info SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_person_info.parquet');

@@ -87,28 +87,51 @@ export PATH="${SPARK_HOME}/bin":"${PATH}"
 ```
 
 ### Step2: Dataset Download
+#### 0. [Important] Download path
+1. make directory under Quorion
 ```shell
-$ bash scripts/download_data.sh [LSQB_SCALE] [TPCH_SCALE]
+$ cd Quorion/
+$ mkdir -p Data
+$ cd Data/
+$ mkdir -p graph
+$ mkdir -p lsqb
+$ mkdir -p tpch
+$ mkdir -p job
 
-# Examples:
-# Default (LSQB=3, TPCH=10)
-bash scripts/download_data.sh
-
-# LSQB=1, TPCH=1
-bash scripts/download_data.sh 1 1
-
-# Override via environment variables
-LSQB_SCALE=3 TPCH_SCALE=100 bash scripts/download_data.sh
 ```
+2. Move all downloaded data to path `Quorion/Data/[graph|lsqb|tpch|job]`
 
-Notes:
-- The script is idempotent: if an archive already exists, it skips re‑downloading.
-- If `zstd` is not available, the script falls back to a user‑space Python extractor.
-- Python fallback: ensure a working Python 3. If your interpreter is not `python3`, set `PY_BIN` in `scripts/download_data_lsqb.sh` (around line 41) to the correct Python path, or let the script create a local venv and install `zstandard` automatically.
+#### 1. Graph data
+1. Run `bash download_graph.sh` to download a graph from [SNAP](https://snap.stanford.edu/).
+2. Move graph data under `Quorion/Data/graph`. 
+
+#### 2. LSQB data
+##### Choice 1: generate by yourself from official site
+1. Clone lsqb dataset generate tool from https://github.com/ldbc/lsqb and generate the scale factor = 30 data result. 
+2. Move graph data under `Quorion/Data/lsqb`. 
+##### Choice 2: download directly from the cloud storage (~13G)
+1. Please download from [lsqb_30](https://hkustconnect-my.sharepoint.com/:f:/g/personal/bchenba_connect_ust_hk/EnqiyJpKU9pLiFhye6B1wc4B33IU2CqRfMoEM31hF9WrBg?e=eE542e). 
+2. Move graph data under `Quorion/Data/lsqb`. 
+
+#### 3. TPC-H data
+##### Choice 1: generate by yourself from official site
+1. Clone TPC-H dataset generation tool from https://www.tpc.org/tpc_documents_current_versions/current_specifications5.asp and generate the scale factor = 100 data result. 
+2. Move graph data under `Quorion/Data/tpch`. 
+##### Choice 2: download directly from the cloud storage (~108G)
+1. Please download from [tpch_100](https://hkustconnect-my.sharepoint.com/:f:/g/personal/bchenba_connect_ust_hk/EsAuPFzXcb9GpfP143xOPmMBJjga6agVX05bF99ztqNxsQ?e=lOkorH)
+2. Move graph data under `Quorion/Data/tpch`. 
+
+#### 4. JOB data
+##### Choice 1: download from script (~3.7G, scale=1)
+1. Run `bash download_job.sh` to download job data from [DuckDB Support](https://github.com/duckdb/duckdb/blob/main/benchmark/imdb/init/load.sql)
+##### Choice 2: download directly from the cloud storage (take some time ~242G, scale=100)
+1. Please download from [job_100](https://hkustconnect-my.sharepoint.com/:f:/g/personal/bchenba_connect_ust_hk/EsAuPFzXcb9GpfP143xOPmMBJjga6agVX05bF99ztqNxsQ?e=lOkorH). 
+2. Move graph data under `Quorion/Data/job`. 
 
 
 ### Step3: Database Initialization
-1. Replace the default path in `load_[graph|lsqb|tpch|job]_[duckdb|pg].sql` by running the command below.
+1. Make sure you have already move the data to path `Quorion/Data/[graph|lsqb|tpch|job]`.
+2. Replace the default path in `load_[graph|lsqb|tpch|job]_[duckdb|pg].sql` by running the command below.
 ```shell
 $ bash scripts/update_paths.sh
 ```
