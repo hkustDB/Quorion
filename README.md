@@ -103,7 +103,8 @@ bash scripts/download_data.sh 1 1
 Notes:
 - If `zstd` is not available, the script falls back to a user‑space Python extractor.
 - Python fallback: ensure a working Python 3. If your interpreter is not `python3`, set `PY_BIN` in `scripts/download_data_lsqb.sh` (around line 41) to the correct Python path, or let the script create a local venv and install `zstandard` automatically.
-- If you encounter missing dependencies or system packages (such as `unzip`, `pkg-config`, `libreadline-dev`, etc.) on a plain Debian-based Linux installation, you can use the provided `Dockerfile` to set up a complete environment for Quorion.
+<!--
+If you encounter missing dependencies or system packages (such as `unzip`, `pkg-config`, `libreadline-dev`, etc.) on a plain Debian-based Linux installation, you can use the provided `Dockerfile` to set up a complete environment for Quorion.
 
 **How to use:**
 
@@ -116,7 +117,7 @@ Notes:
    ```shell
    docker run -it --rm -v "$PWD":/home/appuser/Quorion quorion-env /bin/bash
    ```
-
+-->
 
 ### Step3: Database Initialization
 1. Replace the default path in `load_[graph|lsqb|tpch|job]_[duckdb|pg].sql` by running the command below.
