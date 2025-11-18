@@ -122,6 +122,9 @@ $ mkdir -p job
 2. Move graph data under `Quorion/Data/tpch`. 
 
 #### 4. JOB data
+##### Choice 1: download from script (~3.7G, scale=1)
+1. Run `bash download_job.sh` to download job data from [DuckDB Support](https://github.com/duckdb/duckdb/blob/main/benchmark/imdb/init/load.sql)
+##### Choice 2: download directly from the cloud storage (take some time ~242G, scale=100)
 1. Please download from [job_100](https://hkustconnect-my.sharepoint.com/:f:/g/personal/bchenba_connect_ust_hk/EsAuPFzXcb9GpfP143xOPmMBJjga6agVX05bF99ztqNxsQ?e=lOkorH). 
 2. Move graph data under `Quorion/Data/job`. 
 
