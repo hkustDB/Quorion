@@ -1,4 +1,4 @@
-# Query running too slow? Rewrite it with Quorion!
+# Reproductibility Manual for SIGMOD 25 Paper Yannakakis+: Practical Acyclic Query Evaluation with Theoretical Guarantees
 
 ## Part1: Reproducibility of the Experiments
 ### Step0: Environment Requirements
