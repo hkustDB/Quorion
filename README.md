@@ -112,8 +112,8 @@ Notes:
 ```shell
 $ bash scripts/update_paths.sh
 ```
-3. Copy the file `query/config.properties.template` and rename it as `query/config.properties`. Change the settings in `query/config.properties` to set the corresponding PostgreSQL config and DuckDB config. 
-4. Then load data to the DuckDB and PostgreSQL by the following commands. 
+2. Copy the file `query/config.properties.template` and rename it as `query/config.properties`. Change the settings in `query/config.properties` to set the corresponding PostgreSQL config and DuckDB config. 
+3. Then load data to the DuckDB and PostgreSQL by the following commands. 
 ```shell
 $ bash scripts/load_data_duckdb.sh
 $ bash scripts/load_data_pg.sh

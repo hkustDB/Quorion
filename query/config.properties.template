@@ -1,6 +1,7 @@
 # PostgreSQL config
 pg.path=/path/to/postgresql-16.2/bin/psql
 pg.db=test
+pg.port=5434
 
 # DuckDB config
 duckdb.path=/path/to/duckdb
