@@ -1,6 +1,3 @@
-我现在是这样的    你在我这个基础上先看看问题在哪吧
-
-
 #!/bin/bash
 
 CURRENT_SCRIPT=$(readlink -f $0)
@@ -83,7 +80,7 @@ bash auto_run_duckdb_batch.sh
 bash auto_run_pg_batch.sh
 bash auto_run_duckdb.sh parallelism_lsqb 1
 bash auto_run_duckdb.sh parallelism_lsqb 2
-bash /auto_run_duckdb.sh parallelism_lsqb 4
+bash auto_run_duckdb.sh parallelism_lsqb 4
 bash auto_run_duckdb.sh parallelism_lsqb 8
 bash auto_run_duckdb.sh parallelism_lsqb 16
 bash auto_run_duckdb.sh parallelism_lsqb 32
