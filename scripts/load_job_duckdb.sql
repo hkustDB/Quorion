@@ -134,7 +134,7 @@ CREATE TABLE IF NOT EXISTS movie_info_idx (
     note text,
     PRIMARY KEY (id)
 );
-insert into movie_info SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_movie_info.parquet');
+insert into movie_info_idx SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_movie_info_idx.parquet');
 
 CREATE TABLE IF NOT EXISTS movie_keyword (
     id integer,
@@ -142,7 +142,7 @@ CREATE TABLE IF NOT EXISTS movie_keyword (
     keyword_id integer,
     PRIMARY KEY (id)
 );
-insert into movie_info_idx SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_movie_info_idx.parquet');
+insert into movie_keyword SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_movie_keyword.parquet');
 
 CREATE TABLE IF NOT EXISTS movie_link (
     id integer,
@@ -151,7 +151,7 @@ CREATE TABLE IF NOT EXISTS movie_link (
     link_type_id integer,
     PRIMARY KEY (id)
 );
-insert into movie_keyword SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_movie_keyword.parquet');
+insert into movie_link SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_movie_link.parquet');
 
 CREATE TABLE IF NOT EXISTS name (
     id integer,
@@ -165,14 +165,14 @@ CREATE TABLE IF NOT EXISTS name (
     md5sum varchar(32),
     PRIMARY KEY (id)
 );
-insert into movie_link SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_movie_link.parquet');
+insert into name SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_name.parquet');
 
 CREATE TABLE IF NOT EXISTS role_type (
     id integer,
     role varchar(32),
     PRIMARY KEY (id)
 );
-insert into name SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_name.parquet');
+insert into role_type SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_role_type.parquet');
 
 CREATE TABLE IF NOT EXISTS title (
     id integer,
@@ -189,7 +189,7 @@ CREATE TABLE IF NOT EXISTS title (
     md5sum varchar(32),
     PRIMARY KEY (id)
 );
-insert into role_type SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_role_type.parquet');
+insert into title SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_title.parquet');
 
 CREATE TABLE IF NOT EXISTS movie_info (
     id integer,
@@ -199,7 +199,7 @@ CREATE TABLE IF NOT EXISTS movie_info (
     note text,
     PRIMARY KEY (id)
 );
-insert into title SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_title.parquet');
+insert into movie_info SELECT * FROM read_parquet('/PATH_TO_JOB_DATA/job_movie_info.parquet');
 
 CREATE TABLE IF NOT EXISTS person_info (
     id integer,

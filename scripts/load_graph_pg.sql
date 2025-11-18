@@ -3,8 +3,8 @@ CREATE TABLE graph (src integer, dst integer);
 COPY graph FROM '/PATH_TO_GRAPH_DATA/epinions.txt' WITH (FORMAT csv, DELIMITER E'\t');
 
 DROP TABLE IF EXISTS bitcoin;
-CREATE TABLE bitcoin (src integer, dst integer, weight integer);
-COPY bitcoin (src, dst, weight) 
+CREATE TABLE bitcoin (src integer, dst integer, weight integer, ts integer);
+COPY bitcoin (src, dst, weight, ts) 
 FROM '/PATH_TO_GRAPH_DATA/bitcoin.txt' 
 WITH (FORMAT csv, DELIMITER ',', HEADER false);
 

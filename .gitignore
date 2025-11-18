@@ -23,6 +23,7 @@ query/job2/*
 graph_db*
 tpch_db*
 lsqb_db*
+job_db*
 
 # Project exclude paths
 /out/

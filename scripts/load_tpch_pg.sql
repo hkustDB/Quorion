@@ -3,7 +3,8 @@ CREATE TABLE nation (
     n_nationkey INTEGER NOT NULL,
     n_name CHAR(25) NOT NULL,
     n_regionkey INTEGER NOT NULL,
-    n_comment VARCHAR(152)
+    n_comment VARCHAR(152),
+    dummy VARCHAR
 );
 COPY nation FROM '/PATH_TO_TPCH_DATA/nation.tbl' WITH (FORMAT csv, DELIMITER '|');
 
@@ -11,7 +12,8 @@ DROP TABLE IF EXISTS region;
 CREATE TABLE region (
     r_regionkey INTEGER NOT NULL,
     r_name CHAR(25) NOT NULL,
-    r_comment VARCHAR(152)
+    r_comment VARCHAR(152),
+    dummy VARCHAR
 );
 COPY region FROM '/PATH_TO_TPCH_DATA/region.tbl' WITH (FORMAT csv, DELIMITER '|');
 
@@ -25,7 +27,8 @@ CREATE TABLE part (
     p_size INTEGER NOT NULL,
     p_container CHAR(10) NOT NULL,
     p_retailprice DECIMAL(15,2) NOT NULL,
-    p_comment VARCHAR(23) NOT NULL
+    p_comment VARCHAR(23) NOT NULL,
+    dummy VARCHAR
 );
 COPY part FROM '/PATH_TO_TPCH_DATA/part.tbl' WITH (FORMAT csv, DELIMITER '|');
 
@@ -37,7 +40,8 @@ CREATE TABLE supplier (
     s_nationkey INTEGER NOT NULL,
     s_phone CHAR(15) NOT NULL,
     s_acctbal DECIMAL(15,2) NOT NULL,
-    s_comment VARCHAR(101) NOT NULL
+    s_comment VARCHAR(101) NOT NULL,
+    dummy VARCHAR
 );
 COPY supplier FROM '/PATH_TO_TPCH_DATA/supplier.tbl' WITH (FORMAT csv, DELIMITER '|');
 
@@ -47,7 +51,8 @@ CREATE TABLE partsupp (
     ps_suppkey INTEGER NOT NULL,
     ps_availqty INTEGER NOT NULL,
     ps_supplycost DECIMAL(15,2) NOT NULL,
-    ps_comment VARCHAR(199) NOT NULL
+    ps_comment VARCHAR(199) NOT NULL,
+    dummy VARCHAR
 );
 COPY partsupp FROM '/PATH_TO_TPCH_DATA/partsupp.tbl' WITH (FORMAT csv, DELIMITER '|');
 
@@ -60,7 +65,8 @@ CREATE TABLE customer (
     c_phone CHAR(15) NOT NULL,
     c_acctbal DECIMAL(15,2) NOT NULL,
     c_mktsegment CHAR(10) NOT NULL,
-    c_comment VARCHAR(117) NOT NULL
+    c_comment VARCHAR(117) NOT NULL,
+    dummy VARCHAR
 );
 COPY customer FROM '/PATH_TO_TPCH_DATA/customer.tbl' WITH (FORMAT csv, DELIMITER '|');
 
