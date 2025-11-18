@@ -87,6 +87,8 @@ export PATH="${SPARK_HOME}/bin":"${PATH}"
 ```
 
 ### Step2: Dataset Download
+Generate datasets: Graph, LSQB, TPCH, JOB. 
+
 ```shell
 $ bash scripts/download_data.sh [LSQB_SCALE] [TPCH_SCALE]
 
@@ -96,15 +98,24 @@ bash scripts/download_data.sh
 
 # LSQB=1, TPCH=1
 bash scripts/download_data.sh 1 1
-
-# Override via environment variables
-LSQB_SCALE=3 TPCH_SCALE=100 bash scripts/download_data.sh
 ```
 
 Notes:
-- The script is idempotent: if an archive already exists, it skips re‑downloading.
 - If `zstd` is not available, the script falls back to a user‑space Python extractor.
 - Python fallback: ensure a working Python 3. If your interpreter is not `python3`, set `PY_BIN` in `scripts/download_data_lsqb.sh` (around line 41) to the correct Python path, or let the script create a local venv and install `zstandard` automatically.
+- If you encounter missing dependencies or system packages (such as `unzip`, `pkg-config`, `libreadline-dev`, etc.) on a plain Debian-based Linux installation, you can use the provided `Dockerfile` to set up a complete environment for Quorion.
+
+**How to use:**
+
+1. Build the Docker image:
+   ```shell
+   docker build -t quorion-env .
+   ```
+
+2. Start a container with your project directory mounted:
+   ```shell
+   docker run -it --rm -v "$PWD":/home/appuser/Quorion quorion-env /bin/bash
+   ```
 
 
 ### Step3: Database Initialization
