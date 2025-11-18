@@ -215,30 +215,25 @@ python3 draw_selectivity.py
 python3 draw_thread.py
 ```
 
-### Step7: File Structure
+### File Structure
+
 ```shell
 Quorion/
 ├── README.md
-├── *.py                              # Python backend rewriter component
-├── sparksql-plus-web-jar-with-dependencies.jar  # Parser jar file
+├── Dockerfile                        # Container setup for all dependencies
+├── *.py                              # Python backend rewriter components
+├── sparksql-plus-web-jar-with-dependencies.jar  # Java parser jar file
 ├── SparkSQLRunner/
 │   └── README.md
 ├── SparkSQLPlus/                     # Git submodule for Java parser
 ├── Data/                             # Dataset directory (created by user)
 │   ├── graph/                        # Graph dataset
-│   ├── lsqb/                         # LSQB dataset (scale=30)
-│   ├── tpch/                         # TPC-H dataset (scale=100)
-│   └── job/                          # JOB dataset (scale=100)
+│   ├── lsqb/                         # LSQB dataset
+│   ├── tpch/                         # TPC-H dataset
+│   └── job/                          # JOB dataset
 ├── query/                            # Query and execution scripts
 │   ├── config.properties.template    # Configuration template
-│   ├── config.properties             # User configuration (created from template)
-│   ├── auto_run_duckdb.sh            # DuckDB execution script
-│   ├── auto_run_pg.sh                # PostgreSQL execution script
-│   ├── auto_run_duckdb_batch.sh      # Batch DuckDB execution script
-│   ├── auto_run_pg_batch.sh          # Batch PostgreSQL execution script
-│   ├── auto_rewrite.sh               # Query rewriting script
-│   ├── auto_summary.sh               # Results summary script
-│   ├── auto_summary_job.sh           # JOB results summary script
+│   ├── config.properties             # User configuration
 │   ├── load_graph_duckdb.sql         # Graph data loading for DuckDB
 │   ├── load_graph_pg.sql             # Graph data loading for PostgreSQL
 │   ├── load_lsqb_duckdb.sql          # LSQB data loading for DuckDB
@@ -247,12 +242,22 @@ Quorion/
 │   ├── load_tpch_pg.sql              # TPC-H data loading for PostgreSQL
 │   ├── load_job_duckdb.sql           # JOB data loading for DuckDB
 │   ├── load_job_pg.sql               # JOB data loading for PostgreSQL
-│   ├── summary_*_statistics.csv      # Generated statistics files
-│   ├── summary_*_statistics_default.csv  # Default/fallback statistics
-│   ├── graph/                        # Graph queries directory
-│   ├── lsqb/                         # LSQB queries directory
-│   ├── tpch/                         # TPC-H queries directory
-│   ├── job/                          # JOB queries directory
+│   ├── auto_run_duckdb.sh            # DuckDB execution script
+│   ├── auto_run_pg.sh                # PostgreSQL execution script
+│   ├── auto_run_duckdb_batch.sh      # Batch DuckDB execution script
+│   ├── auto_run_pg_batch.sh          # Batch PostgreSQL execution script
+│   ├── auto_rewrite.sh               # Query rewriting script
+│   ├── auto_summary.sh               # Results summary script
+│   ├── auto_summary_job.sh           # JOB results summary script
+│   ├── update_paths.sh               # Update data paths in SQL files
+│   ├── preprocess.sh                 # Cost generation script
+│   ├── gen_cost.sh                   # Cost statistics generation
+│   ├── gen_plan.sh                   # Plan generation script
+│   ├── start_parser.sh               # Parser startup script
+│   ├── graph/                        # Graph queries
+│   ├── lsqb/                         # LSQB queries
+│   ├── tpch/                         # TPC-H queries
+│   ├── job/                          # JOB queries
 │   ├── parallelism_lsqb/             # Parallelism test queries (LSQB)
 │   ├── parallelism_sgpb/             # Parallelism test queries (SGPB)
 │   ├── scale_job/                    # Scale test queries (JOB)
@@ -261,33 +266,35 @@ Quorion/
 │   ├── selectivity_tpch/             # Selectivity test queries (TPC-H)
 │   ├── src/                          # SparkSQL source files
 │   ├── Schema/                       # Schema files for SparkSQL
-│   ├── preprocess.sh                 # Cost generated script
-│   ├── gen_cost.sh                   # Cost statistics generation
-│   ├── gen_plan.sh                   # Plan generation script
-│   └── start_parser.sh               # Parser startup script
-├── draw/                             # Visualization scripts
+│   ├── summary_*_statistics.csv      # Generated statistics files
+│   ├── summary_*_statistics_default.csv  # Default/fallback statistics
+├── draw/                             # Visualization scripts and outputs
 │   ├── draw_graph.py                 # Generate Figure 9 (SGPB, LSQB, TPCH)
 │   ├── draw_job.py                   # Generate Figure 10 (JOB performance)
 │   ├── draw_selectivity.py           # Generate Figure 11 (selectivity & scale)
 │   ├── draw_thread.py                # Generate Figure 12 (parallelism)
-│   ├── graph.pdf                     # Generated visualization output
-│   ├── lsqb.pdf                      # Generated visualization output
-│   ├── tpch.pdf                      # Generated visualization output
-│   ├── job_duckdb.pdf                # Generated visualization output
-│   ├── job_postgresql.pdf            # Generated visualization output
-│   ├── selectivity_scale.pdf         # Generated visualization output
-│   ├── thread1.pdf                   # Generated visualization output
-│   └── thread2.pdf                   # Generated visualization output
+│   ├── graph.pdf                     # Visualization output
+│   ├── lsqb.pdf                      # Visualization output
+│   ├── tpch.pdf                      # Visualization output
+│   ├── job_duckdb.pdf                # Visualization output
+│   ├── job_postgresql.pdf            # Visualization output
+│   ├── selectivity_scale.pdf         # Visualization output
+│   ├── thread1.pdf                   # Visualization output
+│   └── thread2.pdf                   # Visualization output
 ├── scripts/                          # Utility scripts
 │   ├── update_paths.sh               # Update data paths in SQL files
-│   ├── load_data_duckdb.sh           # Load all data into DuckDB
-│   ├── load_data_pg.sh               # Load all data into PostgreSQL
-│   └── download_graph.sh             # Download graph dataset
+│   ├── load_data_duckdb.sh           # Unified data loader for DuckDB
+│   ├── load_data_pg.sh               # Unified data loader for PostgreSQL
+│   ├── download_data.sh              # Download all datasets
+│   ├── download_graph.sh             # Download graph dataset
+│   ├── download_lsqb.sh              # Download LSQB dataset
+│   ├── download_tpch.sh              # Download TPCH dataset
+│   ├── download_job.sh               # Download JOB dataset
 ├── figure/                           # Documentation figures
 │   ├── 1.png
 │   ├── 2.png
 │   ├── 3.png
-└── └── 4.png
+│   └── 4.png
 ```
 
 ## Part2: Extra Information [Option]
