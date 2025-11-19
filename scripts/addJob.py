@@ -1,5 +1,6 @@
 import pyarrow.parquet as pq
 import pyarrow as pa
+import argparse
 import pandas as pd
 import csv
 import sys
@@ -37,8 +38,14 @@ schema = {'aka_name': [('id', pa.int32()), ('person_id', pa.int32()), ('name', p
           'movie_info': [('id', pa.int32()), ('movie_id', pa.int32()), ('info_type_id', pa.int32()), ('info', pa.string()), ('note', pa.string())],
           'person_info': [('id', pa.int32()), ('person_id', pa.int32()), ('info_type_id', pa.int32()), ('info', pa.string()), ('note', pa.string())]}
 
-PATH_CSV="/Users/cbn/Desktop/imdb_csv/"
-PATH_PARQUET="/Users/cbn/Desktop/imdb_parquet/"
+# Add argument parsing
+parser = argparse.ArgumentParser(description="Generate new data partitions for paper-scale experiments.")
+parser.add_argument('--csv_path', type=str, default='', help='Path to CSV files')
+parser.add_argument('--parquet_path', type=str, default='', help='Path to Parquet files')
+args = parser.parse_args()
+
+PATH_CSV = args.csv_path
+PATH_PARQUET = args.parquet_path
 
 def process(name: str, type: str = "csv", add: int = 36244400):
     if type == "parquet":
@@ -81,7 +88,7 @@ def process(name: str, type: str = "csv", add: int = 36244400):
 
 if __name__ == '__main__':
     tables = ['aka_name', 'aka_title', 'cast_info', 'char_name', 'comp_cast_type', 'company_name', 'company_type', 'complete_cast', 'info_type', 'keyword', 'kind_type', 'link_type', 'movie_companies', 'movie_info_idx', 'movie_keyword', 'movie_link', 'name', 'role_type', 'title', 'movie_info', 'person_info']
-    for iter in range(10, 50):
+    for iter in range(-50, 50):
         for table in tables:
             process(table, type="parquet", add=36244400*iter)
     

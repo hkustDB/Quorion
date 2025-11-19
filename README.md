@@ -2,6 +2,36 @@
 
 ## Quick Start (Automated Setup)
 
+### Step0: Environment Requirements
+- Java JDK 1.8
+- Scala 2.12.10
+- Maven 3.8.6
+- Python version >= 3.9
+- Python package requirements: docopt, requests, flask, openpyxl, pandas, matplotlib, numpy, argparse
+
+**Python Environment Setup:**
+```shell
+# Create virtual environment (recommended)
+$ python3 -m venv .venv
+$ source .venv/bin/activate
+$ pip install docopt requests flask openpyxl pandas matplotlib numpy
+
+# Update config to use virtual environment
+$ echo "python3.bin=$(pwd)/.venv/bin/python3" >> query/config.properties
+```
+
+**Configuration:**
+Before running, you may customize settings in `query/config.properties`:
+```properties
+# Python environment (default or custom path)
+python3.bin=python3
+
+# Experiment settings
+common.experiment.repeat=1
+common.experiment.timeout=60
+```
+
+### Step1: Run
 For a fully automated setup and execution of all experiments, use:
 
 ```shell
@@ -17,27 +47,32 @@ This single script will:
 6. Generate summary statistics and plots
 7. The final plot results will be under `draw/*.pdf`
 
-**Prerequisites:**
-- Java JDK 1.8
-- Scala 2.12.10
-- Maven 3.8.6
-- Python version >= 3.9
-- Python packages: docopt, requests, flask, openpyxl, pandas, matplotlib, numpy
+---
 
-**Configuration:**
-Before running, you may customize settings in `query/config.properties`:
-```properties
-# Python environment (default or custom path)
-python3.bin=python3
+## Paper-Scale Data Workflow
+To run the paper scale workflow, follow these steps:
 
-# Experiment settings
-common.experiment.repeat=1
-common.experiment.timeout=60
-
-# Database settings
-pg.db=test
-pg.port=5434
+### Step1: Run Phase 1 script
+Change the last line in `scripts/run_all_1.sh` to paper scale `bash scripts/download_data.sh 30 100`. Then execute the initial bash script:
+```bash
+bash scripts/run_all_1.sh
 ```
+
+### Step 2: Add Jobs
+Run the script with your desired CSV and Parquet paths:
+
+```bash
+python3 scripts/addJob.py --csv_path /path/to/csv/ --parquet_path /path/to/parquet/
+```
+
+Replace `/path/to/csv/` and `/path/to/parquet/` with your actual directories. This will process all tables and generate new Parquet files with updated IDs in the specified output path.
+
+### Step3: Run Phase 2 script 
+   Execute the second bash script:
+   ```bash
+   bash scripts/run_all_2.sh
+   ```
+
 ---
 
 ## Manual Setup (Step-by-Step)
@@ -45,24 +80,6 @@ pg.port=5434
 If you prefer manual setup or need to customize individual steps, follow the detailed instructions below.
 
 ## Part1: Reproducibility of the Experiments
-
-### Step0: Environment Requirements
-- Java JDK 1.8
-- Scala 2.12.10
-- Maven 3.8.6
-- Python version >= 3.9
-- Python package requirements: docopt, requests, flask, openpyxl, pandas, matplotlib, numpy
-
-**Python Environment Setup:**
-```shell
-# Create virtual environment (recommended)
-$ python3 -m venv .venv
-$ source .venv/bin/activate
-$ pip install docopt requests flask openpyxl pandas matplotlib numpy
-
-# Update config to use virtual environment
-$ echo "python3.bin=$(pwd)/.venv/bin/python3" >> query/config.properties
-```
 
 ### Step1: DBMS Requirement Preparation
 
@@ -138,16 +155,6 @@ test=# CREATE EXTENSION file_fdw;
 ```shell
 $ bash scripts/run_spark.sh
 # Spark will be automatically downloaded to Quorion/spark/spark-3.5.1/
-```
-
-**Manual Installation:**
-0. Change directory to any directory that you want to install your Spark
-1. Download Spark 3.5.1 from https://archive.apache.org/dist/spark/spark-3.5.1/
-2. Extract the downloaded package
-3. Set environment variables. Please ensure to modify them according to your file path.
-```shell
-export SPARK_HOME="/path/to/spark-3.5.1"
-export PATH="${SPARK_HOME}/bin:${PATH}"
 ```
 
 ### Step2: Dataset Download
