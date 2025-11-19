@@ -16,6 +16,7 @@ function execute_sparksql {
   queryPath=$2
   schema=$3
   tableSuffix=$4
+  parallelism=$5
 
   # rm -rf "${SCRIPT_PATH}/log/"
   mkdir -p "${SCRIPT_PATH}/log/"
@@ -36,4 +37,4 @@ function execute_sparksql {
   done
 }
 
-execute_sparksql $1 $2 $3 $4
+execute_sparksql $1 $2 $3 $4 $5
