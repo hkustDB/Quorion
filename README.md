@@ -62,6 +62,7 @@ bash scripts/run_all_1.sh
 Run the script with your desired CSV and Parquet paths:
 
 ```bash
+mkdir -p Data/job/new
 python3 scripts/addJob.py
 ```
 
