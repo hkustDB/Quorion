@@ -47,6 +47,7 @@ echo "Initializing database..."
 cd "${ROOT_PATH}"
 bash scripts/update_paths.sh
 
+echo "" >> "${QUERY_PATH}/config.properties"
 echo "duckdb.path=${QUERY_PATH}/duckdb" >> "${QUERY_PATH}/config.properties"
 echo "" >> "${QUERY_PATH}/config.properties"
 echo "pg.path=${PG_PATH}/postgresql/bin/psql" >> "${QUERY_PATH}/config.properties"
