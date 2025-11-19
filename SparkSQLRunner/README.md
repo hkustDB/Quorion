@@ -17,8 +17,8 @@ mvn clean package
 
 ### Run Single Query
 ```shell
-# bash ExecuteQuery.sh ${DATA_PATH} ${QUERY_NAME} ${SCHEMA_NAME} ${TABLE_SUFFIX}
-bash ExecuteQuery.sh "/path/to/Data/" "/path/to/Query/" "GraphSchema" "csv"
+# bash ExecuteQuery.sh ${DATA_PATH} ${QUERY_NAME} ${SCHEMA_NAME} ${TABLE_SUFFIX} ${PARALLELISM}
+bash ExecuteQuery.sh "/path/to/Data/" "/path/to/Query/" "GraphSchema" "csv" "8"
 ```
 ### Run Benchmark
 ```shell
