@@ -31,7 +31,7 @@ DATA_DIR="${QUORION_DIR}/Data"
 
 source "${QUORION_DIR}/query/common.sh"
 # Read Python path from config
-config_files=("${QUERY_PATH}/config.properties")
+config_files=("${QUORION_DIR}/query/config.properties")
 PYTHON_BIN=$(prop ${config_files} "python3.bin")
 
 print_info "Starting LSQB data download process..."
