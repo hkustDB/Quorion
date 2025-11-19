@@ -7,7 +7,7 @@
 - Scala 2.12.10
 - Maven 3.8.6
 - Python version >= 3.9
-- Python package requirements: docopt, requests, flask, openpyxl, pandas, matplotlib, numpy, argparse
+- Python package requirements: docopt, requests, flask, openpyxl, pandas, matplotlib, numpy, argparse, pyarrow
 
 **Python Environment Setup:**
 ```shell
