@@ -1,9 +1,9 @@
-create or replace TEMP view g1 as select Graph.src as v7, Graph.dst as v2, v8 from Graph, (SELECT src, COUNT(*) AS v8 FROM Graph GROUP BY src) AS c1 where Graph.src = c1.src;
-create or replace TEMP view g2 as select Graph.src as v2, Graph.dst as v4, v12 from Graph, (SELECT src, COUNT(*) AS v12 FROM Graph GROUP BY src) AS c3 where Graph.src = c3.src;
+create or replace TEMP view g1 as select epinions.src as v7, epinions.dst as v2, v8 from epinions, (SELECT src, COUNT(*) AS v8 FROM epinions GROUP BY src) AS c1 where epinions.src = c1.src;
+create or replace TEMP view g2 as select epinions.src as v2, epinions.dst as v4, v12 from epinions, (SELECT src, COUNT(*) AS v12 FROM epinions GROUP BY src) AS c3 where epinions.src = c3.src;
 create or replace TEMP view orderView798430919106563119 as select v7, v2, v8, row_number() over (partition by v2 order by v8) as rn from g1;
 create or replace TEMP view minView4087590727989022274 as select v2, v8 as mfL1632864140027079100 from orderView798430919106563119 where rn = 1;
 create or replace TEMP view joinView3834482132001083096 as select v2, v4, v12, mfL1632864140027079100 from g2 join minView4087590727989022274 using(v2);
-create or replace TEMP view g3 as select Graph.src as v4, Graph.dst as v9, v10, v14 from Graph, (SELECT src, COUNT(*) AS v10 FROM Graph GROUP BY src) AS c2, (SELECT dst, COUNT(*) AS v14 FROM Graph GROUP BY dst) AS c4 where Graph.dst = c2.src and Graph.dst = c4.dst;
+create or replace TEMP view g3 as select epinions.src as v4, epinions.dst as v9, v10, v14 from epinions, (SELECT src, COUNT(*) AS v10 FROM epinions GROUP BY src) AS c2, (SELECT dst, COUNT(*) AS v14 FROM epinions GROUP BY dst) AS c4 where epinions.dst = c2.src and epinions.dst = c4.dst;
 create or replace TEMP view orderView2327969131291024343 as select v2, v4, v12, mfL1632864140027079100, row_number() over (partition by v4 order by mfL1632864140027079100) as rn from joinView3834482132001083096;
 create or replace TEMP view minView6616171631384632344 as select v4, mfL1632864140027079100 as mfL6381769536451792279 from orderView2327969131291024343 where rn = 1;
 create or replace TEMP view joinView1085041706562003862 as select v4, v9, v10, v14, mfL6381769536451792279 from g3 join minView6616171631384632344 using(v4) where mfL6381769536451792279<v10;

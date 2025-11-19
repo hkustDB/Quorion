@@ -1,11 +1,20 @@
 #!/bin/bash
-
-python="/usr/bin/python3"
-
 SCRIPT=$(readlink -f $0)
 SCRIPT_PATH=$(dirname "${SCRIPT}")
 
-PYTHON_ENV="/usr/bin/python3"
+# Source common functions to read config
+source "${SCRIPT_PATH}/query/common.sh"
+
+# Read Python path from config
+config_files=("${SCRIPT_PATH}/query/config.properties")
+PYTHON_BIN=$(prop ${config_files} "python3.bin")
+
+# Fallback to python3 if not set
+if [ -z "$PYTHON_BIN" ]; then
+    PYTHON_BIN="python3"
+fi
+
+echo "Using Python: ${PYTHON_BIN}"
 
 INPUT_DIR="query/$2"
 INPUT_DIR_PATH="${SCRIPT_PATH}/${INPUT_DIR}"

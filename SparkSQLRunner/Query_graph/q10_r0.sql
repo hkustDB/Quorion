@@ -1,11 +1,11 @@
-create or replace TEMP view aggView430676645271644388 as select dst as v2, SUM(src) as v9, COUNT(*) as annot, src as v1 from Graph as g1 group by dst,src;
-create or replace TEMP view aggJoin726688511545442824 as select src as v2, dst as v4, v9, v1, annot from Graph as g2, aggView430676645271644388 where g2.src=aggView430676645271644388.v2;
+create or replace TEMP view aggView430676645271644388 as select dst as v2, SUM(src) as v9, COUNT(*) as annot, src as v1 from epinions as g1 group by dst,src;
+create or replace TEMP view aggJoin726688511545442824 as select src as v2, dst as v4, v9, v1, annot from epinions as g2, aggView430676645271644388 where g2.src=aggView430676645271644388.v2;
 create or replace TEMP view orderView9043212851639369370 as select v2, v4, v9, v1, annot, row_number() over (partition by v4 order by v1) as rn from aggJoin726688511545442824;
 create or replace TEMP view minView2304993898264720432 as select v4, v1 as mfL7672348792962525610 from orderView9043212851639369370 where rn = 1;
-create or replace TEMP view joinView8140506543115108459 as select src as v4, dst as v6, mfL7672348792962525610 from Graph AS g3, minView2304993898264720432 where g3.src=minView2304993898264720432.v4;
+create or replace TEMP view joinView8140506543115108459 as select src as v4, dst as v6, mfL7672348792962525610 from epinions AS g3, minView2304993898264720432 where g3.src=minView2304993898264720432.v4;
 create or replace TEMP view orderView3749646038356409657 as select v4, v6, mfL7672348792962525610, row_number() over (partition by v6 order by mfL7672348792962525610) as rn from joinView8140506543115108459;
 create or replace TEMP view minView5848331386250982631 as select v6, mfL7672348792962525610 as mfL5403390675388495011 from orderView3749646038356409657 where rn = 1;
-create or replace TEMP view joinView7005656970927071842 as select distinct src as v6, dst as v8, mfL5403390675388495011 from Graph AS g4, minView5848331386250982631 where g4.src=minView5848331386250982631.v6 and mfL5403390675388495011<dst;
+create or replace TEMP view joinView7005656970927071842 as select distinct src as v6, dst as v8, mfL5403390675388495011 from epinions AS g4, minView5848331386250982631 where g4.src=minView5848331386250982631.v6 and mfL5403390675388495011<dst;
 create or replace TEMP view sample7099367651837299847 as select * from orderView3749646038356409657 where rn % 500 = 1;
 create or replace TEMP view maxRn5041372442632988496 as select v6, max(rn) as mrn from joinView7005656970927071842 join sample7099367651837299847 using(v6) where mfL7672348792962525610<v8 group by v6;
 create or replace TEMP view target8253542469433309220 as select v4, v6, mfL7672348792962525610 from orderView3749646038356409657 join maxRn5041372442632988496 using(v6) where rn < mrn + 500 ;

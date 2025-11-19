@@ -161,7 +161,7 @@ $ bash ./scripts/start_parser.sh
 ```
 4. Execute main.py to launch the Python backend rewriter component.
 ```shell
-$ python main.py
+$ python3 main.py
 ```
 5. Generate rewritten queries for DuckDB SQL syntax. 
 ```shell
@@ -322,7 +322,7 @@ e.g.
 #### Web-UI
 2. Execute main.py to launch the Python backend rewriter component.
 ```shell
-$ python main.py
+$ python3 main.py
 ```
 3. Execute the Java backend parser component through command `java -jar sparksql-plus-web-jar-with-dependencies.jar` build from `SparkSQLPlus`, which is included as a submodule. [Option] You can also build `jar` file by yourself. 
 4. Please use the following command to init and update it. 
@@ -336,7 +336,7 @@ $ git submodule update --init --recursive
 6. Begin submitting queries for execution on the webpage.
 
 #### Command Line [Default]
-2. Modify python path (`PYTHON_ENV`) in `auto_rewrite.sh`.
+2. Modify python3 path (`PYTHON_ENV`) in `auto_rewrite.sh`.
 3. Execute the following command to get the rewrite querys. The rewrite time is shown in `rewrite_time.txt`
 4. OPTIONS
 - Mode: Set generate code mode D(DuckDB)/M(MySql) [default: D]

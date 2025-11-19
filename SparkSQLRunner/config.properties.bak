@@ -1,0 +1,2 @@
+spark.home=/home/data/bchenba/Quorion/spark/spark-3.5.1
+common.experiment.repeat=1

@@ -1,8 +1,8 @@
-create or replace TEMP view g3 as select Graph.src as v4, Graph.dst as v6, v10 from Graph, (SELECT src, COUNT(*) AS v10 FROM Graph GROUP BY src) AS c2 where Graph.dst = c2.src;
+create or replace TEMP view g3 as select epinions.src as v4, epinions.dst as v6, v10 from epinions, (SELECT src, COUNT(*) AS v10 FROM epinions GROUP BY src) AS c2 where epinions.dst = c2.src;
 create or replace TEMP view orderView8933484401321244647 as select v4, v6, v10, row_number() over (partition by v4 order by v6 DESC) as rn from g3;
 create or replace TEMP view minView882609143393798237 as select v4, v6 as mfR4416630042046681269 from orderView8933484401321244647 where rn = 1;
-create or replace TEMP view joinView3014040682767309131 as select src as v2, dst as v4, mfR4416630042046681269 from Graph AS g2, minView882609143393798237 where g2.dst=minView882609143393798237.v4;
-create or replace TEMP view g1 as select Graph.src as v7, Graph.dst as v2, v8 from Graph, (SELECT src, COUNT(*) AS v8 FROM Graph GROUP BY src) AS c1 where Graph.src = c1.src;
+create or replace TEMP view joinView3014040682767309131 as select src as v2, dst as v4, mfR4416630042046681269 from epinions AS g2, minView882609143393798237 where g2.dst=minView882609143393798237.v4;
+create or replace TEMP view g1 as select epinions.src as v7, epinions.dst as v2, v8 from epinions, (SELECT src, COUNT(*) AS v8 FROM epinions GROUP BY src) AS c1 where epinions.src = c1.src;
 create or replace TEMP view orderView8717540559840246634 as select v2, v4, mfR4416630042046681269, row_number() over (partition by v2 order by mfR4416630042046681269 DESC) as rn from joinView3014040682767309131;
 create or replace TEMP view minView3809619623730430501 as select v2, mfR4416630042046681269 as mfR5081306016812280139 from orderView8717540559840246634 where rn = 1;
 create or replace TEMP view joinView2294536466348158160 as select v7, v2, v8, mfR5081306016812280139 from g1 join minView3809619623730430501 using(v2) where v8<mfR5081306016812280139;

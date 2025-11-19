@@ -6,6 +6,13 @@ ROOT_PATH=$(dirname "${CURRENT_PATH}")
 QUERY_PATH="${ROOT_PATH}/query"
 PG_PATH="${ROOT_PATH}/postgres"
 
+# Source common functions to read config
+source "${QUERY_PATH}/common.sh"
+
+# Read Python path from config
+config_files=("${QUERY_PATH}/config.properties")
+PYTHON_BIN=$(prop ${config_files} "python3.bin")
+
 echo "Downloading DuckDB..."
 cd "${QUERY_PATH}"
 rm -rf "${QUERY_PATH}/duckdb_cli-*"
@@ -94,13 +101,16 @@ bash auto_run_duckdb.sh parallelism_sgpb 16
 bash auto_run_duckdb.sh parallelism_sgpb 32
 bash auto_run_duckdb.sh parallelism_sgpb 48
 
+cd "${ROOT_PATH}"
+bash scripts/run_spark.sh
+
 bash auto_summary.sh graph
 bash auto_summary.sh lsqb
 bash auto_summary.sh tpch
 bash auto_summary_job.sh job
 
 cd "${ROOT_PATH}/draw"
-python3 draw_graph.py
-python3 draw_job.py
-python3 draw_selectivity.py
-python3 draw_thread.py
+${PYTHON_BIN} draw_graph.py
+${PYTHON_BIN} draw_job.py
+${PYTHON_BIN} draw_selectivity.py
+${PYTHON_BIN} draw_thread.py

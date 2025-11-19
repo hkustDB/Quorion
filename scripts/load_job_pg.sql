@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS aka_name (
     surname_pcode varchar(11),
     md5sum varchar(65)
 );
-COPY aka_name FROM '/PATH_TO_JOB_DATA/job_aka_name.csv' WITH (FORMAT csv, HEADER true);
+COPY aka_name FROM '/home/data/bchenba/Quorion/Data/job/job_aka_name.csv' WITH (FORMAT csv, HEADER true);
 
 
 CREATE TABLE IF NOT EXISTS aka_title (
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS aka_title (
     note varchar(72),
     md5sum varchar(32)
 );
-COPY aka_title FROM '/PATH_TO_JOB_DATA/job_aka_title.csv' WITH (FORMAT csv, HEADER true);
+COPY aka_title FROM '/home/data/bchenba/Quorion/Data/job/job_aka_title.csv' WITH (FORMAT csv, HEADER true);
 
 
 CREATE TABLE IF NOT EXISTS cast_info (
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS cast_info (
     nr_order real,
     role_id integer
 );
-COPY cast_info FROM '/PATH_TO_JOB_DATA/job_cast_info.csv' WITH (FORMAT csv, HEADER true);
+COPY cast_info FROM '/home/data/bchenba/Quorion/Data/job/job_cast_info.csv' WITH (FORMAT csv, HEADER true);
 
 
 CREATE TABLE IF NOT EXISTS char_name (
@@ -49,14 +49,14 @@ CREATE TABLE IF NOT EXISTS char_name (
     surname_pcode varchar(5),
     md5sum varchar(32)
 );
-COPY char_name FROM '/PATH_TO_JOB_DATA/job_char_name.csv' WITH (FORMAT csv, HEADER true);
+COPY char_name FROM '/home/data/bchenba/Quorion/Data/job/job_char_name.csv' WITH (FORMAT csv, HEADER true);
 
 
 CREATE TABLE IF NOT EXISTS comp_cast_type (
     id integer PRIMARY KEY,
     kind varchar(32)
 );
-COPY comp_cast_type FROM '/PATH_TO_JOB_DATA/job_comp_cast_type.csv' WITH (FORMAT csv, HEADER true);
+COPY comp_cast_type FROM '/home/data/bchenba/Quorion/Data/job/job_comp_cast_type.csv' WITH (FORMAT csv, HEADER true);
 
 
 CREATE TABLE IF NOT EXISTS company_name (
@@ -68,14 +68,14 @@ CREATE TABLE IF NOT EXISTS company_name (
     name_pcode_sf varchar(5),
     md5sum varchar(32)
 );
-COPY company_name FROM '/PATH_TO_JOB_DATA/job_company_name.csv' WITH (FORMAT csv, HEADER true);
+COPY company_name FROM '/home/data/bchenba/Quorion/Data/job/job_company_name.csv' WITH (FORMAT csv, HEADER true);
 
 
 CREATE TABLE IF NOT EXISTS company_type (
     id integer PRIMARY KEY,
     kind varchar(32)
 );
-COPY company_type FROM '/PATH_TO_JOB_DATA/job_company_type.csv' WITH (FORMAT csv, HEADER true);
+COPY company_type FROM '/home/data/bchenba/Quorion/Data/job/job_company_type.csv' WITH (FORMAT csv, HEADER true);
 
 
 CREATE TABLE IF NOT EXISTS complete_cast (
@@ -84,14 +84,14 @@ CREATE TABLE IF NOT EXISTS complete_cast (
     subject_id integer,
     status_id integer
 );
-COPY complete_cast FROM '/PATH_TO_JOB_DATA/job_complete_cast.csv' WITH (FORMAT csv, HEADER true);
+COPY complete_cast FROM '/home/data/bchenba/Quorion/Data/job/job_complete_cast.csv' WITH (FORMAT csv, HEADER true);
 
 
 CREATE TABLE IF NOT EXISTS info_type (
     id integer PRIMARY KEY,
     info varchar(32)
 );
-COPY info_type FROM '/PATH_TO_JOB_DATA/job_info_type.csv' WITH (FORMAT csv, HEADER true);
+COPY info_type FROM '/home/data/bchenba/Quorion/Data/job/job_info_type.csv' WITH (FORMAT csv, HEADER true);
 
 
 CREATE TABLE IF NOT EXISTS keyword (
@@ -99,21 +99,21 @@ CREATE TABLE IF NOT EXISTS keyword (
     keyword varchar(512),
     phonetic_code varchar(5)
 );
-COPY keyword FROM '/PATH_TO_JOB_DATA/job_keyword.csv' WITH (FORMAT csv, HEADER true);
+COPY keyword FROM '/home/data/bchenba/Quorion/Data/job/job_keyword.csv' WITH (FORMAT csv, HEADER true);
 
 
 CREATE TABLE IF NOT EXISTS kind_type (
     id integer PRIMARY KEY,
     kind varchar(15)
 );
-COPY kind_type FROM '/PATH_TO_JOB_DATA/job_kind_type.csv' WITH (FORMAT csv, HEADER true);
+COPY kind_type FROM '/home/data/bchenba/Quorion/Data/job/job_kind_type.csv' WITH (FORMAT csv, HEADER true);
 
 
 CREATE TABLE IF NOT EXISTS link_type (
     id integer PRIMARY KEY,
     link varchar(32)
 );
-COPY link_type FROM '/PATH_TO_JOB_DATA/job_link_type.csv' WITH (FORMAT csv, HEADER true);
+COPY link_type FROM '/home/data/bchenba/Quorion/Data/job/job_link_type.csv' WITH (FORMAT csv, HEADER true);
 
 
 CREATE TABLE IF NOT EXISTS movie_companies (
@@ -123,7 +123,7 @@ CREATE TABLE IF NOT EXISTS movie_companies (
     company_type_id integer,
     note text
 );
-COPY movie_companies FROM '/PATH_TO_JOB_DATA/job_movie_companies.csv' WITH (FORMAT csv, HEADER true);
+COPY movie_companies FROM '/home/data/bchenba/Quorion/Data/job/job_movie_companies.csv' WITH (FORMAT csv, HEADER true);
 
 
 CREATE TABLE IF NOT EXISTS movie_info (
@@ -133,7 +133,7 @@ CREATE TABLE IF NOT EXISTS movie_info (
     info text,
     note text
 );
-COPY movie_info FROM '/PATH_TO_JOB_DATA/job_movie_info.csv' WITH (FORMAT csv, HEADER true);
+COPY movie_info FROM '/home/data/bchenba/Quorion/Data/job/job_movie_info.csv' WITH (FORMAT csv, HEADER true);
 
 
 CREATE TABLE IF NOT EXISTS movie_info_idx (
@@ -143,7 +143,7 @@ CREATE TABLE IF NOT EXISTS movie_info_idx (
     info text,
     note text
 );
-COPY movie_info_idx FROM '/PATH_TO_JOB_DATA/job_movie_info_idx.csv' WITH (FORMAT csv, HEADER true);
+COPY movie_info_idx FROM '/home/data/bchenba/Quorion/Data/job/job_movie_info_idx.csv' WITH (FORMAT csv, HEADER true);
 
 
 CREATE TABLE IF NOT EXISTS movie_keyword (
@@ -151,7 +151,7 @@ CREATE TABLE IF NOT EXISTS movie_keyword (
     movie_id integer,
     keyword_id integer
 );
-COPY movie_keyword FROM '/PATH_TO_JOB_DATA/job_movie_keyword.csv' WITH (FORMAT csv, HEADER true);
+COPY movie_keyword FROM '/home/data/bchenba/Quorion/Data/job/job_movie_keyword.csv' WITH (FORMAT csv, HEADER true);
 
 
 CREATE TABLE IF NOT EXISTS movie_link (
@@ -160,7 +160,7 @@ CREATE TABLE IF NOT EXISTS movie_link (
     linked_movie_id integer,
     link_type_id integer
 );
-COPY movie_link FROM '/PATH_TO_JOB_DATA/job_movie_link.csv' WITH (FORMAT csv, HEADER true);
+COPY movie_link FROM '/home/data/bchenba/Quorion/Data/job/job_movie_link.csv' WITH (FORMAT csv, HEADER true);
 
 
 CREATE TABLE IF NOT EXISTS name (
@@ -174,14 +174,14 @@ CREATE TABLE IF NOT EXISTS name (
     surname_pcode varchar(5),
     md5sum varchar(32)
 );
-COPY name FROM '/PATH_TO_JOB_DATA/job_name.csv' WITH (FORMAT csv, HEADER true);
+COPY name FROM '/home/data/bchenba/Quorion/Data/job/job_name.csv' WITH (FORMAT csv, HEADER true);
 
 
 CREATE TABLE IF NOT EXISTS role_type (
     id integer PRIMARY KEY,
     role varchar(32)
 );
-COPY role_type FROM '/PATH_TO_JOB_DATA/job_role_type.csv' WITH (FORMAT csv, HEADER true);
+COPY role_type FROM '/home/data/bchenba/Quorion/Data/job/job_role_type.csv' WITH (FORMAT csv, HEADER true);
 
 
 CREATE TABLE IF NOT EXISTS title (
@@ -198,7 +198,7 @@ CREATE TABLE IF NOT EXISTS title (
     series_years varchar(49),
     md5sum varchar(32)
 );
-COPY title FROM '/PATH_TO_JOB_DATA/job_title.csv' WITH (FORMAT csv, HEADER true);
+COPY title FROM '/home/data/bchenba/Quorion/Data/job/job_title.csv' WITH (FORMAT csv, HEADER true);
 
 
 CREATE TABLE IF NOT EXISTS person_info (
@@ -208,4 +208,4 @@ CREATE TABLE IF NOT EXISTS person_info (
     info text,
     note text
 );
-COPY person_info FROM '/PATH_TO_JOB_DATA/job_person_info.csv' WITH (FORMAT csv, HEADER true);
+COPY person_info FROM '/home/data/bchenba/Quorion/Data/job/job_person_info.csv' WITH (FORMAT csv, HEADER true);

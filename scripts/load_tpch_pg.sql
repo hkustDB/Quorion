@@ -6,7 +6,7 @@ CREATE TABLE nation (
     n_comment VARCHAR(152),
     dummy VARCHAR
 );
-COPY nation FROM '/PATH_TO_TPCH_DATA/nation.tbl' WITH (FORMAT csv, DELIMITER '|');
+COPY nation FROM '/home/data/bchenba/Quorion/Data/tpch/nation.tbl' WITH (FORMAT csv, DELIMITER '|');
 
 DROP TABLE IF EXISTS region;
 CREATE TABLE region (
@@ -15,7 +15,7 @@ CREATE TABLE region (
     r_comment VARCHAR(152),
     dummy VARCHAR
 );
-COPY region FROM '/PATH_TO_TPCH_DATA/region.tbl' WITH (FORMAT csv, DELIMITER '|');
+COPY region FROM '/home/data/bchenba/Quorion/Data/tpch/region.tbl' WITH (FORMAT csv, DELIMITER '|');
 
 DROP TABLE IF EXISTS part;
 CREATE TABLE part (
@@ -30,7 +30,7 @@ CREATE TABLE part (
     p_comment VARCHAR(23) NOT NULL,
     dummy VARCHAR
 );
-COPY part FROM '/PATH_TO_TPCH_DATA/part.tbl' WITH (FORMAT csv, DELIMITER '|');
+COPY part FROM '/home/data/bchenba/Quorion/Data/tpch/part.tbl' WITH (FORMAT csv, DELIMITER '|');
 
 DROP TABLE IF EXISTS supplier;
 CREATE TABLE supplier (
@@ -43,7 +43,7 @@ CREATE TABLE supplier (
     s_comment VARCHAR(101) NOT NULL,
     dummy VARCHAR
 );
-COPY supplier FROM '/PATH_TO_TPCH_DATA/supplier.tbl' WITH (FORMAT csv, DELIMITER '|');
+COPY supplier FROM '/home/data/bchenba/Quorion/Data/tpch/supplier.tbl' WITH (FORMAT csv, DELIMITER '|');
 
 DROP TABLE IF EXISTS partsupp;
 CREATE TABLE partsupp (
@@ -54,7 +54,7 @@ CREATE TABLE partsupp (
     ps_comment VARCHAR(199) NOT NULL,
     dummy VARCHAR
 );
-COPY partsupp FROM '/PATH_TO_TPCH_DATA/partsupp.tbl' WITH (FORMAT csv, DELIMITER '|');
+COPY partsupp FROM '/home/data/bchenba/Quorion/Data/tpch/partsupp.tbl' WITH (FORMAT csv, DELIMITER '|');
 
 DROP TABLE IF EXISTS customer;
 CREATE TABLE customer (
@@ -68,7 +68,7 @@ CREATE TABLE customer (
     c_comment VARCHAR(117) NOT NULL,
     dummy VARCHAR
 );
-COPY customer FROM '/PATH_TO_TPCH_DATA/customer.tbl' WITH (FORMAT csv, DELIMITER '|');
+COPY customer FROM '/home/data/bchenba/Quorion/Data/tpch/customer.tbl' WITH (FORMAT csv, DELIMITER '|');
 
 DROP TABLE IF EXISTS orders;
 CREATE TABLE orders (
@@ -83,7 +83,7 @@ CREATE TABLE orders (
     o_comment VARCHAR NOT NULL,
     dummy VARCHAR
 );
-COPY orders FROM '/PATH_TO_TPCH_DATA/orders.tbl' WITH (FORMAT csv, DELIMITER '|');
+COPY orders FROM '/home/data/bchenba/Quorion/Data/tpch/orders.tbl' WITH (FORMAT csv, DELIMITER '|');
 
 DROP TABLE IF EXISTS lineitem;
 CREATE TABLE lineitem (
@@ -105,7 +105,7 @@ CREATE TABLE lineitem (
     l_comment VARCHAR NOT NULL,
     dummy VARCHAR
 );
-COPY lineitem FROM '/PATH_TO_TPCH_DATA/lineitem.tbl' WITH (FORMAT csv, DELIMITER '|');
+COPY lineitem FROM '/home/data/bchenba/Quorion/Data/tpch/lineitem.tbl' WITH (FORMAT csv, DELIMITER '|');
 
 -- Views
 CREATE OR REPLACE VIEW q2_inner AS

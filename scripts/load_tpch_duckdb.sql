@@ -3,13 +3,13 @@ CREATE TABLE NATION  ( N_NATIONKEY  INTEGER NOT NULL,
                             N_NAME       CHAR(25) NOT NULL,
                             N_REGIONKEY  INTEGER NOT NULL,
                             N_COMMENT    VARCHAR(152));
-COPY NATION FROM '/PATH_TO_TPCH_DATA/nation.tbl' ( DELIMITER '|' );
+COPY NATION FROM '/home/data/bchenba/Quorion/Data/tpch/nation.tbl' ( DELIMITER '|' );
 
 drop table if exists region;
 CREATE TABLE REGION  ( R_REGIONKEY  INTEGER NOT NULL,
                             R_NAME       CHAR(25) NOT NULL,
                             R_COMMENT    VARCHAR(152));
-COPY REGION FROM '/PATH_TO_TPCH_DATA/region.tbl' ( DELIMITER '|' );
+COPY REGION FROM '/home/data/bchenba/Quorion/Data/tpch/region.tbl' ( DELIMITER '|' );
 
 drop table if exists part;
 CREATE TABLE PART  ( P_PARTKEY     INTEGER NOT NULL,
@@ -21,7 +21,7 @@ CREATE TABLE PART  ( P_PARTKEY     INTEGER NOT NULL,
                           P_CONTAINER   CHAR(10) NOT NULL,
                           P_RETAILPRICE DECIMAL(15,2) NOT NULL,
                           P_COMMENT     VARCHAR(23) NOT NULL );
-COPY PART FROM '/PATH_TO_TPCH_DATA/part.tbl' ( DELIMITER '|' );
+COPY PART FROM '/home/data/bchenba/Quorion/Data/tpch/part.tbl' ( DELIMITER '|' );
 
 drop table if exists supplier;
 CREATE TABLE SUPPLIER ( S_SUPPKEY     INTEGER NOT NULL,
@@ -31,7 +31,7 @@ CREATE TABLE SUPPLIER ( S_SUPPKEY     INTEGER NOT NULL,
                              S_PHONE       CHAR(15) NOT NULL,
                              S_ACCTBAL     DECIMAL(15,2) NOT NULL,
                              S_COMMENT     VARCHAR(101) NOT NULL);
-COPY SUPPLIER FROM '/PATH_TO_TPCH_DATA/supplier.tbl' ( DELIMITER '|' );
+COPY SUPPLIER FROM '/home/data/bchenba/Quorion/Data/tpch/supplier.tbl' ( DELIMITER '|' );
 
 drop table if exists partsupp;
 CREATE TABLE PARTSUPP ( PS_PARTKEY     INTEGER NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE PARTSUPP ( PS_PARTKEY     INTEGER NOT NULL,
                              PS_AVAILQTY    INTEGER NOT NULL,
                              PS_SUPPLYCOST  DECIMAL(15,2)  NOT NULL,
                              PS_COMMENT     VARCHAR(199) NOT NULL );
-COPY PARTSUPP FROM '/PATH_TO_TPCH_DATA/partsupp.tbl' ( DELIMITER '|' );
+COPY PARTSUPP FROM '/home/data/bchenba/Quorion/Data/tpch/partsupp.tbl' ( DELIMITER '|' );
 
 drop table if exists customer;
 CREATE TABLE CUSTOMER ( C_CUSTKEY     INTEGER NOT NULL,
@@ -50,7 +50,7 @@ CREATE TABLE CUSTOMER ( C_CUSTKEY     INTEGER NOT NULL,
                              C_ACCTBAL     DECIMAL(15,2)   NOT NULL,
                              C_MKTSEGMENT  CHAR(10) NOT NULL,
                              C_COMMENT     VARCHAR(117) NOT NULL);
-COPY CUSTOMER FROM '/PATH_TO_TPCH_DATA/customer.tbl' ( DELIMITER '|' );
+COPY CUSTOMER FROM '/home/data/bchenba/Quorion/Data/tpch/customer.tbl' ( DELIMITER '|' );
 
 drop table if exists orders;
 CREATE TABLE orders (  
@@ -66,7 +66,7 @@ CREATE TABLE orders (
   dummy varchar
 );
 
-COPY ORDERS FROM '/PATH_TO_TPCH_DATA/orders.tbl' ( DELIMITER '|' );
+COPY ORDERS FROM '/home/data/bchenba/Quorion/Data/tpch/orders.tbl' ( DELIMITER '|' );
 
 drop table if exists lineitem;
 CREATE TABLE lineitem ( 
@@ -89,7 +89,7 @@ CREATE TABLE lineitem (
   dummy varchar
 );
 
-COPY LINEITEM FROM '/PATH_TO_TPCH_DATA/lineitem.tbl' ( DELIMITER '|' );
+COPY LINEITEM FROM '/home/data/bchenba/Quorion/Data/tpch/lineitem.tbl' ( DELIMITER '|' );
 
 create or replace view q2_inner as
 SELECT ps_partkey as v1_partkey, MIN(ps_supplycost) as v1_supplycost_min

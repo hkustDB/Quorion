@@ -1,6 +1,51 @@
 # Reproductibility Manual for SIGMOD 25 Paper Yannakakis+: Practical Acyclic Query Evaluation with Theoretical Guarantees
 
+## Quick Start (Automated Setup)
+
+For a fully automated setup and execution of all experiments, use:
+
+```shell
+$ bash scripts/run_all.sh
+```
+
+This single script will:
+1. Download and install DuckDB, PostgreSQL, and Spark
+2. Download all datasets (Graph, LSQB, TPC-H, JOB)
+3. Initialize databases and load data
+4. Generate rewritten queries
+5. Run all experiments (DuckDB, PostgreSQL, SparkSQL)
+6. Generate summary statistics and plots
+7. The final plot results will be under `draw/*.pdf`
+
+**Prerequisites:**
+- Java JDK 1.8
+- Scala 2.12.10
+- Maven 3.8.6
+- Python version >= 3.9
+- Python packages: docopt, requests, flask, openpyxl, pandas, matplotlib, numpy
+
+**Configuration:**
+Before running, you may customize settings in `query/config.properties`:
+```properties
+# Python environment (default or custom path)
+python3.bin=python3
+
+# Experiment settings
+common.experiment.repeat=1
+common.experiment.timeout=60
+
+# Database settings
+pg.db=test
+pg.port=5434
+```
+---
+
+## Manual Setup (Step-by-Step)
+
+If you prefer manual setup or need to customize individual steps, follow the detailed instructions below.
+
 ## Part1: Reproducibility of the Experiments
+
 ### Step0: Environment Requirements
 - Java JDK 1.8
 - Scala 2.12.10
@@ -8,7 +53,19 @@
 - Python version >= 3.9
 - Python package requirements: docopt, requests, flask, openpyxl, pandas, matplotlib, numpy
 
+**Python Environment Setup:**
+```shell
+# Create virtual environment (recommended)
+$ python3 -m venv .venv
+$ source .venv/bin/activate
+$ pip install docopt requests flask openpyxl pandas matplotlib numpy
+
+# Update config to use virtual environment
+$ echo "python3.bin=$(pwd)/.venv/bin/python3" >> query/config.properties
+```
+
 ### Step1: DBMS Requirement Preparation
+
 #### DuckDB 1.0: 
 0. Move into install directory. Do the following command:
 1. Download *.zip or *.tar.gz file from https://github.com/duckdb/duckdb/releases/tag/v1.0.0 
@@ -30,7 +87,7 @@ wget https://github.com/duckdb/duckdb/releases/download/v1.0.0/duckdb_cli-osx-un
 # duckdb_cli-windows-amd64.zip
 wget https://github.com/duckdb/duckdb/releases/download/v1.0.0/duckdb_cli-windows-amd64.zip
 
-# Step 3:
+# Step 2:
 unzip duckdb_cli-*.zip
 ```
 
@@ -77,13 +134,20 @@ test=# CREATE EXTENSION file_fdw;
 ```
 
 #### Spark 3.5.1
+**Automated Installation (Recommended):**
+```shell
+$ bash scripts/run_spark.sh
+# Spark will be automatically downloaded to Quorion/spark/spark-3.5.1/
+```
+
+**Manual Installation:**
 0. Change directory to any directory that you want to install your Spark
 1. Download Spark 3.5.1 from https://archive.apache.org/dist/spark/spark-3.5.1/
 2. Extract the downloaded package
 3. Set environment variables. Please ensure to modify them according to your file path.
-```
+```shell
 export SPARK_HOME="/path/to/spark-3.5.1"
-export PATH="${SPARK_HOME}/bin":"${PATH}"
+export PATH="${SPARK_HOME}/bin:${PATH}"
 ```
 
 ### Step2: Dataset Download
@@ -103,21 +167,6 @@ bash scripts/download_data.sh 1 1
 Notes:
 - If `zstd` is not available, the script falls back to a user‑space Python extractor.
 - Python fallback: ensure a working Python 3. If your interpreter is not `python3`, set `PY_BIN` in `scripts/download_data_lsqb.sh` (around line 41) to the correct Python path, or let the script create a local venv and install `zstandard` automatically.
-<!--
-If you encounter missing dependencies or system packages (such as `unzip`, `pkg-config`, `libreadline-dev`, etc.) on a plain Debian-based Linux installation, you can use the provided `Dockerfile` to set up a complete environment for Quorion.
-
-**How to use:**
-
-1. Build the Docker image:
-   ```shell
-   docker build -t quorion-env .
-   ```
-
-2. Start a container with your project directory mounted:
-   ```shell
-   docker run -it --rm -v "$PWD":/home/appuser/Quorion quorion-env /bin/bash
-   ```
--->
 
 ### Step3: Database Initialization
 1. Replace the default path in `load_[graph|lsqb|tpch|job]_[duckdb|pg].sql` by running the command below.
@@ -125,6 +174,26 @@ If you encounter missing dependencies or system packages (such as `unzip`, `pkg-
 $ bash scripts/update_paths.sh
 ```
 2. Copy the file `query/config.properties.template` and rename it as `query/config.properties`. Change the settings in `query/config.properties` to set the corresponding PostgreSQL config and DuckDB config. 
+```properties
+# Python environment
+python3.bin=python3
+
+# PostgreSQL config
+pg.db=test
+pg.port=5434
+pg.path=/path/to/postgresql/bin/psql
+
+# DuckDB config
+duckdb.path=/path/to/duckdb
+
+# Experiment config
+common.experiment.repeat=5
+common.experiment.timeout=7200
+
+# Parser config
+parser.mode=local
+parser.home=/path/to/Quorion/SparkSQLPlus
+```
 3. Then load data to the DuckDB and PostgreSQL by the following commands. 
 ```shell
 $ bash scripts/load_data_duckdb.sh
@@ -150,7 +219,7 @@ $ bash ./scripts/start_parser.sh
 ```
 4. Execute main.py to launch the Python backend rewriter component.
 ```shell
-$ python main.py
+$ python3 main.py
 ```
 5. Generate rewritten queries for DuckDB SQL syntax. 
 ```shell
@@ -162,59 +231,117 @@ $ python main.py
 ```
 
 ### Step5: Run experiments
-#### Use prepared rewritten queries directly
-1. Change the specifications in `query/config.properties`. As for the Experiment config, the default repeat times is 5 and timeout is 7200 seconds. 
-2. Execute `./auto_run_duckdb_batch.sh` to run all duckdb experiements, `./auto_run_pg_batch.sh` to run all postgresql experiements. Or run different benchmark seperately. 
+
+#### DuckDB and PostgreSQL Experiments
+
+**Run all experiments:**
 ```shell
-$ ./auto_run_duckdb_batch.sh
-$ ./auto_run_pg_batch.sh
-    or
+$ cd query
+$ bash auto_run_duckdb_batch.sh
+$ bash auto_run_pg_batch.sh
+```
+
+**Or run benchmarks separately:**
+```shell
 # Run DuckDB
-$ ./auto_run_duckdb.sh graph graph_duckdb
-$ ./auto_run_duckdb.sh lsqb lsqb
-$ ./auto_run_duckdb.sh tpch tpch
-$ ./auto_run_duckdb.sh job job
-# Run PG
-$ ./auto_run_pg.sh graph_pg
-$ ./auto_run_pg.sh lsqb
-$ ./auto_run_pg.sh tpch
-$ ./auto_run_pg.sh job
+$ bash auto_run_duckdb.sh graph graph_duckdb
+$ bash auto_run_duckdb.sh lsqb lsqb
+$ bash auto_run_duckdb.sh tpch tpch
+$ bash auto_run_duckdb.sh job job
+
+# Run PostgreSQL
+$ bash auto_run_pg.sh graph_pg
+$ bash auto_run_pg.sh lsqb
+$ bash auto_run_pg.sh tpch
+$ bash auto_run_pg.sh job
 ```
-3. The queries for parallism, scale & selectivity is under query directory. 
-- For parallism testing, the queries is under query/parallelism_[lsqb|sgpb], please set parallism through
+
+**Parallelism testing:**
 ```shell
-./auto_run_duckdb.sh parallelism_[lsqb|sgpb] [1|2|4|8|16|32|48]
+$ bash auto_run_duckdb.sh parallelism_lsqb [1|2|4|8|16|32|48]
+$ bash auto_run_duckdb.sh parallelism_sgpb [1|2|4|8|16|32|48]
+
+# Example: Test LSQB with different thread counts
+$ bash auto_run_duckdb.sh parallelism_lsqb 1
+$ bash auto_run_duckdb.sh parallelism_lsqb 2
+$ bash auto_run_duckdb.sh parallelism_lsqb 4
+$ bash auto_run_duckdb.sh parallelism_lsqb 8
+$ bash auto_run_duckdb.sh parallelism_lsqb 16
+$ bash auto_run_duckdb.sh parallelism_lsqb 32
+$ bash auto_run_duckdb.sh parallelism_lsqb 48
 ```
-- For scale testing, the queries is under query/scale_[job|lsqb]
-- For selectivity testing, the queries is under query/selectivity_[lsqb|tpch]
 
-#### SparkSQL
-For details, please refer to the [SparkSQLRunner README](SparkSQLRunner/README.md).
+**Scale and selectivity testing:**
+- Scale testing queries: `query/scale_[job|lsqb]`
+- Selectivity testing queries: `query/selectivity_[lsqb|tpch]`
 
+#### SparkSQL Experiments
 
-### Step6: plot
-1. Execute the following command to gather statistics. The generated statistis is in `summary_*_statistics[_default].csv`. 
+**Automated setup and execution:**
+```shell
+$ bash scripts/run_spark.sh
+```
+
+This script will:
+- Automatically download and install Spark 3.5.1 (if not present)
+- Create soft links for datasets with proper naming
+- Build SparkSQL Runner
+- Configure Spark settings
+- Run all benchmarks (Graph, LSQB, TPC-H, JOB)
+- Extract and summarize query execution times
+
+**Manual execution:**
+For manual setup and execution details, refer to [SparkSQLRunner/README.md](SparkSQLRunner/README.md).
+
+### Step6: Generate Results and Plots
+
+1. Execute the following commands to gather statistics. The generated statistics are saved in `summary_*_statistics[_default].csv`. 
 ```shell
 # Gather results for query under directory graph & lsqb & tpch & job
-./auto_summary.sh graph
-./auto_summary.sh lsqb
-./auto_summary.sh tpch
-./auto_summary_job.sh job
+$ bash auto_summary.sh graph
+$ bash auto_summary.sh lsqb
+$ bash auto_summary.sh tpch
+$ bash auto_summary_job.sh job
 ```
-2. Execute scripts under `draw/*` to do the plotting and generated picture is under `draw/*.pdf`. 
+
+2. Execute scripts under `draw/` to generate plots. Generated figures are saved as `draw/*.pdf`. 
 ```shell
-# Generate pictures(graph.pdf, lsqb.pdf, tpch.pdf) about running times for SGPB, LSQB and TPCH. Corresponding to Figure 9. 
-python3 draw_graph.py
+$ cd draw
 
-# Generate pictures(job_duckdb.pdf, job_postgresql.pdf) about running times for JOB. Corresponding to Figure 10. 
-python3 draw_job.py
+# Generate pictures (graph.pdf, lsqb.pdf, tpch.pdf) about running times for SGPB, LSQB and TPCH
+# Corresponding to Figure 9
+$ python3 draw_graph.py
 
-# Generate picture(selectivity_scale.pdf) about selectivity & scale. Corresponding to Figure 11. 
-python3 draw_selectivity.py
+# Generate pictures (job_duckdb.pdf, job_postgresql.pdf) about running times for JOB
+# Corresponding to Figure 10
+$ python3 draw_job.py
 
-# Generate pictures(thread1.pdf, thread2.pdf) about parallelism. Corresponding to Figure 12.
-python3 draw_thread.py
+# Generate picture (selectivity_scale.pdf) about selectivity & scale
+# Corresponding to Figure 11
+$ python3 draw_selectivity.py
+
+# Generate pictures (thread1.pdf, thread2.pdf) about parallelism
+# Corresponding to Figure 12
+$ python3 draw_thread.py
 ```
+
+---
+
+## Automated vs Manual Setup
+
+| Aspect | Automated (`scripts/run_all.sh`) | Manual (Step-by-Step) |
+|--------|----------------------------------|------------------------|
+| **Setup Time** | ~10-30 minutes | ~1-2 hours |
+| **Customization** | Limited | Full control |
+| **Dependencies** | Auto-installed | Manual installation |
+| **Error Handling** | Automated fallbacks | Manual debugging |
+| **Use Case** | Quick reproducibility | Custom configurations |
+
+**Recommendation:**
+- Use `scripts/run_all.sh` for initial setup and full reproducibility
+- Use manual steps for customization, debugging, or partial re-runs
+
+---
 
 ### File Structure
 
@@ -225,9 +352,20 @@ Quorion/
 ├── *.py                              # Python backend rewriter components
 ├── sparksql-plus-web-jar-with-dependencies.jar  # Java parser jar file
 ├── SparkSQLRunner/
-│   └── README.md
+│   ├── README.md
+│   ├── Data/                         # Soft-linked dataset directory
+│   ├── Query_graph/                  # Graph queries for Spark
+│   ├── Query_lsqb/                   # LSQB queries for Spark
+│   ├── Query_tpch/                   # TPC-H queries for Spark
+│   ├── Query_job/                    # JOB queries for Spark
+│   ├── Schema/                       # Schema files
+│   ├── log/                          # Execution logs
+│   │   └── summary/                  # Extracted query times (CSV)
+│   └── config.properties             # Spark configuration
 ├── SparkSQLPlus/                     # Git submodule for Java parser
-├── Data/                             # Dataset directory (created by user)
+├── spark/                            # Auto-installed Spark directory
+│   └── spark-3.5.1/                  # Spark installation
+├── Data/                             # Dataset directory (created by scripts)
 │   ├── graph/                        # Graph dataset
 │   ├── lsqb/                         # LSQB dataset
 │   ├── tpch/                         # TPC-H dataset
@@ -235,6 +373,7 @@ Quorion/
 ├── query/                            # Query and execution scripts
 │   ├── config.properties.template    # Configuration template
 │   ├── config.properties             # User configuration
+│   ├── common.sh                     # Common shell functions
 │   ├── load_graph_duckdb.sql         # Graph data loading for DuckDB
 │   ├── load_graph_pg.sql             # Graph data loading for PostgreSQL
 │   ├── load_lsqb_duckdb.sql          # LSQB data loading for DuckDB
@@ -247,14 +386,6 @@ Quorion/
 │   ├── auto_run_pg.sh                # PostgreSQL execution script
 │   ├── auto_run_duckdb_batch.sh      # Batch DuckDB execution script
 │   ├── auto_run_pg_batch.sh          # Batch PostgreSQL execution script
-│   ├── auto_rewrite.sh               # Query rewriting script
-│   ├── auto_summary.sh               # Results summary script
-│   ├── auto_summary_job.sh           # JOB results summary script
-│   ├── update_paths.sh               # Update data paths in SQL files
-│   ├── preprocess.sh                 # Cost generation script
-│   ├── gen_cost.sh                   # Cost statistics generation
-│   ├── gen_plan.sh                   # Plan generation script
-│   ├── start_parser.sh               # Parser startup script
 │   ├── graph/                        # Graph queries
 │   ├── lsqb/                         # LSQB queries
 │   ├── tpch/                         # TPC-H queries
@@ -265,10 +396,8 @@ Quorion/
 │   ├── scale_lsqb/                   # Scale test queries (LSQB)
 │   ├── selectivity_lsqb/             # Selectivity test queries (LSQB)
 │   ├── selectivity_tpch/             # Selectivity test queries (TPC-H)
-│   ├── src/                          # SparkSQL source files
-│   ├── Schema/                       # Schema files for SparkSQL
 │   ├── summary_*_statistics.csv      # Generated statistics files
-│   ├── summary_*_statistics_default.csv  # Default/fallback statistics
+│   └── summary_*_statistics_default.csv  # Default/fallback statistics
 ├── draw/                             # Visualization scripts and outputs
 │   ├── draw_graph.py                 # Generate Figure 9 (SGPB, LSQB, TPCH)
 │   ├── draw_job.py                   # Generate Figure 10 (JOB performance)
@@ -283,81 +412,155 @@ Quorion/
 │   ├── thread1.pdf                   # Visualization output
 │   └── thread2.pdf                   # Visualization output
 ├── scripts/                          # Utility scripts
+│   ├── run_all.sh                    # **One-command setup and execution**
+│   ├── run_spark.sh                  # Automated SparkSQL setup and execution
 │   ├── update_paths.sh               # Update data paths in SQL files
 │   ├── load_data_duckdb.sh           # Unified data loader for DuckDB
 │   ├── load_data_pg.sh               # Unified data loader for PostgreSQL
 │   ├── download_data.sh              # Download all datasets
-│   ├── download_graph.sh             # Download graph dataset
-│   ├── download_lsqb.sh              # Download LSQB dataset
-│   ├── download_tpch.sh              # Download TPCH dataset
-│   ├── download_job.sh               # Download JOB dataset
-├── figure/                           # Documentation figures
-│   ├── 1.png
-│   ├── 2.png
-│   ├── 3.png
-│   └── 4.png
+│   ├── download_data_graph.sh        # Download graph dataset
+│   ├── download_data_lsqb.sh         # Download LSQB dataset
+│   ├── download_data_tpch.sh         # Download TPCH dataset
+│   ├── download_data_job.sh          # Download JOB dataset
+│   └── start_parser.sh               # Parser startup script
+├── auto_rewrite.sh                   # Query rewriting script
+├── auto_summary.sh                   # Results summary script
+├── auto_summary_job.sh               # JOB results summary script
+└── figure/                           # Documentation figures
+    ├── 1.png
+    ├── 2.png
+    ├── 3.png
+    └── 4.png
 ```
 
-## Part2: Extra Information [Option]
+---
 
-#### Structure Overview
+## Part2: Extra Information [Optional]
+
+### Structure Overview
 - Web-based Interface
 - Java Parser Backend
-- Python Optimizer \& Rewriter Backend
+- Python Optimizer & Rewriter Backend
 
-0. Preprocessing[option]. 
-- Statistics: For generating new statistics (`cost.csv`), we offer the DuckDB version scripts `query/preprocess.sh` and `query/gen_cost.sh`. Modify the configurations in them, and execute the following command. For web-ui, please move the generated statistics files to folder `graph/q1/`, `tpch/q2/`, `lsqb/q1/`, `job/1a/`, and `custom/q1/` respectively; for command-line operations, please move them to the specific corresponding query folders. 
-- Plan: Here, we also provide the conversion of DuckDB plans. Please modify the DuckDB and Python paths in gen_plan.sh. Then execute the following command. After running the command, the original DuckDB plan will be generated as `db_plan.json`, and the newly generated plan will be `plan.json`, which is suitable for our parser. Here `${DB_FILE_PATH}` represents a persistent database in DuckDB. Please change the parameter to `timeout=0` in `requests.post` at `main.py:223` if you want to use the self-defined plan. 
+### Preprocessing [Optional]
+
+#### Statistics Generation
+For generating new statistics (`cost.csv`), we offer the DuckDB version scripts `query/preprocess.sh` and `query/gen_cost.sh`. 
+
 ```shell
-$ ./gen_plan.sh ${DB_FILE_PATH} ${QUERY_DIRECTORY}
-e.g.
-./gen_plan.sh ~/test_db job
+# Modify configurations and execute
+$ cd query
+$ bash preprocess.sh
+$ bash gen_cost.sh
 ```
-1. We provide two execution modes. The default mode is web-ui execution. If you need to switch, please modify the corresponding value `EXEC_MODE` at Line `767` in `main.py`.
 
-#### Web-UI
-2. Execute main.py to launch the Python backend rewriter component.
+For web-ui: Move generated statistics files to folders `graph/q1/`, `tpch/q2/`, `lsqb/q1/`, `job/1a/`, and `custom/q1/` respectively.
+
+For command-line: Move them to the specific corresponding query folders.
+
+#### Plan Conversion
+We also provide conversion of DuckDB plans. Modify the DuckDB and Python paths in `gen_plan.sh`:
+
 ```shell
-$ python main.py
+$ bash gen_plan.sh ${DB_FILE_PATH} ${QUERY_DIRECTORY}
+
+# Example:
+$ bash gen_plan.sh ~/test_db job
 ```
-3. Execute the Java backend parser component through command `java -jar sparksql-plus-web-jar-with-dependencies.jar` build from `SparkSQLPlus`, which is included as a submodule. [Option] You can also build `jar` file by yourself. 
-4. Please use the following command to init and update it. 
+
+After running:
+- Original DuckDB plan: `db_plan.json`
+- Converted plan: `plan.json` (suitable for our parser)
+
+**Note:** Change `timeout=0` in `requests.post` at `main.py:223` if you want to use self-defined plans.
+
+### Execution Modes
+
+We provide two execution modes (modify `EXEC_MODE` at line 767 in `main.py`):
+
+#### 1. Web-UI Mode (Default)
+
 ```shell
-$ git submodule init
-$ git submodule update [--remote]
-    or
-$ git submodule update --init --recursive
-```
-5. Open the webpage at `http://localhost:8848`.
-6. Begin submitting queries for execution on the webpage.
+# Start Python backend
+$ python3 main.py
 
-#### Command Line [Default]
-2. Modify python path (`PYTHON_ENV`) in `auto_rewrite.sh`.
-3. Execute the following command to get the rewrite querys. The rewrite time is shown in `rewrite_time.txt`
-4. OPTIONS
-- Mode: Set generate code mode D(DuckDB)/M(MySql) [default: D]
-- Yannakakis/Yannakakis-Plus
-: Set Y for Yannakakis; N for Yannakakis-Plus
- [default: N]
+# Start Java parser (in another terminal)
+$ java -jar sparksql-plus-web-jar-with-dependencies.jar
+
+# Open browser
+$ open http://localhost:8848
+```
+
+#### 2. Command Line Mode
+
 ```shell
-$ bash start_parser.sh
-$ Parser started.
-$ ./auto_rewrite.sh ${DDL_NAME} ${QUERY_DIR} [OPTIONS]
-e.g ./auto_rewrite.sh lsqb lsqb M N
+# Start parser
+$ bash scripts/start_parser.sh
+
+# Generate rewritten queries
+$ bash auto_rewrite.sh ${DDL_NAME} ${QUERY_DIR} [MODE] [YANNAKAKIS_FLAG]
+
+# Examples:
+$ bash auto_rewrite.sh lsqb lsqb D N     # DuckDB syntax, Yannakakis-Plus
+$ bash auto_rewrite.sh graph graph_pg M N # MySQL syntax, Yannakakis-Plus
+$ bash auto_rewrite.sh tpch tpch D Y     # DuckDB syntax, Yannakakis
 ```
-5. If you want to run a single query, please change the code commented `# NOTE: single query keeps here` in function `init_global_vars` (Line `587` - Line `589` in `main.py`), and comment the code block labeled `# NOTE: auto-rewrite keeps here` (the code between the two blank lines, Line `610` - Line `629` in `main.py`).
 
-### Demonstration
-#### Step 1
-![Step1](figure/1.png "Step 1")
-#### Step 2
-![Step2](figure/2.png "Step 2")
-#### Step 3
-![Step3](figure/3.png "Step 3")
-#### Step 4
-![Step4](figure/4.png "Step 4")
+**Options:**
+- `MODE`: D (DuckDB) or M (MySQL) [default: D]
+- `YANNAKAKIS_FLAG`: Y (Yannakakis) or N (Yannakakis-Plus) [default: N]
 
-#### NOTE
-- For queries like `SELECT DISTINCT ...`, please remove `DISTINCT` keyword before parsing. 
-- Use `jps` command to get the parser pid which name is `jar`, and then kill it. 
+**For single query execution:**
+Modify `init_global_vars` function in `main.py`:
+- Uncomment lines 587-589 (single query section)
+- Comment lines 610-629 (auto-rewrite section)
 
+### Web UI Demonstration
+
+#### Step 1: Upload Query
+![Step1](figure/1.png "Upload and parse SQL query")
+
+#### Step 2: View Parsed Plan
+![Step2](figure/2.png "View query execution plan")
+
+#### Step 3: Optimize Query
+![Step3](figure/3.png "Apply optimizations")
+
+#### Step 4: Execute and View Results
+![Step4](figure/4.png "Execute optimized query")
+
+---
+
+## Troubleshooting
+
+### Parser Management
+```shell
+# Find parser process
+$ jps | grep jar
+
+# Kill parser
+$ kill <PID>
+```
+
+### Query Requirements
+- For queries with `SELECT DISTINCT ...`, remove the `DISTINCT` keyword before parsing
+- Ensure all table and column names match the schema definitions
+
+### Configuration Issues
+- If experiments fail, verify `query/config.properties` settings
+- Check that all paths in config are absolute and correct
+- Ensure PostgreSQL is running: `pg_ctl status -D /path/to/data`
+
+### Python Environment
+```shell
+# Verify Python version
+$ python3 --version  # Should be >= 3.9
+
+# Verify packages
+$ python3 -c "import docopt, requests, flask, openpyxl, pandas, matplotlib, numpy"
+
+# If missing packages
+$ pip install docopt requests flask openpyxl pandas matplotlib numpy
+```
+
+---

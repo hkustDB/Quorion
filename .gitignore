@@ -6,6 +6,8 @@ __pycache__/*.pyc
 .vscode/*
 .DS_Store
 rewrite_and_run.result
+spark/*
+postgres/*
 
 querySum.sql
 # query/*/*/rewrite*.sql
@@ -24,6 +26,7 @@ graph_db*
 tpch_db*
 lsqb_db*
 job_db*
+query/duckdb
 
 # Project exclude paths
 /out/
