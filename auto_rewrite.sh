@@ -56,7 +56,7 @@ do
             ret=$?
             if [ $ret -eq 0 ] && [ ${filename} = "query" ]
             then
-                $PYTHON_ENV main.py "${CUR_PATH}" "${DDL_NAME}" -b "$b" -m "$m" -g "$g" -y "$y" | grep "Rewrite time(s)" >> ${LOG_FILE}
+                $PYTHON_BIN main.py "${CUR_PATH}" "${DDL_NAME}" -b "$b" -m "$m" -g "$g" -y "$y" | grep "Rewrite time(s)" >> ${LOG_FILE}
             fi
         done
     fi
