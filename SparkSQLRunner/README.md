@@ -11,16 +11,14 @@ mvn clean package
 * Set `Spark.home` to your local spark home
 
 ### Prepare
-* Put your tables in `/Data`, ends with `.csv`. Use `","` as the column separator.
+* Put your tables in csv files. Use `","` as the column separator.
 * Put your schema in `/Schema`, ends with `.sql`. Use `";"` to separate the statements.
-* Put your query in `/Query`, ends with `.sql`. Use `";"` to separate the statements.
-
-### Example
-`/Data/Graph.csv`, `/Schema/GraphSchema.sql`, `/Query/Q1.sql`
+* Put your query in a query folder, ends with `.sql`. Use `";"` to separate the statements.
 
 ### Run Single Query
 ```shell
-bash ExecuteQuery.sh Q1 GraphSchema
+# bash ExecuteQuery.sh ${DATA_PATH} ${QUERY_NAME} ${SCHEMA_NAME} ${TABLE_SUFFIX} ${PARALLELISM}
+bash ExecuteQuery.sh "/path/to/Data/" "/path/to/Query/" "GraphSchema" "csv" "8"
 ```
 ### Run Benchmark
 ```shell

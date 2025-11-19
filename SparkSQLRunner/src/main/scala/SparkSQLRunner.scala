@@ -81,14 +81,14 @@ object SparkSQLRunner {
         total.split(";").map(s => s.trim).filter(s => s.nonEmpty).toList
     }
 
-    def loadData(sparkSession: SparkSession, dataDir: String): Unit = {
+    def loadData(sparkSession: SparkSession, dataDir: String, tableSuffix: String): Unit = {
         println("Tables to load:")
         structTypeMap.keys.foreach(println)
 
         // load data into data frame
         structTypeMap.keys.foreach(tableName => {
             val structType: StructType = structTypeMap(tableName)
-            val dataFrame: DataFrame = sparkSession.createDataFrame(sparkSession.sqlContext.read.option("sep", "|").schema(structType).csv(dataDir + "/" + tableName + ".csv").rdd, structType)
+            val dataFrame: DataFrame = sparkSession.createDataFrame(sparkSession.sqlContext.read.option("sep", "|").schema(structType).csv(dataDir + "/" + tableName + "." + tableSuffix).rdd, structType)
             // Cache the dataFrame into memory
             dataFrame.cache()
             dataFrame.createOrReplaceTempView(tableName)
@@ -98,10 +98,11 @@ object SparkSQLRunner {
     }
 
     def main(args: Array[String]): Unit = {
-        if (args.length < 3) exit(-1)
+        if (args.length < 4) exit(-1)
         val dataDir: String = args.apply(0)
         val sqlBasePath: String = args.apply(1)
         val schemaPath: String = args.apply(2)
+        val tableSuffix: String = args.apply(3)
 
         loadSchema(schemaPath)
         val conf = new SparkConf()
@@ -128,7 +129,7 @@ object SparkSQLRunner {
         queryName2QueryPath.foreach(kv => println(s"Query=${kv._1}, Sql=${kv._2}"))
 
         val queryName2QuerySQLs: Map[String, List[String]] = queryName2QueryPath.map(t => (t._1, readQuerySQL(t._2))).toMap
-        loadData(sparkSession, dataDir)
+        loadData(sparkSession, dataDir, tableSuffix)
         println("Loaded Data.")
         println()
         val queryName2CleanSQLs: Map[String, List[String]] = queryName2CleanPath.map(t => (t._1, readQuerySQL(t._2))).toMap
