@@ -93,11 +93,6 @@ fi
 # ============================================================================
 LSQB_DIR="${DATA_DIR}/lsqb"
 
-if [[ "${LSQB_SCALE}" != "1" && "${LSQB_SCALE}" != "3" ]]; then
-    print_error "Unsupported scale: ${LSQB_SCALE}. Use 1 or 3."
-    exit 1
-fi
-
 print_info "Creating data directory..."
 mkdir -p "${LSQB_DIR}"
 
