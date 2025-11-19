@@ -1,6 +1,5 @@
 import pyarrow.parquet as pq
 import pyarrow as pa
-import argparse
 import pandas as pd
 import csv
 import sys
@@ -38,14 +37,14 @@ schema = {'aka_name': [('id', pa.int32()), ('person_id', pa.int32()), ('name', p
           'movie_info': [('id', pa.int32()), ('movie_id', pa.int32()), ('info_type_id', pa.int32()), ('info', pa.string()), ('note', pa.string())],
           'person_info': [('id', pa.int32()), ('person_id', pa.int32()), ('info_type_id', pa.int32()), ('info', pa.string()), ('note', pa.string())]}
 
-# Add argument parsing
-parser = argparse.ArgumentParser(description="Generate new data partitions for paper-scale experiments.")
-parser.add_argument('--csv_path', type=str, default='', help='Path to CSV files')
-parser.add_argument('--parquet_path', type=str, default='', help='Path to Parquet files')
-args = parser.parse_args()
+import os
+# Get the directory of the current script
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-PATH_CSV = args.csv_path
-PATH_PARQUET = args.parquet_path
+# Set data paths relative to the script path
+PATH_CSV = os.path.join(SCRIPT_DIR, '../Data/job/')
+PATH_PARQUET = os.path.join(SCRIPT_DIR, '../Data/job/')
+
 
 def process(name: str, type: str = "csv", add: int = 36244400):
     if type == "parquet":

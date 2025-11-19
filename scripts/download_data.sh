@@ -29,6 +29,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 QUORION_DIR="$(dirname "$SCRIPT_DIR")"
 DATA_DIR="${QUORION_DIR}/Data"
 
+source "${QUORION_DIR}/query/common.sh"
+# Read Python path from config
+config_files=("${QUERY_PATH}/config.properties")
+PYTHON_BIN=$(prop ${config_files} "python3.bin")
+
 print_info "Starting Quorion data download process..."
 print_info "Quorion directory: ${QUORION_DIR}"
 print_info "Data directory: ${DATA_DIR}"
@@ -38,7 +43,7 @@ TPCH_SCALE_DEFAULT="${TPCH_SCALE:-10}"
 
 LSQB_SCALE="${1:-${LSQB_SCALE_DEFAULT}}"
 TPCH_SCALE="${2:-${TPCH_SCALE_DEFAULT}}"
-PY_BIN="python3"
+PY_BIN="${PYTHON_BIN}"
 
 # ============================================================================
 # Step 1: Create directory structure

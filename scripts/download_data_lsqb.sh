@@ -29,6 +29,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 QUORION_DIR="$(dirname "$SCRIPT_DIR")"
 DATA_DIR="${QUORION_DIR}/Data"
 
+source "${QUORION_DIR}/query/common.sh"
+# Read Python path from config
+config_files=("${QUERY_PATH}/config.properties")
+PYTHON_BIN=$(prop ${config_files} "python3.bin")
+
 print_info "Starting LSQB data download process..."
 print_info "Quorion directory: ${QUORION_DIR}"
 print_info "Data directory: ${DATA_DIR}"
@@ -99,7 +104,7 @@ if command -v zstd >/dev/null 2>&1; then
     rm -f "${ARCHIVE_ZST}"
 else
     # Try python zstandard; auto-create a local venv if module missing
-    PY_BIN="python3"
+    PY_BIN="${PYTHON_BIN}"
     if ! command -v "${PY_BIN}" >/dev/null 2>&1; then
         print_error "python3 not found and zstd CLI not available."
         exit 1

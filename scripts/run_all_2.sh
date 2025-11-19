@@ -39,7 +39,7 @@ cp sqlplus-web/target/sparksql-plus-web-jar-with-dependencies.jar ../
 
 cd "${ROOT_PATH}"
 bash scripts/start_parser.sh
-python main.py
+${PYTHON_BIN} main.py
 ./auto_rewrite.sh graph graph_duckdb D N
 ./auto_rewrite.sh graph graph_pg M N
 ./auto_rewrite.sh lsqb lsqb D N
