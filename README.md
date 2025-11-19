@@ -65,7 +65,7 @@ Run the script with your desired CSV and Parquet paths:
 python3 scripts/addJob.py
 ```
 
-Replace `/path/to/csv/` and `/path/to/parquet/` with your actual directories. This will process all tables and generate new Parquet files with updated IDs in the specified output path.
+This will process all tables and generate new Parquet files with updated IDs in the specified output path.
 
 ### Step3: Run Phase 2 script 
 Execute the second bash script:
