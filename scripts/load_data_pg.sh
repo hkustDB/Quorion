@@ -47,7 +47,7 @@ echo "Parquet to CSV conversion completed."
 echo ""
 
 # Find all load_*_pg.sql files in the scripts directory
-find "$SCRIPT_DIR" -name "load_*_pg.sql" -type f | while read -r sql_file; do
+find "$SCRIPT_DIR" -name "load_*_pg.sql" -o -name "load_*_pg_generated.sql" -type f | while read -r sql_file; do
     filename=$(basename "$sql_file")
     
     # Skip files with "default" in the name
@@ -57,7 +57,7 @@ find "$SCRIPT_DIR" -name "load_*_pg.sql" -type f | while read -r sql_file; do
     fi
     
     # Extract dataset name (e.g., load_tpch_pg.sql -> tpch)
-    if [[ "$filename" =~ ^load_(.*)_pg\.sql$ ]]; then
+    if [[ "$filename" =~ ^load_(.*)_pg(_generated)?\.sql$ ]]; then
         dataset_name="${BASH_REMATCH[1]}"
     else
         echo "Warning: Could not extract dataset name from $filename"

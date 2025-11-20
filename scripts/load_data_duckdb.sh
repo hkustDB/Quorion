@@ -21,7 +21,7 @@ echo "Query directory: $QUERY_DIR"
 echo ""
 
 # Find all load_*_duckdb.sql files in the scripts directory
-find "$SCRIPT_DIR" -name "load_*_duckdb.sql" -type f | while read -r sql_file; do
+find "$SCRIPT_DIR" \( -name "load_*_duckdb.sql" -o -name "load_*_duckdb_generated.sql" \) -type f | while read -r sql_file; do
     filename=$(basename "$sql_file")
     
     # Skip files with "default" in the name
@@ -31,7 +31,7 @@ find "$SCRIPT_DIR" -name "load_*_duckdb.sql" -type f | while read -r sql_file; d
     fi
     
     # Extract dataset name (e.g., load_tpch_duckdb.sql -> tpch)
-    if [[ "$filename" =~ ^load_(.*)_duckdb\.sql$ ]]; then
+    if [[ "$filename" =~ ^load_(.*)_duckdb(_generated)?\.sql$ ]]; then
         dataset_name="${BASH_REMATCH[1]}"
     else
         echo "Warning: Could not extract dataset name from $filename"

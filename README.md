@@ -65,6 +65,7 @@ Run the script with your desired CSV and Parquet paths:
 # create folder /path/to/Quorion/Data/job/new/
 mkdir -p Data/job/new
 python3 scripts/addJob.py
+bash script/generate_job_load.sh
 ```
 
 This will process all tables and generate new Parquet files with updated IDs in the specified output path.
