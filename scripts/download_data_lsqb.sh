@@ -44,11 +44,6 @@ print_info "Data directory: ${DATA_DIR}"
 LSQB_DIR="${DATA_DIR}/lsqb"
 SCALE="${1:-1}"  # allow overriding scale via first arg (1 or 3)
 
-if [[ "${SCALE}" != "1" && "${SCALE}" != "3" ]]; then
-    print_error "Unsupported scale: ${SCALE}. Use 1 or 3."
-    exit 1
-fi
-
 print_info "Creating data directory..."
 mkdir -p "${LSQB_DIR}"
 
