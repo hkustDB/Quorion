@@ -28,4 +28,4 @@ java -Dsqlplus.home="$PARSER_HOME" \
            -Dexperiment.hdfs.port="$PARSER_HDFS_PORT" \
            -Dexperiment.hdfs.path="$PARSER_HDFS_PATH" \
            -Dexperiment.hdfs.user="$PARSER_HDFS_USER" \
-           -jar sparksql-plus-web-jar-with-dependencies.jar
+           -jar sparksql-plus-web-jar-with-dependencies.jar & 
