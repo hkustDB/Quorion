@@ -225,6 +225,11 @@ if [ ! -d "dbgen" ]; then
     mv *.tbl ../
     
     cd ..
+
+    # FIX: Grant read permissions to everyone so the 'postgres' user can read them
+    print_info "Setting permissions for TPC-H files..."
+    chmod 644 *.tbl
+    chmod 755 .
     
     print_info "TPC-H data generation completed"
     print_info "Generated files:"

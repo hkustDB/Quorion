@@ -31,7 +31,17 @@ common.experiment.repeat=1
 common.experiment.timeout=60
 ```
 
+### Step0: Docker Setup (Recommended)
+We provide a Dockerfile to automatically set up the environment with all prerequisites (Java, Scala, Maven, Python, PostgreSQL, DuckDB).
+
+```shell
+cd Quorion
+docker build -t quorion-image .
+docker run -it --rm -v /path/to/Quorion:/Quorion quorion-image
+```
+
 ### Step1: Run
+
 For a fully automated setup and execution of all experiments, use:
 
 ```shell
