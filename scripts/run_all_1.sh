@@ -38,9 +38,20 @@ make -j
 make install
 mkdir "${PG_PATH}/postgresql/data"
 
-"${PG_PATH}/postgresql/bin/initdb" -D "${PG_PATH}/postgresql/data" -E UTF8 --locale=C -U postgres
-"${PG_PATH}/postgresql/bin/pg_ctl" -D "${PG_PATH}/postgresql/data" -l logfile start
-"${PG_PATH}/postgresql/bin/createdb" -U postgres test
+# Run as root
+# "${PG_PATH}/postgresql/bin/initdb" -D "${PG_PATH}/postgresql/data" -E UTF8 --locale=C -U postgres
+# "${PG_PATH}/postgresql/bin/pg_ctl" -D "${PG_PATH}/postgresql/data" -l logfile start
+# "${PG_PATH}/postgresql/bin/createdb" -U postgres test
+
+# PostgreSQL cannot run as root, so we create a user and switch to it for DB operations
+if ! id "postgres" &>/dev/null; then
+    useradd -m -s /bin/bash postgres
+fi
+chown -R postgres:postgres "${PG_PATH}/postgresql"
+# Run initdb, start, and createdb as the 'postgres' user
+su postgres -c "${PG_PATH}/postgresql/bin/initdb -D ${PG_PATH}/postgresql/data -E UTF8 --locale=C -U postgres"
+su postgres -c "${PG_PATH}/postgresql/bin/pg_ctl -D ${PG_PATH}/postgresql/data -l ${PG_PATH}/postgresql/logfile start"
+su postgres -c "${PG_PATH}/postgresql/bin/createdb -U postgres test"
 
 echo "Downloading dataset..."
 rm -rf "${ROOT_PATH}/Data"

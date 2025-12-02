@@ -38,8 +38,6 @@ RUN git clone https://github.com/electrum/tpch-dbgen.git . && \
     make clean && make
 
 # Remove non-root user creation and switch
-RUN useradd -m -u 1000 appuser
-USER appuser
 WORKDIR /Quorion
 
 CMD ["/bin/bash"]
