@@ -42,13 +42,6 @@ mkdir "${PG_PATH}/postgresql/data"
 "${PG_PATH}/postgresql/bin/pg_ctl" -D "${PG_PATH}/postgresql/data" -l logfile start
 "${PG_PATH}/postgresql/bin/createdb" -U postgres test
 
-echo "Installing postgresql extension..."
-cd "${PG_PATH}/postgresql/contrib/file_fdw"
-make
-make install
-"${PG_PATH}/postgresql/bin/pg_ctl" -D "${PG_PATH}/postgresql/data" stop
-"${PG_PATH}/postgresql/bin/pg_ctl" -D "${PG_PATH}/postgresql/data" start
-
 echo "Downloading dataset..."
 rm -rf "${ROOT_PATH}/Data"
 cd "${ROOT_PATH}"
