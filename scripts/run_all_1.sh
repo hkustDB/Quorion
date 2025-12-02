@@ -48,7 +48,6 @@ make
 make install
 "${PG_PATH}/postgresql/bin/pg_ctl" -D "${PG_PATH}/postgresql/data" stop
 "${PG_PATH}/postgresql/bin/pg_ctl" -D "${PG_PATH}/postgresql/data" start
-"${PG_PATH}/postgresql/bin/psql" -U postgres -d test -c "CREATE EXTENSION file_fdw;"
 
 echo "Downloading dataset..."
 rm -rf "${ROOT_PATH}/Data"

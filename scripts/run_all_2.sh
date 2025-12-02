@@ -31,20 +31,22 @@ bash scripts/load_data_pg.sh
 echo "Generating rewritten queries..."
 cd "${ROOT_PATH}"
 rm -rf sparksql-plus-web-jar-with-dependencies.jar
-git submodule init
-git submodule update
+git config --global --add safe.directory "${ROOT_PATH}"
+git config --global --add safe.directory "${ROOT_PATH}/SparkSQLPlus"
+git config --global url."https://github.com/".insteadOf "git@github.com:"
+git submodule update --init --recursive --force
 cd SparkSQLPlus
 mvn clean package
 cp sqlplus-web/target/sparksql-plus-web-jar-with-dependencies.jar ../
 
-cd "${ROOT_PATH}"
-bash scripts/start_parser.sh
-${PYTHON_BIN} main.py
-./auto_rewrite.sh graph graph_duckdb D N
-./auto_rewrite.sh graph graph_pg M N
-./auto_rewrite.sh lsqb lsqb D N
-./auto_rewrite.sh tpch tpch D N
-./auto_rewrite.sh job job D N
+# cd "${ROOT_PATH}"
+# bash scripts/start_parser.sh
+# ${PYTHON_BIN} main.py
+# ./auto_rewrite.sh graph graph_duckdb D N
+# ./auto_rewrite.sh graph graph_pg M N
+# ./auto_rewrite.sh lsqb lsqb D N
+# ./auto_rewrite.sh tpch tpch D N
+# ./auto_rewrite.sh job job D N
 
 cd "${QUERY_PATH}"
 bash auto_run_duckdb_batch.sh

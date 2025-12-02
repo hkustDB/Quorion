@@ -50,7 +50,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates curl wget unzip tar zstd \
     git build-essential pkg-config libreadline-dev jq openssl less vim \
     python3 python3-pip python3-venv \
-    postgresql-client \
+    postgresql-client openssh-client\
   && rm -rf /var/lib/apt/lists/*
 
 # Java 1.8 (Temurin), Scala 2.12.10, Maven 3.8.6

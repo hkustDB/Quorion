@@ -100,56 +100,41 @@ LSQB_DIR="${DATA_DIR}/lsqb"
 
 print_info "Creating data directory..."
 mkdir -p "${LSQB_DIR}"
-
-print_info "Downloading LDBC SNB data (csv_basic, scale=${LSQB_SCALE}) from SURF..."
 cd "${LSQB_DIR}"
 
-BASE_URL="https://repository.surfsara.nl/datasets/cwi/lsqb/files/lsqb-merged"
-ARCHIVE_ZST="social-network-sf${LSQB_SCALE}-merged-fk.tar.zst"
-DATASET_URL="${BASE_URL}/${ARCHIVE_ZST}"
+if [ "${LSQB_SCALE}" -eq 1 ]; then
+    DATASET_URL="https://github.com/hkustDB/Quorion/releases/download/lsqb_dataset/social-network-sf1-merged-fk.tar.zst"
+    ARCHIVE_ZST="social-network-sf1-merged-fk.tar.zst"
+elif [ "${LSQB_SCALE}" -eq 3 ]; then
+    DATASET_URL="https://github.com/hkustDB/Quorion/releases/download/lsqb_dataset/social-network-sf3-merged-fk.tar.zst"
+    ARCHIVE_ZST="social-network-sf3-merged-fk.tar.zst"
+elif [ "${LSQB_SCALE}" -eq 30 ]; then
+    DATASET_URL="https://github.com/hkustDB/Quorion/releases/download/lsqb_dataset/social-network-sf30-merged-fk.tar.zst"
+    ARCHIVE_ZST="social-network-sf30-merged-fk.tar.zst"
+else
+    print_error "Unsupported LSQB scale: ${LSQB_SCALE}. Supported scales: 1, 3, 30."
+    exit 1
+fi
 
 print_info "Downloading from: ${DATASET_URL}"
 
-# Skip download if archive already exists and is non-empty
-if [[ -s "${ARCHIVE_ZST}" ]]; then
-    print_info "Archive already present, skipping download: ${ARCHIVE_ZST}"
+if [ ! -f "${ARCHIVE_ZST}" ]; then
+    wget "${DATASET_URL}" -O "${ARCHIVE_ZST}"
 else
-    # Prefer the SURF staging-aware helper if available
-    DOWNLOADER="${QUORION_DIR}/scripts/download-data-set.sh"
-    if [[ -x "${DOWNLOADER}" ]]; then
-        "${DOWNLOADER}" "${DATASET_URL}"
-    else
-        print_warning "Staging helper not found at ${DOWNLOADER}. Falling back to wget."
-        if command -v wget2 >/dev/null 2>&1; then
-            wget2 --no-check-certificate -c "${DATASET_URL}" -O "${ARCHIVE_ZST}"
-        else
-            wget --no-check-certificate -c "${DATASET_URL}" -O "${ARCHIVE_ZST}"
-        fi
-    fi
-
-    # Verify archive after download
-    if [[ ! -s "${ARCHIVE_ZST}" ]]; then
-        print_error "Archive ${ARCHIVE_ZST} not found or empty after download."
-        exit 1
-    fi
-    print_info "Archive size: $(du -h "${ARCHIVE_ZST}" | cut -f1)"
+    print_warning "Archive ${ARCHIVE_ZST} already exists, skipping download."
 fi
 
-# Extract data
-if [[ ! -f "${ARCHIVE_ZST}" ]]; then
-    # If the downloader saved with original name, ensure it exists
-    if [[ ! -f "${ARCHIVE_ZST}" ]]; then
-        print_error "Archive ${ARCHIVE_ZST} not found after download."
-        exit 1
-    fi
-fi
-
+# ...existing code...
 print_info "Extracting data..."
-ARCHIVE_TAR="${ARCHIVE_ZST%.zst}"
 
 if command -v zstd >/dev/null 2>&1; then
     print_info "Using: zstd -dc | tar -x"
-    zstd -dc -- "${ARCHIVE_ZST}" | tar -x
+    if ! zstd -dc -- "${ARCHIVE_ZST}" | tar -x; then
+        print_error "Extraction failed! The archive ${ARCHIVE_ZST} appears corrupted."
+        print_info "Removing corrupted file. Please run the script again to re-download."
+        rm -f "${ARCHIVE_ZST}"
+        exit 1
+    fi
     rm -f "${ARCHIVE_ZST}"
 else
     # Try python zstandard; auto-create a local venv if module missing

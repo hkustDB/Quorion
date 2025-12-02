@@ -112,7 +112,12 @@ find "$SCRIPT_DIR" -name "load_*.sql" -type f | while read -r sql_file; do
             sed "s|/PATH_TO_JOB_DATA|$target_data_dir|g" "$sql_file" > "$sql_file.new" && mv "$sql_file.new" "$sql_file"
             ;;
         tpch)
-            sed "s|/PATH_TO_TPCH_DATA|$target_data_dir|g" "$sql_file" > "$sql_file.new" && mv "$sql_file.new" "$sql_file"
+            # Fix missing opening quote: handle both quoted and unquoted placeholders
+            # 1. Match '/PATH... (correct) -> replace with '$target...
+            # 2. Match /PATH... (missing quote) -> replace with '$target... (adding the quote)
+            sed -e "s|'/PATH_TO_TPCH_DATA|'$target_data_dir|g" \
+                -e "s|/PATH_TO_TPCH_DATA|'$target_data_dir|g" \
+                "$sql_file" > "$sql_file.new" && mv "$sql_file.new" "$sql_file"
             ;;
         graph)
             sed "s|/PATH_TO_GRAPH_DATA|$target_data_dir|g" "$sql_file" > "$sql_file.new" && mv "$sql_file.new" "$sql_file"
