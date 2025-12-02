@@ -31,7 +31,7 @@ function execute_sparksql {
   current_task=1
   while [[ ${current_task} -le ${repeat_count} ]]
   do
-      timeout -s SIGKILL 30m ${spark_submit} --class SparkSQLRunner --master "local[${parallelism}]" --driver-memory 4G --executor-memory 4G --conf "spark.shuffle.service.removeShuffle=true" --conf "spark.local.dir=/home/data/spark_temp" ${sparkJar} ${dataPath} "${queryPath}" "${SCRIPT_PATH}/Schema/${schema}.sql" "${tableSuffix}" >> ${log_file} 2>&1
+      timeout -s SIGKILL 2h ${spark_submit} --class SparkSQLRunner --master "local[${parallelism}]" --driver-memory 4G --executor-memory 4G --conf "spark.shuffle.service.removeShuffle=true" --conf "spark.local.dir=/home/data/spark_temp" ${sparkJar} ${dataPath} "${queryPath}" "${SCRIPT_PATH}/Schema/${schema}.sql" "${tableSuffix}" >> ${log_file} 2>&1
 
       current_task=$(($current_task+1))
   done
