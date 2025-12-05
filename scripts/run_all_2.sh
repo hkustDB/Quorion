@@ -70,14 +70,14 @@ cd "${ROOT_PATH}"
 bash scripts/run_spark.sh
 
 cd "${QUERY_PATH}"
-rm -f summary_*.csv
+# rm -f summary_*.csv
 bash auto_summary.sh graph
 bash auto_summary.sh lsqb
 bash auto_summary.sh tpch
 bash auto_summary_job.sh job
 
 cd "${ROOT_PATH}/draw"
-rm -f *.pdf
+# rm -f *.pdf
 ${PYTHON_BIN} draw_graph.py
 ${PYTHON_BIN} draw_job.py
 ${PYTHON_BIN} draw_selectivity.py
