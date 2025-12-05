@@ -1,0 +1,4 @@
+create or replace TEMP view pq18_innerQ as select l_orderkey as v1_orderkey from lineitem l2 group by l_orderkey having sum(l_quantity) > 312;
+create or replace TEMP view bag1 as select c_name, c_custkey, o_orderkey, o_orderdate, o_totalprice from orders, customer where c_custkey = o_custkey;
+create or replace TEMP view l_agg as select l_orderkey, sum(l_quantity) as l_sum from lineitem where l_orderkey in (select v1_orderkey from pq18_innerQ) group by l_orderkey;
+select c_name, c_custkey, o_orderkey, o_orderdate, o_totalprice, sum(l_sum) from bag1, l_agg where o_orderkey = l_orderkey group by c_name, c_custkey, o_orderkey, o_orderdate, o_totalprice;

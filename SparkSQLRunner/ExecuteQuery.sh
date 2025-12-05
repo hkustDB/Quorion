@@ -5,7 +5,7 @@ SCRIPT_PATH=$(dirname "${SCRIPT}")
 
 source "${SCRIPT_PATH}/common.sh"
 
-config_files=("${SCRIPT_PATH}/config.properties")
+config_files=("${SCRIPT_PATH}/../query/config.properties")
 
 function execute_sparksql {
   sparkJar="${SCRIPT_PATH}/target/spark-sql-test-1.0-SNAPSHOT-jar-with-dependencies.jar"

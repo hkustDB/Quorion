@@ -1,8 +1,14 @@
-# ...existing code up to line 10...
+#!/bin/bash
+
+# run_spark.sh - Automated script to run SparkSQL benchmarks
+# This script builds the SparkSQLRunner, sets up data links, and executes benchmarks
+
+set -e  # Exit on error
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_PATH="$(dirname "$SCRIPT_DIR")"
 RUNNER_PATH="${ROOT_PATH}/SparkSQLRunner"
+CONFIG_FILE="${ROOT_PATH}/query/config.properties"
 DATA_SRC="${ROOT_PATH}/Data"
 DATA_DST="${ROOT_PATH}/Data"
 SCHEMA_DIR="${RUNNER_PATH}/Schema"
@@ -12,14 +18,33 @@ SPARK_DIR="${ROOT_PATH}/spark"
 SPARK_HOME="${SPARK_DIR}/spark-${SPARK_VERSION}"
 SPARK_DOWNLOAD_URL="https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop3.tgz"
 
-# ...existing install_spark and verification code...
+# --- ADDED: Auto-install Spark ---
+if [ ! -d "${SPARK_HOME}" ]; then
+    echo "Spark not found. Downloading Spark ${SPARK_VERSION}..."
+    mkdir -p "${SPARK_DIR}"
+    cd "${SPARK_DIR}"
+    wget "${SPARK_DOWNLOAD_URL}"
+    tar -xvzf "spark-${SPARK_VERSION}-bin-hadoop3.tgz"
+    
+    # Rename extracted folder to match SPARK_HOME variable
+    mv "spark-${SPARK_VERSION}-bin-hadoop3" "spark-${SPARK_VERSION}"
+    rm "spark-${SPARK_VERSION}-bin-hadoop3.tgz"
+    echo "Spark installed at ${SPARK_HOME}"
+    echo "spark.home=${SPARK_HOME}" >> "$CONFIG_FILE"
+else
+    echo "Spark found at ${SPARK_HOME}"
+    echo "spark.home=${SPARK_HOME}" >> "$CONFIG_FILE"
+fi
+# ---------------------------------
+
+echo "Building SparkSQL Runner..."
+cd "${RUNNER_PATH}"
+mvn clean package
 
 # Ensure directories exist
 mkdir -p "${DATA_DST}"
 mkdir -p "${SCHEMA_DIR}"
 mkdir -p "${LOG_DIR}"
-
-# ...existing build and config code...
 
 # Function to create soft links
 create_links() {
