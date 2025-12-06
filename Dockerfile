@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # Removed python3-zstandard from apt as it is not in 20.04 repos
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates curl wget unzip tar zstd \
-    git build-essential pkg-config libreadline-dev jq openssl less vim \
+    git build-essential pkg-config libreadline-dev jq openssl less vim bc\
     python3 python3-pip python3-venv \
     postgresql-client openssh-client\
     zlib1g-dev libicu-dev \

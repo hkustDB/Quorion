@@ -45,7 +45,7 @@ def drawEach(db_name: str, db_columns: list):
         data_columns = df.columns[1:]  # Skip JOB column
         has_zeros = (df[data_columns] == 0).any().any()
         
-        if has_zeros:
+        if 0:
             print(f"Warning: Primary file contains zero values, falling back to default file")
             df = pd.read_csv(fallback_file)  # Remove header=None
             print(f"Loaded fallback file: {fallback_file}")

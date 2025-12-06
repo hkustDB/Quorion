@@ -199,9 +199,9 @@ run_benchmark() {
 
 # Run Graph benchmark
 run_benchmark "graph" "epinionsSchema" "test_graph.sh" "${DATA_DST}/graph" "${RUNNER_PATH}/Query_graph"
-run_benchmark "graph" "googleSchema" "test_graph.sh" "${DATA_DST}/graph" "${RUNNER_PATH}/Query_graph_google"
-# run_benchmark "graph" "wikiSchema" "test_graph.sh" "${DATA_DST}/graph" "${RUNNER_PATH}/Query_graph_wiki"
+run_benchmark "graph" "bitcoinSchema" "test_graph.sh" "${DATA_DST}/graph" "${RUNNER_PATH}/Query_graph_bitcoin"
 run_benchmark "graph" "dblpSchema" "test_graph.sh" "${DATA_DST}/graph" "${RUNNER_PATH}/Query_graph_dblp"
+run_benchmark "graph" "googleSchema" "test_graph.sh" "${DATA_DST}/graph" "${RUNNER_PATH}/Query_graph_google"
 
 # Run LSQB benchmark
 create_lsqb_links

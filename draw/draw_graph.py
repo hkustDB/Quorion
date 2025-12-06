@@ -26,7 +26,8 @@ for graph_name in graph_names:
         data_rows = df1.iloc[1:, 1:]  # Skip first row (headers) and first column
         has_zeros = (data_rows == 0).any().any()
         
-        if has_zeros:
+        #if has_zeros:
+        if 0:
             print(f"Warning: Primary file contains zero values, falling back to default file")
             df1 = pd.read_csv(fallback_file, header=None).T
             print(f"Loaded fallback file: {fallback_file}")
@@ -48,16 +49,16 @@ for graph_name in graph_names:
     print(df1.iloc[0].values)
 
     data = {
-        'Graph': df1.iloc[0].values[1:19],
-        'DuckDB native': df1.iloc[1].values[1:19],
-        'DuckDB Yannakakis': df1.iloc[2].values[1:19],
-        'DuckDB Yannakakis+': df1.iloc[3].values[1:19],
-        'PostgreSQL native': df1.iloc[4].values[1:19],
-        'PostgreSQL Yannakakis': df1.iloc[5].values[1:19],
-        'PostgreSQL Yannakakis+': df1.iloc[6].values[1:19]
-        # 'SparkSQL native': df1.iloc[7].values[1:10],
-        # 'SparkSQL Yannakakis': df1.iloc[8].values[1:10],
-        # 'SparkSQL Yannakakis+': df1.iloc[9].values[1:10]
+        'Graph': df1.iloc[0].values[1:18],
+        'DuckDB native': df1.iloc[1].values[1:18],
+        'DuckDB Yannakakis': df1.iloc[2].values[1:18],
+        'DuckDB Yannakakis+': df1.iloc[3].values[1:18],
+        'PostgreSQL native': df1.iloc[4].values[1:18],
+        'PostgreSQL Yannakakis': df1.iloc[5].values[1:18],
+        'PostgreSQL Yannakakis+': df1.iloc[6].values[1:18],
+        'SparkSQL native': df1.iloc[7].values[1:18],
+        'SparkSQL Yannakakis': df1.iloc[8].values[1:18],
+        'SparkSQL Yannakakis+': df1.iloc[9].values[1:18]
     }
 
     # 在每个查询之间插入空值
@@ -85,7 +86,7 @@ for graph_name in graph_names:
 
     # 设置柱状图的花纹
     hatches = ['-', '\\', '||', '/', '++', 'x', '*', 'o', '.', '--', '///', '|||']
-    hatch_linewidth = 0.2
+    hatch_linewidth = 0.15
 
     # 创建一个包含1个子图的图形
     fig, ax = plt.subplots(figsize=(50, 7))
@@ -96,7 +97,7 @@ for graph_name in graph_names:
     # db_data.plot(kind='bar', ax=ax, color=colors, logy=True)
 
     # 绘制柱状图
-    bar_width = 0.15
+    bar_width = 0.08
     indices = np.arange(len(db_data))
 
     bars = []
@@ -137,7 +138,7 @@ for graph_name in graph_names:
     #custom_order = [
     #    'DuckDB native', 'PostgreSQL native', 'DuckDB Yannakakis', 'PostgreSQL Yannakakis', 'DuckDB Yannakakis+', 'PostgreSQL Yannakakis+', 'SparkSQL native', 'SparkSQL Yannakakis', 'SparkSQL Yannakakis+'
     #]
-    custom_order = ['DuckDB native', 'DuckDB Yannakakis', 'DuckDB Yannakakis+', 'PostgreSQL native', 'PostgreSQL Yannakakis', 'PostgreSQL Yannakakis+']
+    custom_order = ['DuckDB native', 'PostgreSQL native', 'DuckDB Yannakakis', 'PostgreSQL Yannakakis', 'DuckDB Yannakakis+', 'PostgreSQL Yannakakis+', 'SparkSQL native', 'SparkSQL Yannakakis', 'SparkSQL Yannakakis+']
 
     # 创建替换的图例标签，带上标的加号
     def format_label(label):
@@ -150,7 +151,7 @@ for graph_name in graph_names:
     ordered_labels = [format_label(label) for label in custom_order]
 
     # 添加图例（纵向优先）
-    plt.legend(ordered_handles, ordered_labels, loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=6, frameon=False, prop=font_properties)
+    plt.legend(ordered_handles, ordered_labels, loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=9, frameon=False, prop=font_properties)
 
     # 获取数据中的最大值，并计算其上整的对数值
     max_y = df.iloc[:, 1:10].max().max()
