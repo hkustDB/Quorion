@@ -1,4 +1,4 @@
 ./auto_run_pg.sh graph_pg
-./auto_run_pg.sh lsqb
-./auto_run_pg.sh tpch
-./auto_run_pg.sh job
+./auto_run_pg.sh lsqb_pg
+./auto_run_pg.sh tpch_pg
+./auto_run_pg.sh job_pg

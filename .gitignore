@@ -38,3 +38,5 @@ query/duckdb
 /log*/*
 temp*
 /venv/
+
+sparksql-plus-web-jar-with-dependencies.jar

@@ -76,7 +76,6 @@ create_lsqb_links() {
         ["Country"]="cCountryD"
         ["Person_workAt_Company"]="cPerson_workAt_CompanyD"
         ["TagClass"]="cTagClassD"
-        ["City"]="City"
         ["Continent"]="Continent"
         ["Comment"]="dCommentd"
         ["Comment_hasTag_Tag"]="eComment_hasTag_TagF"
@@ -328,3 +327,5 @@ if [ $total_queries -gt 0 ]; then
 fi
 
 echo ""
+
+bash "${ROOT_PATH}/scripts/spark_summarize.sh"
