@@ -2,12 +2,21 @@
 
 ## Quick Start (Automated Setup)
 
-### Step0: Environment Requirements
+### Step0: Docker Setup (Recommended)
+#### Preliminaries: Environment Requirements
 - Java JDK 1.8
 - Scala 2.12.10
 - Maven 3.8.6
 - Python version >= 3.9
 - Python package requirements: docopt, requests, flask, openpyxl, pandas, matplotlib, numpy, argparse, pyarrow
+
+We provide a Dockerfile to automatically set up the environment with all prerequisites (Java, Scala, Maven, Python, PostgreSQL, DuckDB).
+
+```shell
+cd Quorion
+docker build -t quorion-image .
+docker run -it --rm -v /path/to/Quorion:/Quorion quorion-image
+```
 
 **Python Environment Setup:**
 ```shell
@@ -31,21 +40,13 @@ common.experiment.repeat=1
 common.experiment.timeout=60
 ```
 
-### Step0: Docker Setup (Recommended)
-We provide a Dockerfile to automatically set up the environment with all prerequisites (Java, Scala, Maven, Python, PostgreSQL, DuckDB).
-
-```shell
-cd Quorion
-docker build -t quorion-image .
-docker run -it --rm -v /path/to/Quorion:/Quorion quorion-image
-```
 
 ### Step1: Run
 
 For a fully automated setup and execution of all experiments, use:
 
 ```shell
-$ bash scripts/run_all.sh
+$ bash scripts/run_all.sh [LSQB_SCALE(defalut=1)] [TPCH_SCALE(defalut=1)]
 ```
 
 This single script will:

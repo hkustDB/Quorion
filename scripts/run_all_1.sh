@@ -6,6 +6,9 @@ ROOT_PATH=$(dirname "${CURRENT_PATH}")
 QUERY_PATH="${ROOT_PATH}/query"
 PG_PATH="${ROOT_PATH}/postgres"
 
+LSQB_SCALE=($1:-1)
+TPCH_SCALE=($2:-1)
+
 # Source common functions to read config
 source "${QUERY_PATH}/common.sh"
 
@@ -56,4 +59,4 @@ su postgres -c "${PG_PATH}/postgresql/bin/createdb -U postgres test"
 echo "Downloading dataset..."
 rm -rf "${ROOT_PATH}/Data"
 cd "${ROOT_PATH}"
-bash scripts/download_data.sh 1 1
+bash scripts/download_data.sh "$LSQB_SCALE" "$TPCH_SCALE"
