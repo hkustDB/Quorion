@@ -1,10 +1,10 @@
-CREATE TEMP VIEW uComment_replyOf_MessageV AS
+CREATE OR REPLACE TEMP VIEW uComment_replyOf_MessageV AS
   SELECT CommentId, replyOf_PostId AS ParentMessageId FROM dCommentd
   WHERE replyOf_PostId IS NOT NULL
   UNION ALL
   SELECT CommentId, replyOf_CommentId AS ParentMessageId FROM dCommentd
   WHERE replyOf_CommentId IS NOT NULL;
-CREATE TEMP VIEW yMessage_hasTag_TagZ AS
+CREATE OR REPLACE TEMP VIEW yMessage_hasTag_TagZ AS
   SELECT CommentId AS MessageId, TagId FROM eComment_hasTag_TagF
   UNION ALL
   SELECT PostId AS MessageId, TagId FROM gPost_hasTag_TagH;
