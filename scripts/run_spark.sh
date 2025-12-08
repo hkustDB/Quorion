@@ -328,4 +328,4 @@ fi
 
 echo ""
 
-bash "${ROOT_PATH}/scripts/spark_summarize.sh"
+bash "${RUNNER_PATH}/spark_summarize.sh"
