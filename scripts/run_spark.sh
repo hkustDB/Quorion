@@ -76,7 +76,7 @@ create_lsqb_links() {
         ["Country"]="cCountryD"
         ["Person_workAt_Company"]="cPerson_workAt_CompanyD"
         ["TagClass"]="cTagClassD"
-        ["Continent"]="Continent"
+        # ["Continent"]="Continent"
         ["Comment"]="dCommentd"
         ["Comment_hasTag_Tag"]="eComment_hasTag_TagF"
         ["University"]="eUniversityF"
