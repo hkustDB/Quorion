@@ -6,10 +6,10 @@ uNames=`uname -s`
 osName=${uNames: 0: 4}
 if [ "$osName" == "Darw" ] # Darwin
 then
-	COMMAND="ghead"
+    COMMAND="ghead"
 elif [ "$osName" == "Linu" ] # Linux
 then
-	COMMAND="head"
+    COMMAND="head"
 fi
 
 SCRIPT=$(readlink -f $0)
@@ -18,9 +18,10 @@ SCRIPT_PATH=$(dirname "${SCRIPT}")
 INPUT_DIR=$1
 INPUT_DIR_PATH="${SCRIPT_PATH}/${INPUT_DIR}"
 OUTPUT_FILE="${SCRIPT_PATH}/summary_${INPUT_DIR}_statistics.csv"
+SPARK_CSV="${SCRIPT_PATH}/../SparkSQLRunner/log/${INPUT_DIR}.csv"
 
 # Create output file with header
-echo "JOB,DuckDB Yannakakis+ speedup,DuckDB Yannakakis speedup,PostgreSQL Yannakakis+ speedup,PostgreSQL Yannakakis speedup" > $OUTPUT_FILE
+echo "JOB,DuckDB Yannakakis+ speedup,DuckDB Yannakakis speedup,PostgreSQL Yannakakis+ speedup,PostgreSQL Yannakakis speedup,Spark native,Spark Yannakakis,Spark rewrite" > $OUTPUT_FILE
 
 # Function to extract AVG time from log file
 extract_avg_time() {
@@ -61,13 +62,34 @@ find_min_time() {
     fi
 }
 
+# Read Spark job statistics into associative arrays
+declare -A spark_native
+declare -A spark_yannakakis
+declare -A spark_rewrite
+
+if [[ -f "$SPARK_CSV" ]]; then
+    while IFS=',' read -r job time; do
+        time=${time//$'\r'/}
+        [[ "$job" == "Query" ]] && continue
+        if [[ "$job" =~ ^(.*)_y($|_) ]]; then
+            base="${BASH_REMATCH[1]}"
+            spark_yannakakis["$base"]="$time"
+        elif [[ "$job" =~ ^(.*)_r[0-9]*($|_) ]]; then
+            base="${BASH_REMATCH[1]}"
+            spark_rewrite["$base"]="$time"
+        else
+            spark_native["$job"]="$time"
+        fi
+    done < "$SPARK_CSV"
+fi
+
 dirs=$(find ${INPUT_DIR} -mindepth 1 -maxdepth 1 -type d | sort -V)
 
 for dir in $dirs;
 do
     if [ "$dir" != "${INPUT_DIR}" ]; then
-        query_name=$(basename "$dir")
-        echo "Processing query: $query_name"
+        job_name=$(basename "$dir")
+        echo "Processing job: $job_name"
         
         # DuckDB files
         duckdb_query_log="${dir}/log_query_duckdb.txt"
@@ -121,9 +143,14 @@ do
         else
             pg_speedup="0"
         fi
+
+        # Spark job statistics
+        spark_native_time="${spark_native[$job_name]:-0}"
+        spark_yannakakis_time="${spark_yannakakis[$job_name]:-0}"
+        spark_rewrite_time="${spark_rewrite[$job_name]:-0}"
         
-        # Output to CSV with speedup values
-        echo "$query_name,$duckdb_ya_speedup,$duckdb_speedup,$pg_ya_speedup,$pg_speedup" >> $OUTPUT_FILE
+        # Output to CSV with speedup values and Spark statistics
+        echo "$job_name,$duckdb_ya_speedup,$duckdb_speedup,$pg_ya_speedup,$pg_speedup,$spark_native_time,$spark_yannakakis_time,$spark_rewrite_time" >> $OUTPUT_FILE
         
         echo "  DuckDB Query: $duckdb_query_time"
         echo "  DuckDB Yannakakis+ speedup: $duckdb_ya_speedup"
@@ -131,6 +158,9 @@ do
         echo "  PG Query: $pg_query_time"
         echo "  PostgreSQL Yannakakis+ speedup: $pg_ya_speedup"
         echo "  PostgreSQL Yannakakis speedup: $pg_speedup"
+        echo "  Spark Native: $spark_native_time"
+        echo "  Spark Yannakakis: $spark_yannakakis_time"
+        echo "  Spark Rewrite: $spark_rewrite_time"
         echo "---"
     fi
 done

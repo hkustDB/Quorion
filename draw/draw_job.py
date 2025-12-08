@@ -22,9 +22,9 @@ colors = {
     'PostgreSQL optimal speedup': '#FFC8D9',  # 鲜艳的亮粉红色
     'PostgreSQL selection speedup': '#CDD23D',  # 鲜艳的亮黄绿色
     'PostgreSQL yannakakis speedup': '#6699CC',  # 鲜艳的深蓝色
-    #'SparkSQL optimal speedup': '#FF9076',  # 鲜艳的亮红色
-    #'SparkSQL selection speedup': '#66E3B2',  # 鲜艳的亮紫色
-    #'SparkSQL yannakakis speedup': '#A768C1'  # 鲜艳的亮绿
+    'SparkSQL optimal speedup': '#FF9076',  # 鲜艳的亮红色
+    'SparkSQL selection speedup': '#66E3B2',  # 鲜艳的亮紫色
+    'SparkSQL yannakakis speedup': '#A768C1'  # 鲜艳的亮绿
 }
 
 colors_fixed = ['#FF9076', '#66E3B2', '#A768C1']
@@ -159,7 +159,8 @@ def drawEach(db_name: str, db_columns: list):
 # Database configurations
 db_configs = {
     'DuckDB': [1, 2],      # First 2 columns (1, 2) after the first column
-    'PostgreSQL': [3, 4]   # Next 2 columns (3, 4) after the first column
+    'PostgreSQL': [3, 4],   # Next 2 columns (3, 4) after the first column
+    'SparkSQL': [5, 6]    # Last 2 columns (5, 6) after the first column
 }
 
 # Draw graphs for both databases
