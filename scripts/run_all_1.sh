@@ -6,8 +6,8 @@ ROOT_PATH=$(dirname "${CURRENT_PATH}")
 QUERY_PATH="${ROOT_PATH}/query"
 PG_PATH="${ROOT_PATH}/postgres"
 
-LSQB_SCALE=($1:-1)
-TPCH_SCALE=($2:-1)
+LSQB_SCALE=${1:-1}
+TPCH_SCALE=${2:-1}
 
 # Source common functions to read config
 source "${QUERY_PATH}/common.sh"
