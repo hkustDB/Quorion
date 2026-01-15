@@ -1,4 +1,4 @@
-# Reproductibility Manual for SIGMOD 25 Paper Yannakakis+: Practical Acyclic Query Evaluation with Theoretical Guarantees
+# Anonymous
 
 ## Quick Start (Automated Setup)
 
@@ -13,9 +13,9 @@
 We provide a Dockerfile to automatically set up the environment with all prerequisites (Java, Scala, Maven, Python, PostgreSQL, DuckDB).
 
 ```shell
-cd Quorion
-docker build -t quorion-image .
-docker run -it --rm -v /path/to/Quorion:/Quorion quorion-image
+cd anonymous
+docker build -t anonymous-image .
+docker run -it --rm -v /path/to/anonymous:/anonymous anonymous-image
 ```
 
 **Python Environment Setup:**
@@ -73,7 +73,7 @@ bash scripts/run_all_1.sh
 Run the script with your desired CSV and Parquet paths:
 
 ```bash
-# create folder /path/to/Quorion/Data/job/new/
+# create folder /path/to/anonymous/Data/job/new/
 mkdir -p Data/job/new
 python3 scripts/addJob.py
 bash script/generate_job_load.sh
@@ -103,7 +103,7 @@ If you prefer manual setup or need to customize individual steps, follow the det
 2. Extract the content and generate duckdb executable file
 ```shell
 # Step 0:
-$ cd Quorion/query
+$ cd anonymous/query
 
 # Step 1:
 # duckdb_cli-linux-aarch64.zip
@@ -168,7 +168,7 @@ test=# CREATE EXTENSION file_fdw;
 **Automated Installation (Recommended):**
 ```shell
 $ bash scripts/run_spark.sh
-# Spark will be automatically downloaded to Quorion/spark/spark-3.5.1/
+# Spark will be automatically downloaded to anonymous/spark/spark-3.5.1/
 ```
 
 ### Step2: Dataset Download
@@ -213,7 +213,7 @@ common.experiment.timeout=7200
 
 # Parser config
 parser.mode=local
-parser.home=/path/to/Quorion/SparkSQLPlus
+parser.home=/path/to/anonymous/SparkSQLPlus
 ```
 3. Then load data to the DuckDB and PostgreSQL by the following commands. 
 ```shell
@@ -367,7 +367,7 @@ $ python3 draw_thread.py
 ### File Structure
 
 ```shell
-Quorion/
+anonymous/
 ├── README.md
 ├── Dockerfile                        # Container setup for all dependencies
 ├── *.py                              # Python backend rewriter components
