@@ -1,4 +1,4 @@
-# Anonymous
+# Yannakakis<sup>+</sup>
 
 ## Quick Start (Automated Setup)
 
