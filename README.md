@@ -536,20 +536,6 @@ Modify `init_global_vars` function in `main.py`:
 - Uncomment lines 587-589 (single query section)
 - Comment lines 610-629 (auto-rewrite section)
 
-### Web UI Demonstration
-
-#### Step 1: Upload Query
-![Step1](figure/1.png "Upload and parse SQL query")
-
-#### Step 2: View Parsed Plan
-![Step2](figure/2.png "View query execution plan")
-
-#### Step 3: Optimize Query
-![Step3](figure/3.png "Apply optimizations")
-
-#### Step 4: Execute and View Results
-![Step4](figure/4.png "Execute optimized query")
-
 ---
 
 ## Troubleshooting
