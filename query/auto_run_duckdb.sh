@@ -18,30 +18,32 @@ SCRIPT_PATH=$(dirname "${SCRIPT}")
 INPUT_DIR=$2
 INPUT_DIR_PATH="${SCRIPT_PATH}/${INPUT_DIR}"
 
-# graph, tpch, lsqb
+# graph, tpch, lsqb, job
 DATABASE=$1
 SCHEMA_FILE=$1
 
-NUM_THREADS=${3:-72}
-
 function prop {
-    config_files=$1
+    local config_files=$1
+    local result=""
+    local property_found=false
+
     for config_file in ${config_files[@]}; do
         # search the property key in config file if file exists
         if [[ -f ${config_file} ]]; then
-            result=$(grep "^\s*$2=" $config_file | tail -n1 | cut -d '=' -f2)
-            if [[ -n ${result} ]]; then
+            if grep -q "^[[:space:]]*$2=" "$config_file"; then
+                result=$(grep "^[[:space:]]*$2=" "$config_file" | tail -n1 | cut -d '=' -f2-)
+                property_found=true
                 break
             fi
         fi
     done
 
-    if [[ -n ${result} ]]; then
-        echo ${result}
+    if [[ "${property_found}" == "true" ]]; then
+        echo "${result}"
     elif [[ $# -gt 2 ]]; then
-        echo $3
+        echo "$3"
     else
-        err "ERROR: unable to load property $2 in ${config_files}"
+        echo "ERROR: unable to load property $2 in ${config_files}" >&2
         exit 1
     fi
 }
@@ -50,11 +52,66 @@ config_files=("${SCRIPT_PATH}/config.properties")
 repeat_count=$(prop ${config_files} "common.experiment.repeat")
 timeout_time=$(prop ${config_files} 'common.experiment.timeout')
 duckdb=$(prop ${config_files} "duckdb.path")
+NUM_THREADS=${3:-$(prop ${config_files} "duckdb.threads" 64)}
+CPU_LIST=${4:-$(prop ${config_files} "duckdb.cpu_list" "0-15,24-71")}
+EXCLUDED_QUERIES=$(prop ${config_files} "duckdb.excluded_queries" "")
+RESUME_COMPLETED=$(prop ${config_files} "duckdb.resume_completed" "false")
+RUN_SIGNATURE="threads=${NUM_THREADS};cpu_list=${CPU_LIST:-disabled};repeat=${repeat_count};timeout=${timeout_time}"
+
+DUCKDB_COMMAND=("${duckdb}")
+if [[ -n "${CPU_LIST}" ]]; then
+    if [[ "${osName}" != "Linu" ]]; then
+        echo "ERROR: taskset CPU affinity requires Linux. Set duckdb.cpu_list= to disable it." >&2
+        exit 1
+    fi
+    if ! command -v taskset >/dev/null 2>&1; then
+        echo "ERROR: taskset is required when duckdb.cpu_list is configured." >&2
+        exit 1
+    fi
+    DUCKDB_COMMAND=(taskset --cpu-list "${CPU_LIST}" "${duckdb}")
+fi
 
 echo "Config file: ${config_files}"
 echo "Repeat count: ${repeat_count}"
 echo "Timeout time: ${timeout_time}"
 echo "DuckDB path: ${duckdb}"
+echo "DuckDB threads: ${NUM_THREADS}"
+echo "DuckDB CPU list: ${CPU_LIST:-disabled}"
+echo "Excluded queries: ${EXCLUDED_QUERIES:-none}"
+echo "Resume completed queries: ${RESUME_COMPLETED}"
+
+function IsExcluded() {
+    local candidate="${1#./}"
+    candidate="${candidate#query/}"
+    candidate="${candidate%/}"
+
+    local excluded
+    local excluded_prefix
+    local excluded_suffix
+    local -a exclusion_list
+    IFS=',' read -r -a exclusion_list <<< "${EXCLUDED_QUERIES}"
+
+    for excluded in "${exclusion_list[@]}"; do
+        excluded="${excluded#"${excluded%%[![:space:]]*}"}"
+        excluded="${excluded%"${excluded##*[![:space:]]}"}"
+        excluded="${excluded#./}"
+        excluded="${excluded#query/}"
+        excluded="${excluded%/}"
+
+        if [[ "${excluded}" == */* ]]; then
+            excluded_prefix="${excluded%%/*}"
+            excluded_suffix="${excluded#*/}"
+            excluded_prefix="${excluded_prefix%_duckdb}"
+            excluded="${excluded_prefix}/${excluded_suffix}"
+        fi
+
+        if [[ -n "${excluded}" && "${candidate}" == "${excluded}" ]]; then
+            return 0
+        fi
+    done
+
+    return 1
+}
 
 # Suffix function
 function FileSuffix() {
@@ -79,16 +136,50 @@ for dir in $dirs;
 do
     if [ $dir != ${INPUT_DIR} ]; then
         CUR_PATH="${SCRIPT_PATH}/${dir}"
+        QUERY_GROUP="${DATABASE}/$(basename "${dir}")"
+
+        if IsExcluded "${QUERY_GROUP}"; then
+            echo "Skipping excluded query group: ${QUERY_GROUP}"
+            continue
+        fi
+
         for file in $(ls ${CUR_PATH})
         do
             IsSuffix ${file}
             ret=$?
             if [ $ret -eq 0 ]
             then
+                if [[ "${file}" =~ ^query_[0-9]+\.sql$ || "${file}" =~ ^.*_[0-9]+_[12]\.sql$ ]]; then
+                    echo "Skipping temporary SQL file: ${QUERY_GROUP}/${file}"
+                    continue
+                fi
+
+                QUERY_ID="${QUERY_GROUP}/${file}"
+                if IsExcluded "${QUERY_ID}"; then
+                    echo "Skipping excluded SQL file: ${QUERY_ID}"
+                    continue
+                fi
+
                 filename="${file%.*}"
                 LOG_FILE="${CUR_PATH}/log_${filename}_duckdb.txt"
-                rm -f $LOG_FILE
-                touch $LOG_FILE
+                LOG_META_FILE="${LOG_FILE}.meta"
+
+                if [[ "${RESUME_COMPLETED}" == "true" && -f "${LOG_FILE}" && -f "${LOG_META_FILE}" ]]; then
+                    LAST_LOG_LINE=$(tail -n 1 "${LOG_FILE}")
+                    COMPLETED_RUNS=$(grep -c '^Exec time(s):' "${LOG_FILE}" || true)
+                    SAVED_RUN_SIGNATURE=$(<"${LOG_META_FILE}")
+                    if [[ "${SAVED_RUN_SIGNATURE}" == "${RUN_SIGNATURE}" &&
+                          "${LAST_LOG_LINE}" == AVG\ * &&
+                          "${COMPLETED_RUNS}" -eq "${repeat_count}" ]] &&
+                       ! grep -qx '0' "${LOG_FILE}"; then
+                        echo "Skipping completed SQL file: ${QUERY_ID}"
+                        continue
+                    fi
+                fi
+
+                rm -f "${LOG_FILE}" "${LOG_META_FILE}"
+                touch "${LOG_FILE}"
+                printf '%s\n' "${RUN_SIGNATURE}" > "${LOG_META_FILE}"
                 QUERY="${CUR_PATH}/${file}"
                 RAN=$RANDOM
                 if [ ${filename} = "query" ]
@@ -107,12 +198,14 @@ do
                         OUT_FILE="${CUR_PATH}/output.txt"
                         rm -f $OUT_FILE
                         touch $OUT_FILE
-                        timeout -s SIGKILL "${timeout_time}" $duckdb -c ".open ${SCHEMA_FILE}_db" -c "SET threads TO ${NUM_THREADS};" -c ".timer off" -c ".read ${SUBMIT_QUERY}" -c ".timer on" -c ".read ${SUBMIT_QUERY}" | grep "Run Time (s): real" >> $OUT_FILE
-                        status_code=$?
-                        if [[ ${status_code} -eq 137 ]]; then
+                        timeout -s SIGKILL "${timeout_time}" "${DUCKDB_COMMAND[@]}" -c ".open ${SCHEMA_FILE}_db" -c "SET threads TO ${NUM_THREADS};" -c ".timer off" -c ".read ${SUBMIT_QUERY}" -c ".timer on" -c ".read ${SUBMIT_QUERY}" | grep "Run Time (s): real" >> $OUT_FILE
+                        pipeline_status=("${PIPESTATUS[@]}")
+                        status_code=${pipeline_status[0]}
+                        grep_status=${pipeline_status[1]}
+                        if [[ ${status_code} -eq 124 || ${status_code} -eq 137 ]]; then
                             echo "0" >> $LOG_FILE
                             break
-                        elif [[ ${status_code} -ne 0 ]]; then
+                        elif [[ ${status_code} -ne 0 || ${grep_status} -ne 0 ]]; then
                             echo "0" >> $LOG_FILE
                             break
                         else
@@ -143,12 +236,14 @@ do
                         OUT_FILE="${CUR_PATH}/output.txt"
                         rm -f $OUT_FILE
                         touch $OUT_FILE
-                        timeout -s SIGKILL "${timeout_time}" $duckdb -c ".open ${SCHEMA_FILE}_db" -c "SET threads TO ${NUM_THREADS};" -c ".timer off" -c ".read ${SUBMIT_QUERY_1}" -c ".read ${SUBMIT_QUERY_2}" -c ".timer on" -c ".read ${SUBMIT_QUERY_2}" | grep "Run Time (s): real" >> $OUT_FILE
-                        status_code=$?
-                        if [[ ${status_code} -eq 137 ]]; then
+                        timeout -s SIGKILL "${timeout_time}" "${DUCKDB_COMMAND[@]}" -c ".open ${SCHEMA_FILE}_db" -c "SET threads TO ${NUM_THREADS};" -c ".timer off" -c ".read ${SUBMIT_QUERY_1}" -c ".read ${SUBMIT_QUERY_2}" -c ".timer on" -c ".read ${SUBMIT_QUERY_2}" | grep "Run Time (s): real" >> $OUT_FILE
+                        pipeline_status=("${PIPESTATUS[@]}")
+                        status_code=${pipeline_status[0]}
+                        grep_status=${pipeline_status[1]}
+                        if [[ ${status_code} -eq 124 || ${status_code} -eq 137 ]]; then
                             echo "0" >> $LOG_FILE
                             break
-                        elif [[ ${status_code} -ne 0 ]]; then
+                        elif [[ ${status_code} -ne 0 || ${grep_status} -ne 0 ]]; then
                             echo "0" >> $LOG_FILE
                             break
                         else
