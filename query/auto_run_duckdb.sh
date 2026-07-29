@@ -77,17 +77,38 @@ echo "Timeout time: ${timeout_time}"
 echo "DuckDB path: ${duckdb}"
 echo "DuckDB threads: ${NUM_THREADS}"
 echo "DuckDB CPU list: ${CPU_LIST:-disabled}"
-echo "Excluded queries: ${EXCLUDED_QUERIES:-none}"
+echo "Excluded benchmarks/queries: ${EXCLUDED_QUERIES:-none}"
 echo "Resume completed queries: ${RESUME_COMPLETED}"
 
+function NormalizeExcludedTarget() {
+    local target="${1#./}"
+    local target_prefix
+    local target_suffix=
+
+    target="${target#query/}"
+    target="${target%/}"
+
+    if [[ "${target}" == */* ]]; then
+        target_prefix="${target%%/*}"
+        target_suffix="${target#*/}"
+    else
+        target_prefix="${target}"
+    fi
+
+    target_prefix="${target_prefix%_duckdb}"
+
+    if [[ -n "${target_suffix}" ]]; then
+        printf '%s/%s\n' "${target_prefix}" "${target_suffix}"
+    else
+        printf '%s\n' "${target_prefix}"
+    fi
+}
+
 function IsExcluded() {
-    local candidate="${1#./}"
-    candidate="${candidate#query/}"
-    candidate="${candidate%/}"
+    local candidate
+    candidate=$(NormalizeExcludedTarget "$1")
 
     local excluded
-    local excluded_prefix
-    local excluded_suffix
     local -a exclusion_list
     IFS=',' read -r -a exclusion_list <<< "${EXCLUDED_QUERIES}"
 
@@ -97,13 +118,7 @@ function IsExcluded() {
         excluded="${excluded#./}"
         excluded="${excluded#query/}"
         excluded="${excluded%/}"
-
-        if [[ "${excluded}" == */* ]]; then
-            excluded_prefix="${excluded%%/*}"
-            excluded_suffix="${excluded#*/}"
-            excluded_prefix="${excluded_prefix%_duckdb}"
-            excluded="${excluded_prefix}/${excluded_suffix}"
-        fi
+        excluded=$(NormalizeExcludedTarget "${excluded}")
 
         if [[ -n "${excluded}" && "${candidate}" == "${excluded}" ]]; then
             return 0
@@ -112,6 +127,11 @@ function IsExcluded() {
 
     return 1
 }
+
+if IsExcluded "${INPUT_DIR}"; then
+    echo "Skipping excluded benchmark directory: ${INPUT_DIR}"
+    exit 0
+fi
 
 # Suffix function
 function FileSuffix() {
@@ -220,14 +240,37 @@ do
                 else
                     SUBMIT_QUERY_1="${CUR_PATH}/${filename}_${RAN}_1.sql"
                     rm -f "${SUBMIT_QUERY_1}"
-                    touch "${SUBMIT_QUERY_1}"
                     SUBMIT_QUERY_2="${CUR_PATH}/${filename}_${RAN}_2.sql"
                     rm -f "${SUBMIT_QUERY_2}"
-                    touch "${SUBMIT_QUERY_2}"
-                    ${COMMAND} -n -1 ${QUERY} >> ${SUBMIT_QUERY_1}
-                    echo "COPY (" >> ${SUBMIT_QUERY_2}
-                    tail -n 1 ${QUERY} | sed 's/;//g' >> ${SUBMIT_QUERY_2}
-                    echo ") TO '/dev/null' (DELIMITER ',');" >> ${SUBMIT_QUERY_2}
+
+                    LAST_SQL_LINE=$(
+                        awk '$0 !~ /^[[:space:]]*$/ { last = NR } END { print last + 0 }' \
+                            "${QUERY}"
+                    )
+                    if [[ "${LAST_SQL_LINE}" -eq 0 ]]; then
+                        echo "ERROR: SQL file has no statement: ${QUERY}" >&2
+                        rm -f "${SUBMIT_QUERY_1}" "${SUBMIT_QUERY_2}"
+                        continue
+                    fi
+
+                    awk -v last="${LAST_SQL_LINE}" 'NR < last { print }' \
+                        "${QUERY}" > "${SUBMIT_QUERY_1}"
+
+                    {
+                        printf 'COPY (\n'
+                        awk -v last="${LAST_SQL_LINE}" '
+                            NR == last {
+                                statement = $0
+                                sub(/[[:space:]]+$/, "", statement)
+                                sub(/;$/, "", statement)
+                                sub(/[[:space:]]+$/, "", statement)
+                                print statement
+                                exit
+                            }
+                        ' "${QUERY}"
+                        printf "%s\n" ") TO '/dev/null' (DELIMITER ',');"
+                    } > "${SUBMIT_QUERY_2}"
+
                     echo "Start DuckDB Task at ${QUERY}"
                     current_task=1
                     while [[ ${current_task} -le ${repeat_count} ]]

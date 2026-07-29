@@ -44,6 +44,35 @@ TPCH_SCALE_DEFAULT="${TPCH_SCALE:-10}"
 LSQB_SCALE="${1:-${LSQB_SCALE_DEFAULT}}"
 TPCH_SCALE="${2:-${TPCH_SCALE_DEFAULT}}"
 PY_BIN="${PYTHON_BIN}"
+# Optional remaining arguments limit preparation to named datasets.
+REQUESTED_DATASETS=("${@:3}")
+
+should_prepare_dataset() {
+    local dataset=$1
+    local requested_dataset
+
+    if [ "${#REQUESTED_DATASETS[@]}" -eq 0 ]; then
+        return 0
+    fi
+
+    for requested_dataset in "${REQUESTED_DATASETS[@]}"; do
+        if [ "${requested_dataset}" = "${dataset}" ]; then
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+for requested_dataset in "${REQUESTED_DATASETS[@]}"; do
+    case "${requested_dataset}" in
+        graph|lsqb|tpch|job) ;;
+        *)
+            print_error "Unsupported dataset: ${requested_dataset}. Supported datasets: graph, lsqb, tpch, job."
+            exit 1
+            ;;
+    esac
+done
 
 # ============================================================================
 # Step 1: Create directory structure
@@ -67,35 +96,40 @@ print_info "  - ${DATA_DIR}/job"
 # ============================================================================
 # Step 2: Download Graph data
 # ============================================================================
-print_info "Step 2: Downloading Graph data from SNAP..."
+if should_prepare_dataset graph; then
+    print_info "Step 2: Downloading Graph data from SNAP..."
 
-# Check if download_graph.sh exists
-if [ -f "${SCRIPT_DIR}/download_graph.sh" ]; then
-    print_info "Running download_graph.sh..."
-    # Pass the target directory as argument
-    bash "${SCRIPT_DIR}/download_graph.sh" "${DATA_DIR}/graph"
-else
-    print_warning "download_graph.sh not found, downloading manually..."
-    
-    cd "${DATA_DIR}/graph"
-    
-    # Download a sample graph from SNAP (com-Amazon network)
-    GRAPH_URL="https://snap.stanford.edu/data/bigdata/communities/com-amazon.ungraph.txt.gz"
-    GRAPH_FILE="com-amazon.ungraph.txt.gz"
-    
-    if [ ! -f "${GRAPH_FILE}" ]; then
-        print_info "Downloading ${GRAPH_FILE}..."
-        wget "${GRAPH_URL}" -O "${GRAPH_FILE}"
-        gunzip -f "${GRAPH_FILE}"
-        print_info "Graph data downloaded and extracted"
+    # Check if download_graph.sh exists
+    if [ -f "${SCRIPT_DIR}/download_graph.sh" ]; then
+        print_info "Running download_graph.sh..."
+        # Pass the target directory as argument
+        bash "${SCRIPT_DIR}/download_graph.sh" "${DATA_DIR}/graph"
     else
-        print_warning "Graph data already exists, skipping download"
+        print_warning "download_graph.sh not found, downloading manually..."
+
+        cd "${DATA_DIR}/graph"
+
+        # Download a sample graph from SNAP (com-Amazon network)
+        GRAPH_URL="https://snap.stanford.edu/data/bigdata/communities/com-amazon.ungraph.txt.gz"
+        GRAPH_FILE="com-amazon.ungraph.txt.gz"
+
+        if [ ! -f "${GRAPH_FILE}" ]; then
+            print_info "Downloading ${GRAPH_FILE}..."
+            wget "${GRAPH_URL}" -O "${GRAPH_FILE}"
+            gunzip -f "${GRAPH_FILE}"
+            print_info "Graph data downloaded and extracted"
+        else
+            print_warning "Graph data already exists, skipping download"
+        fi
     fi
+else
+    print_info "Step 2: Skipping Graph data (database already ready)"
 fi
 
 # ============================================================================
 # Step 3: Download pre-generated LDBC SNB data (scale=1 or 3 from SURF)
 # ============================================================================
+if should_prepare_dataset lsqb; then
 LSQB_DIR="${DATA_DIR}/lsqb"
 
 print_info "Creating data directory..."
@@ -192,56 +226,78 @@ rm -f -- *.tar *.tar.zst *.zst 2>/dev/null || true
 
 # Count CSV files
 CSV_COUNT=$(find . -maxdepth 1 -type f -name "*.csv" | wc -l)
+else
+    print_info "Step 3: Skipping LSQB data (database already ready)"
+fi
 
 # ============================================================================
 # Step 4: Download/Generate TPC-H data (scale=${TPCH_SCALE})
 # ============================================================================
-print_info "Step 4: Setting up TPC-H data (scale=${TPCH_SCALE})..."
+if should_prepare_dataset tpch; then
+    print_info "Step 4: Setting up TPC-H data (scale=${TPCH_SCALE})..."
+    cd "${DATA_DIR}/tpch"
 
-cd "${DATA_DIR}/tpch"
+    TPCH_TABLE_FILES=(
+        nation.tbl
+        region.tbl
+        part.tbl
+        supplier.tbl
+        partsupp.tbl
+        customer.tbl
+        orders.tbl
+        lineitem.tbl
+    )
+    TPCH_DATA_READY=true
 
-print_info "Downloading TPC-H toolkit..."
+    if [ ! -f ".scale" ] || [ "$(cat .scale)" != "${TPCH_SCALE}" ]; then
+        TPCH_DATA_READY=false
+    fi
 
-TPCH_VERSION="3.0.1"
-TPCH_URL="https://www.tpc.org/tpc_documents_current_versions/download_programs/tools-download-request5.asp?bm_type=TPC-H&bm_vers=${TPCH_VERSION}&mode=CURRENT-ONLY"
+    for TPCH_TABLE_FILE in "${TPCH_TABLE_FILES[@]}"; do
+        if [ ! -s "${TPCH_TABLE_FILE}" ]; then
+            TPCH_DATA_READY=false
+            break
+        fi
+    done
 
-if [ ! -d "dbgen" ]; then
-    # Try to download from GitHub mirror (easier than TPC.org)
-    print_info "Cloning TPC-H dbgen from GitHub mirror..."
-    git clone https://github.com/electrum/tpch-dbgen.git dbgen
-    
-    cd dbgen
-    
-    print_info "Building TPC-H dbgen..."
-    make clean
-    make
-    
-    print_info "Generating TPC-H data with scale factor ${TPCH_SCALE}..."
-    print_warning "This may take 10-30 minutes depending on your system..."
-    
-    ./dbgen -s ${TPCH_SCALE} -v
-    
-    # Move generated .tbl files to parent directory
-    mv *.tbl ../
-    
-    cd ..
+    if ${TPCH_DATA_READY}; then
+        print_info "TPC-H data already exists at scale ${TPCH_SCALE}, skipping generation"
+    else
+        if [ ! -d "dbgen" ]; then
+            print_info "Cloning TPC-H dbgen from GitHub mirror..."
+            git clone https://github.com/electrum/tpch-dbgen.git dbgen
+        fi
 
-    # FIX: Grant read permissions to everyone so the 'postgres' user can read them
-    print_info "Setting permissions for TPC-H files..."
-    chmod 644 *.tbl
-    chmod 755 .
-    
-    print_info "TPC-H data generation completed"
-    print_info "Generated files:"
-    ls -lh *.tbl
+        cd dbgen
+        if [ ! -x "./dbgen" ]; then
+            print_info "Building TPC-H dbgen..."
+            make clean
+            make
+        fi
+
+        print_info "Generating TPC-H data with scale factor ${TPCH_SCALE}..."
+        print_warning "This may take 10-30 minutes depending on your system..."
+        rm -f -- *.tbl
+        ./dbgen -f -s "${TPCH_SCALE}" -v
+        mv -f -- *.tbl ../
+        cd ..
+
+        printf '%s\n' "${TPCH_SCALE}" > .scale
+        chmod 644 "${TPCH_TABLE_FILES[@]}"
+        chmod 755 .
+
+        print_info "TPC-H data generation completed"
+        print_info "Generated files:"
+        ls -lh "${TPCH_TABLE_FILES[@]}"
+    fi
 else
-    print_warning "TPC-H dbgen already exists"
-    print_info "If you need to regenerate, delete the dbgen directory and run again"
+    print_info "Step 4: Skipping TPC-H data (database already ready)"
 fi
 
 # ============================================================================
 # Step 5: Download JOB data
 # ============================================================================
+if should_prepare_dataset job; then
 print_info "Step 5: Downloading JOB (Join Order Benchmark) data..."
 
 cd "${DATA_DIR}/job"
@@ -286,6 +342,9 @@ EOF
     tar -xzf imdb.tar.gz
     
     print_info "JOB data download completed"
+fi
+else
+    print_info "Step 5: Skipping JOB data (database already ready)"
 fi
 
 # ============================================================================

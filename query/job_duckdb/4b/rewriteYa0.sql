@@ -20,4 +20,4 @@ create or replace view aggJoin5654299706300416073 as select v14, v9 from aggJoin
 create or replace view aggView6567824834728979194 as select v9, v14, MIN(v9) as v26 from aggJoin5654299706300416073 group by v9,v14;
 create or replace view aggView7217485455995174726 as select v14, MIN(v27) as v27 from aggView2244226323905879884 group by v14,v27;
 create or replace view aggJoin8779508696853101012 as select v26 as v26, v27 from aggView6567824834728979194 join aggView7217485455995174726 using(v14);
-select MIN(v26) as v26, MIN(v27) as v27 from aggJoin8779508696853101012;xw
+select MIN(v26) as v26, MIN(v27) as v27 from aggJoin8779508696853101012;
